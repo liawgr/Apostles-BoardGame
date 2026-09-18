@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎲 《使徒:大使命》卡牌視覺化預覽與列印工具</title>
+    <style>
+        :root {
+            --card-width: 63mm;
+            --card-height: 88mm;
+            --primary: #4361ee;
+            --bg-page: #f1f5f9;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: #1e293b;
+        }
+
+        .controls {
+            background: #ffffff;
+            border-bottom: 2px solid #cbd5e1;
+            padding: 16px 24px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .controls h1 {
+            font-size: 1.25rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #94a3b8;
+            color: #334155;
+        }
+
+        .btn-outline:hover {
+            background: #e2e8f0;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .stats-bar {
+            margin-left: auto;
+            font-size: 0.9rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .preview-container {
+            max-width: 1300px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 24px;
+            justify-items: center;
+        }
+
+        .card-frame {
+            width: 240px;
+            height: 336px;
+            background: white;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+            page-break-inside: avoid;
+            background-clip: padding-box;
+        }
+
+        /* 卡牌邊框與背景風格 */
+        .card-frame.card-type-角色 { border-color: #0284c7; background: #f0f9ff; }
+        .card-frame.card-type-恩賜 { border-color: #6366f1; background: #f5f3ff; }
+        .card-frame.card-type-神蹟 { border-color: #d97706; background: #fffbeb; }
+        .card-frame.card-type-誘惑 { border-color: #991b1b; background: #fef2f2; }
+        .card-frame.card-type-災禍 { border-color: #b91c1c; background: #fff1f2; }
+        .card-frame.card-type-大能者 { border-color: #b45309; background: #fffbeb; }
+        .card-frame.card-type-複合試煉 { border-color: #7c3aed; background: #faf5ff; }
+        .card-frame.card-type-試煉 { border-color: #6d28d9; background: #fdf4ff; }
+        .card-frame.card-type-事件 { border-color: #059669; background: #ecfdf5; }
+        .card-frame.card-type-人民 { border-color: #0d9488; background: #f0fdfa; }
+        .card-frame.card-type-地點 { border-color: #334155; background: #f8fafc; }
+        .card-frame.card-type-墮落 { border-color: #000000; background: #f3f4f6; }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+
+        .card-cost {
+            min-width: 30px;
+            height: 30px;
+            padding: 0 6px;
+            background: #475569;
+            color: white;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .card-type-角色 .card-cost { background: #0284c7; }
+        .card-type-恩賜 .card-cost { background: #4f46e5; }
+        .card-type-神蹟 .card-cost { background: #d97706; }
+        .card-type-誘惑 .card-cost { background: #dc2626; }
+        .card-type-災禍 .card-cost { background: #b91c1c; }
+        .card-type-大能者 .card-cost { background: #b45309; }
+        .card-type-複合試煉 .card-cost { background: #7c3aed; }
+        .card-type-試煉 .card-cost { background: #6d28d9; }
+        .card-type-事件 .card-cost { background: #059669; }
+        .card-type-人民 .card-cost { background: #0d9488; }
+        .card-type-地點 .card-cost { background: #334155; }
+        .card-type-墮落 .card-cost { background: #111827; }
+
+        .card-name {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #0f172a;
+            flex: 1;
+            text-align: center;
+            padding: 0 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-badge {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-weight: 700;
+        }
+
+        .type-角色 { background: #0284c7; color: white; }
+        .type-恩賜 { background: #6366f1; color: white; }
+        .type-神蹟 { background: #d97706; color: white; }
+        .type-誘惑 { background: #dc2626; color: white; }
+        .type-災禍 { background: #b91c1c; color: white; }
+        .type-大能者 { background: #b45309; color: white; }
+        .type-複合試煉 { background: #7c3aed; color: white; }
+        .type-試煉 { background: #6d28d9; color: white; }
+        .type-事件 { background: #059669; color: white; }
+        .type-人民 { background: #0d9488; color: white; }
+        .type-地點 { background: #334155; color: white; }
+        .type-墮落 { background: #111827; color: white; }
+        .type-default { background: #64748b; color: white; }
+
+        .card-image-slot {
+            height: 90px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px dashed #94a3b8;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .card-content-box {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .card-effect {
+            font-weight: 600;
+        }
+
+        .card-flavor {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-style: italic;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 4px;
+            margin-top: 4px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            font-size: 0.75rem;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .card-vp {
+            font-weight: bold;
+            color: #0369a1;
+        }
+
+        /* 列印樣式優化 (A4 9格排版) */
+        @media print {
+            body {
+                background: white;
+            }
+            .controls {
+                display: none !important;
+            }
+            .preview-container {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+            .cards-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 63mm);
+                grid-auto-rows: 88mm;
+                gap: 0;
+                justify-content: center;
+                align-content: start;
+            }
+            .card-frame {
+                width: 63mm;
+                height: 88mm;
+                box-shadow: none;
+                border: 1px solid #94a3b8;
+                border-radius: 4px;
+                padding: 5mm;
+                margin: 0;
+                page-break-inside: avoid;
+            }
+            .card-image-slot {
+                height: 22mm;
+                font-size: 0.7rem;
+            }
+            .card-content-box {
+                font-size: 0.68rem;
+                padding: 4px;
+                line-height: 1.3;
+            }
+            .card-name {
+                font-size: 0.85rem;
+            }
+            .card-cost {
+                min-width: 22px;
+                height: 22px;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <h1>🕊️ 《使徒:大使命》卡牌檢視與 A4 列印排版系統</h1>
+        <div class="file-input-wrapper">
+            <button class="btn btn-outline">📂 載入自訂 CSV 牌庫</button>
+            <input type="file" id="csvFileInput" accept=".csv">
+        </div>
+        <button class="btn btn-outline" onclick="loadSampleCards()">🔄 重置回核心預設牌庫</button>
+        <button class="btn" onclick="window.print()">🖨️ 列印 A4 卡牌 (Ctrl + P)</button>
+        <div class="stats-bar" id="statsBar">準備就緒</div>
+    </div>
+
+    <div class="preview-container">
+        <div class="cards-grid" id="cardsGrid"></div>
+    </div>
+
+    <script>
+        const defaultCsv = `id,name,type,cost,vp,count,description,flavor_text
+CHR_01,純真赤子,角色,0,16,1,HP: 8 / 起始虔誠: 16。特質【赤子純真】：無法常規覺醒恩賜。守候神蹟常規充能 +1；隊友代禱額外多給 1 代幣。,「凡要承受神國的，若不像小孩子，斷不能進去。」
+CHR_02,剛烈開路者,角色,0,8,1,HP: 18 / 起始虔誠: 8。特質【前鋒破障】：面對旅程與荒野試煉 DC -2；全隊免除一次飢餓扣血。,「看我一把開山斧，為主的道鋪平坦途！」
+CHR_03,曠野守望者,角色,0,12,1,HP: 12 / 起始虔誠: 12。特質【守候之柱】：執行守候神蹟常規直接充能 2 枚信心代幣（他人 1 枚）。,「在寂靜的風沙中，我聽見微小的聲音。」
+CHR_04,撒瑪利亞良醫,角色,0,10,1,HP: 14 / 起始虔誠: 10。特質【仁心療傷】：救治病患免除物資改以檢定化解；黃昏免費為隊友恢復 2 HP。,「願神憐憫的手，藉著我的指尖安慰你。」
+CHR_05,勸慰之子巴拿巴,角色,0,12,1,HP: 14 / 起始虔誠: 12。特質【成全之手】：成全聖徒所需代幣永久 -1；每成全一人全隊各得 1 代禱代幣。,「賣了田產家業，一心堅固剛信主的弟兄。」
+CHR_06,辯道學者亞波羅,角色,0,10,1,HP: 10 / 起始虔誠: 10。特質【無愧工人】：真理講道判定自動 +2；講道成功使另一位敞開者一同受洗。,「極有學問，在眾人面前引經據典極力駁倒頑固之人。」
+CHR_07,讚美歌者西拉,角色,0,14,1,HP: 12 / 起始虔誠: 14。特質【午夜詩歌】：為人代禱自己額外得 1 代幣；同伴罪惡纏身每輪扣虔誠 -1。,「約在半夜，禱告唱詩讚美神，地大震動監門全開！」
+CHR_08,異象先知亞迦布,角色,0,14,1,HP: 10 / 起始虔誠: 14。特質【先知預言】：晨更可密看地區牌堆頂部 2 張牌並調整順序或移底。,「被聖靈感動，預言將有大飢荒，使門徒及早防備。」
+GFT_01,信心之盾,恩賜,0,0,2,數值置換：當你或身旁同伴即將失去肉身生命時，可消耗 2 點虔誠力完全抵擋該次傷害。,信就是所望之事的實底，是未見之事的確據。
+GFT_02,大能的勇力,恩賜,0,0,2,判定減免：進行開路、移石或負重等【喜樂熱心】檢定時，難度門檻 (DC) 直接 -4。,我的力量是在人的軟弱上顯得完全。
+GFT_03,恆切祈求,恩賜,0,0,2,神蹟加速：在守候蓄力大能神蹟時，每次守候行動額外免費充能 1 枚信心代幣。,要常常喜樂，不住地禱告，凡事謝恩。
+GFT_04,萬國方言,恩賜,0,0,2,團隊光環：招募任何文化與種族的大使命同路人 (NPC) 時，直接免除判定條件。,聖靈降臨在他們身上，說出萬國的言語。
+GFT_05,五餅二魚的祝福,恩賜,0,0,2,物資轉換：在物資結算階段，可將 2 點【仁愛施予】直接轉化為全隊所需的糧食補給。,在人這是不能的，在神凡事都能。
+GFT_06,先知的洞察,恩賜,0,0,2,判定減免：在面對【色慾】或【傲慢】的誘惑事件時，檢定難度門檻直接 -4。,主的靈使我心眼明亮，識破仇敵的網羅。
+GFT_07,禁食的恩膏,恩賜,0,0,2,罪惡抗性：執行親近靈修時，連帶消除自身 2 點罪惡值，且本輪免除一切飢餓判定。,「這一類的鬼，若不禱告禁食，他就不出來。」
+GFT_08,彼此認罪之軛,恩賜,0,0,2,認罪強化：你執行認罪時，同地塊所有其他使徒可免費各自消除 1 點罪惡值。,「你們要彼此認罪，互相代求，使你們可以得醫治。」
+GFT_09,基甸的羊毛,恩賜,0,0,1,靈命守護：若虔誠即將跌破 15 點時，可強制鎖定在 15 點不暗淡（每局限 1 次）。,「求你容我用羊毛再試一次。」
+GFT_10,澆灌的甘霖,恩賜,0,0,2,代禱發放：執行為人代禱時，每位隊友各獲得 2 枚【代禱代幣】！,「我口中的言語要像細雨落下，如甘霖降在嫩草上。」
+GFT_11,拔摩島的異象,恩賜,0,0,2,檢定減免：進行任何雙屬性複合試煉時，兩個屬性的 DC 門檻全部直接 -3！,「我聽見在天上有大聲音說：我神的國度都來到了！」
+GFT_12,靈巧如蛇,恩賜,0,0,2,誘惑豁免：抽到誘惑卡時，可直接宣告識破並將其棄除，免除任何罪惡增長與判定。,「你們要靈巧像蛇，馴良像鴿子。」
+GFT_13,聖殿的棟樑,恩賜,0,0,2,聖徒共鳴：本地教會每有 1 位成全聖徒，你所有聖靈果子檢定獲得被動 +1 加成！,「得勝的，我要叫他在我神殿中作柱子。」
+GFT_14,初代大公宴,恩賜,0,0,1,愛宴供應：執行成全聖徒時，場上所有需求為【糧食/飢餓】的未歸主人民，立即自動滿足其需要！,「天天同心合意恆切的在殿裡，且在家中擘餅。」
+GFT_15,以利亞的火車,恩賜,0,0,1,神蹟爆發：守候神蹟時，可一次消耗 3 枚代禱代幣，直接充能滿額立即引爆！,「忽有火車火馬將二人隔開，以利亞就乘旋風升天去了。」
+GFT_16,保羅的刺,恩賜,0,0,2,逆境轉化：當你的肉身 HP 低於一半時，你的所有祈禱行動獲得雙倍效果（加 4 虔誠）。,「因我什麼時候軟弱，什麼時候就剛強了。」
+GFT_17,亞居拉的帳棚,恩賜,0,0,2,旅程庇護：在 3 輪旅程階段中，全體使徒免疫強盜與風暴災害，且每輪產出 2 物資。,「他們本是製造帳棚為業，保羅因與他們同業就和他們同做工。」
+GFT_18,真理的束腰,恩賜,0,0,1,墮落抗體：當身上任何罪惡達到 9 點時，罪惡被聖潔之鎖鎖定，永遠無法達 10 點！,「所以要站穩了，用真理當作帶子束腰。」
+MRC_01,磐石出水,神蹟,0,5,2,大能神蹟（需蓄力 5 點信心代幣）。在極度乾旱之地湧出甘泉，全隊補滿水分與體力，恢復 6 點 HP！,他使磐石變為水池，使水泉從堅石流出。
+MRC_02,天降嗎哪,神蹟,0,5,2,大能神蹟（需蓄力 5 點信心代幣）。立即產出 8 份天糧物資，並使全隊飢餓虛弱狀態全數解除！,清晨露水消逝之後，地面上留下了白色的甜餅。
+MRC_03,烈火同行,神蹟,0,5,1,大能神蹟（需蓄力 5 點信心代幣）。全隊免疫一切環境致命烈火與瘴氣傷害，並驅散全圖黑暗恐怖！,火無能力傷他們的身體，頭髮也沒有燒焦。
+MRC_04,紅海分開,神蹟,0,5,1,史詩神蹟（需蓄力 5 點信心代幣）。將阻隔去路的浩瀚汪洋完全分開，開闢出一條通天坦途！,大東風吹了一整夜，水便分開成了牆垣。
+SIN_01,溫柔鄉的迷霧,誘惑,0,0,2,色慾誘惑：若屈服可立即獲得 3 點體力補給，但罪惡值 +4，且【信實】判定受阻。,看似香甜的蜜酒，裡頭藏著讓人忘卻誓約的毒。
+SIN_02,巴別塔的狂妄,誘惑,0,0,2,傲慢誘惑：試圖靠血氣解決難關，成功率翻倍，但若失敗直接失去 4 點虔誠力。,我們要建造一座城和一座塔，塔頂通天，傳揚我們的名。
+SIN_03,曠野的抱怨,誘惑,0,0,2,怠惰與憤怒：隊伍原地停滯一輪，全體若不認罪，每回合持續失去 1 點虔誠。,難道埃及沒有墳地，你把我們帶來死在曠野嗎？
+`;
+
+        function parseCSV(text) {
+            const lines = text.trim().split(/\r?\n/);
+            if (lines.length < 2) return [];
+            const headers = lines[0].split(',').map(h => h.trim());
+            const data = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const row = [];
+                let inQuote = false;
+                let current = '';
+                for (let ch of line) {
+                    if (ch === '"') {
+                        inQuote = !inQuote;
+                    } else if (ch === ',' && !inQuote) {
+                        row.push(current.trim());
+                        current = '';
+                    } else {
+                        current += ch;
+                    }
+                }
+                row.push(current.trim());
+
+                const item = {};
+                headers.forEach((h, idx) => {
+                    item[h] = row[idx] ? row[idx].replace(/^"|"$/g, '') : '';
+                });
+                data.push(item);
+            }
+            return data;
+        }
+
+        function renderCards(cards) {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+            let totalCopies = 0;
+
+            cards.forEach(card => {
+                const count = parseInt(card.count || 1);
+                totalCopies += count;
+
+                for (let k = 0; k < count; k++) {
+                    const cardEl = document.createElement('div');
+                    const cardType = card.type || card.deck_type || 'default';
+                    cardEl.className = `card-frame card-type-${cardType}`;
+                    const typeClass = 'type-' + cardType;
+
+                    let costLabel = card.capacity ? `容 ${card.capacity}` : (card.cost && card.cost !== '0' ? `虔誠 ${card.cost}` : (cardType === '角色' ? `信仰` : `即發`));
+
+                    cardEl.innerHTML = `
+                        <div class="card-header">
+                            <div class="card-cost">${costLabel}</div>
+                            <div class="card-name" title="${card.name}">${card.name}</div>
+                            <span class="card-badge ${typeClass}">${card.type || card.deck_type || '卡牌'}</span>
+                        </div>
+                        <div class="card-image-slot">
+                            [ ${card.name} 插圖區 ]
+                        </div>
+                        <div class="card-content-box">
+                            <div class="card-effect">${card.description || ''}</div>
+                            ${card.flavor_text ? `<div class="card-flavor">${card.flavor_text}</div>` : ''}
+                        </div>
+                        <div class="card-footer">
+                            <span>ID: ${card.id || ''} (${k + 1}/${count})</span>
+                            <span class="card-vp">${card.bound_pillar ? card.bound_pillar : (card.vp && card.vp !== '0' ? `靈力: ${card.vp}` : '常規')}</span>
+                        </div>
+                    `;
+                    grid.appendChild(cardEl);
+                }
+            });
+
+            document.getElementById('statsBar').innerText = 
+                `總種類: ${cards.length} 種 | 列印總張數: ${totalCopies} 張 (約 ${Math.ceil(totalCopies / 9)} 頁 A4)`;
+        }
+
+        function loadSampleCards() {
+            const cards = parseCSV(defaultCsv);
+            renderCards(cards);
+        }
+
+        document.getElementById('csvFileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const text = evt.target.result;
+                const cards = parseCSV(text);
+                renderCards(cards);
+            };
+            reader.readAsText(file, 'UTF-8');
+        });
+
+        loadSampleCards();
+    </script>
+</body>
+</html>

@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《使徒:大使命》桌遊官方專案展示與規則手冊</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Noto+Serif+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-navy: #0b132b;
+            --secondary-navy: #1c2541;
+            --accent-gold: #c59b27;
+            --accent-gold-light: #e0b84c;
+            --holy-blue: #0ea5e9;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success-green: #10b981;
+            --danger-red: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.7;
+            scroll-behavior: smooth;
+        }
+
+        /* 導航欄 */
+        header.navbar {
+            background: rgba(11, 19, 43, 0.95);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 2px solid var(--accent-gold);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-gold-light);
+            font-family: 'Cinzel', serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-gold);
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+            color: var(--primary-navy);
+            padding: 6px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 8px rgba(197, 155, 39, 0.3);
+        }
+
+        /* Hero 英雄展示區 */
+        .hero {
+            background: linear-gradient(180deg, var(--primary-navy) 0%, var(--secondary-navy) 100%);
+            color: white;
+            padding: 80px 24px 70px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 3px solid var(--accent-gold);
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, rgba(14, 165, 233, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-tagline {
+            color: var(--accent-gold-light);
+            font-size: 1.1rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .hero-title {
+            font-size: 3.2rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin-bottom: 16px;
+            text-shadow: 0 4px 16px rgba(0,0,0,0.6);
+        }
+
+        .hero-desc {
+            max-width: 780px;
+            margin: 0 auto 32px;
+            font-size: 1.15rem;
+            color: #cbd5e1;
+            font-weight: 400;
+        }
+
+        .hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 36px;
+        }
+
+        .badge-pill {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(197, 155, 39, 0.4);
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+            color: var(--primary-navy);
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(197, 155, 39, 0.4);
+        }
+
+        .btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(197, 155, 39, 0.6);
+        }
+
+        .btn-outline {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 內容容器 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .section-tag {
+            color: var(--accent-gold);
+            font-weight: 700;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+            color: var(--primary-navy);
+            font-weight: 800;
+            margin-top: 6px;
+        }
+
+        .section-desc {
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 8px auto 0;
+            font-size: 1rem;
+        }
+
+        /* 特色卡片格網 */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 28px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--accent-gold);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-icon {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+        }
+
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin-bottom: 8px;
+        }
+
+        .feature-body {
+            color: #475569;
+            font-size: 0.95rem;
+        }
+
+        /* 雙標記天平視覺模擬 */
+        .dual-track-demo {
+            background: #ffffff;
+            border: 2px solid var(--accent-gold);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 40px 0;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        .track-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 16px 0;
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .track-slot {
+            width: 44px;
+            height: 48px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .track-slot.fruit-base {
+            border: 2px solid var(--holy-blue);
+            background: #f0f9ff;
+            color: var(--holy-blue);
+        }
+
+        .track-slot.fruit-base::after {
+            content: "🍇";
+            font-size: 0.7rem;
+            position: absolute;
+            top: 2px;
+        }
+
+        .track-slot.sin-covered {
+            background: #1e293b;
+            color: #94a3b8;
+            border-color: #0f172a;
+        }
+
+        .track-slot.sin-covered::after {
+            content: "⛓️ 遮蔽";
+            font-size: 0.55rem;
+            color: #cbd5e1;
+            position: absolute;
+            bottom: 2px;
+        }
+
+        .track-slot.effective-val {
+            border: 2px solid var(--accent-gold);
+            background: #fffbeb;
+            color: var(--accent-gold);
+            box-shadow: 0 0 8px rgba(197, 155, 39, 0.4);
+        }
+
+        /* 三大宣教地區導航 */
+        .region-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .region-tab-btn {
+            background: transparent;
+            border: none;
+            padding: 10px 20px;
+            font-family: inherit;
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .region-tab-btn.active {
+            background: var(--primary-navy);
+            color: white;
+        }
+
+        .region-panel {
+            display: none;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+        }
+
+        .region-panel.active {
+            display: block;
+        }
+
+        /* 配件清單表格 */
+        .b-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .b-table th {
+            background: var(--primary-navy);
+            color: white;
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        .b-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .b-table tr:hover {
+            background: #f8fafc;
+        }
+
+        /* 流程步驟卡 */
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .step-row {
+            display: flex;
+            gap: 24px;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            align-items: flex-start;
+        }
+
+        .step-badge {
+            background: var(--accent-gold);
+            color: var(--primary-navy);
+            font-weight: 800;
+            font-size: 1.1rem;
+            min-width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--primary-navy);
+            margin-bottom: 6px;
+        }
+
+        /* 頁腳 */
+        footer {
+            background: var(--primary-navy);
+            color: #94a3b8;
+            padding: 40px 24px;
+            text-align: center;
+            border-top: 2px solid var(--accent-gold);
+            font-size: 0.9rem;
+        }
+
+        footer p {
+            margin: 6px 0;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.3rem; }
+            .nav-links { display: none; }
+            .region-tabs { flex-direction: column; }
+            .step-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 導航列 -->
+    <header class="navbar">
+        <a href="#" class="nav-brand">🕊️ APOSTLES: THE GREAT COMMISSION</a>
+        <ul class="nav-links">
+            <li><a href="#pitch">專案介紹</a></li>
+            <li><a href="#features">獨創機制</a></li>
+            <li><a href="#rules">規則速覽</a></li>
+            <li><a href="#regions">三大宣教區</a></li>
+            <li><a href="#components">配件清單 (BOM)</a></li>
+        </ul>
+        <div style="display: flex; gap: 8px;">
+            <a href="docs/quickstart.html" target="_blank" class="nav-btn" style="background: #2563eb; color: #ffffff; border: 1px solid #60a5fa;">🚀 10分鐘速成</a>
+            <a href="docs/rulebook.html" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #1e3a5f, #0f172a); color: #ffffff !important; border: 1px solid var(--accent-gold); box-shadow: 0 2px 8px rgba(0,0,0,0.4);">📜 官方全彩說明書</a>
+            <a href="tools/previewer.html" target="_blank" class="nav-btn">🖨️ 卡牌列印</a>
+        </div>
+    </header>
+
+    <!-- 英雄橫幅 -->
+    <section class="hero">
+        <div class="hero-tagline">BIBLICAL THEMATIC COOPERATIVE TABLETOP ADVENTURE</div>
+        <h1 class="hero-title">《使徒:大使命》</h1>
+        <p class="hero-desc">
+            一款考究《使徒行傳》歷史、結合「聖靈七果 vs 七宗罪動態天平」與「保羅式宣教團契」的 1~4 人深度合作史詩桌遊。
+            在羅馬帝國的政治威權、希臘哲學的傲慢思辨與荒野曠野的飢饉中，引領萬民受洗成全，直到地極！
+        </p>
+        <div class="hero-badges">
+            <div class="badge-pill">👥 1 ~ 4 位使徒 (支援單人模式)</div>
+            <div class="badge-pill">⏱️ 60 ~ 90 分鐘</div>
+            <div class="badge-pill">🎯 難度：重度策略 / 合作生存</div>
+            <div class="badge-pill">🎴 268 張實體全套卡牌規格</div>
+            <div class="badge-pill">🗺️ 1+2 地點展開 ＆ 3-Act 宏觀進程</div>
+        </div>
+        <div class="hero-actions">
+            <a href="docs/quickstart.html" target="_blank" class="btn-main" style="background: linear-gradient(135deg, #2563eb, #3b82f6); color: #ffffff; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">🚀 10分鐘新手速成手冊</a>
+            <a href="docs/rulebook.html" target="_blank" class="btn-main">📖 官方全彩規則手冊</a>
+            <a href="tools/previewer.html" target="_blank" class="btn-outline">🖨️ 開啟卡牌排版列印器</a>
+        </div>
+    </section>
+
+    <!-- 核心專案介紹 -->
+    <section class="container" id="pitch">
+        <div class="section-header">
+            <span class="section-tag">The Great Commission</span>
+            <h2 class="section-title">將福音傳遍世界・完成主耶穌基督的大使命</h2>
+            <div style="max-width: 820px; margin: 18px auto; background: #fffcf2; border-left: 4px solid var(--accent-gold); border-radius: 8px; padding: 18px 24px; font-style: italic; color: #451a03; text-align: left; box-shadow: 0 2px 8px rgba(197, 155, 39, 0.08);">
+                「所以，你們要去，使萬民作我的門徒，奉父、子、聖靈的名給他們施洗。凡我所吩咐你們的，都教訓他們遵守，我就常與你們同在，直到世界的末了。」
+                <div style="font-style: normal; font-weight: 700; text-align: right; color: var(--accent-gold); margin-top: 6px; font-size: 0.9rem;">——《馬太福音 28:19-20》</div>
+            </div>
+            <p class="section-desc">使徒的勝利不在於個人分數或世俗征服，而在於跨越文化的隔閡與逼迫，從耶路撒冷、猶太全地和撒瑪利亞，直到地極，讓萬邦萬民得蒙救恩！</p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🕊️</div>
+                <h3 class="feature-title">直到地極：各地門徒成全里程碑</h3>
+                <p class="feature-body">
+                    為使福音薪火永續傳承，使徒在每個宣教區域建立健康健全的地方教會：通力合作帶領 <strong>4n 位百姓受洗成全</strong>，並攻破營壘引導 <strong>n 位關鍵大能者</strong>（撒該、睚魯、丟尼修、巡撫等）歸信（n 為使徒人數）。達成後即刻受差遣奔向下一站，直達帝國心臟！
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚩</div>
+                <h3 class="feature-title">差遣階段與「教會團契」</h3>
+                <p class="feature-body">
+                    當區域指標達成，全體進入【差遣階段】：留在原地的聖徒收攏成立當地的<strong>【教會團契 (Fellowship)】</strong>！拔營前往新地區後，每輪晨更可選任一位母會聖徒擔任「主席」，隔空提供物資或檢定庇護！
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚖️</div>
+                <h3 class="feature-title">純粹的雙重死亡判定</h3>
+                <p class="feature-body">
+                    <strong>肉身生命 (HP) 歸零</strong>即肉身殉道；<strong>靈命虔誠 (Piety) 歸零</strong>即屬靈死亡（與神隔絕沉淪）。全隊僅在「全員 HP 歸零」或「全員虔誠歸零」時宣告失敗！時間用盡不會強制失敗，而是轉為 OT 超時扣分！
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 獨創機制展示 -->
+    <section class="container" id="features" style="background: #ffffff; border-radius: 16px; border: 1px solid var(--border-color); padding: 48px 32px;">
+        <div class="section-header">
+            <span class="section-tag">Core Original Mechanics</span>
+            <h2 class="section-title">六大顛覆性原創設計</h2>
+            <p class="section-desc">結合神學象徵與精妙桌遊數值工藝的獨創系統。</p>
+        </div>
+
+        <!-- 機制 1：動態天平 -->
+        <div class="dual-track-demo">
+            <h3 style="font-size: 1.25rem; color: var(--primary-navy); margin-bottom: 8px;">
+                🍇 專利級「雙標記果子 vs 罪惡天平軌」實物直觀模擬
+            </h3>
+            <p style="color: #475569; font-size: 0.95rem; margin-bottom: 12px;">
+                每條 0~10 軌道上配備：<strong>彩色透明果子環</strong>（框出天賦基礎點數）＋ <strong>純黑實心罪惡滑塊</strong>（從右向左遮蔽數字）。
+                <strong>可用判定值 ＝ 遮罩左側露出的第一個數字！</strong> 徹底擺脫繁瑣計算！
+            </p>
+
+            <div style="font-weight: 700; color: #334155; margin-top: 10px;">
+                範例：使徒天賦基礎值 8 點，累積了 4 點罪惡（遮罩推至 7, 8, 9, 10）：
+            </div>
+            <div class="track-box">
+                <div class="track-slot">0</div>
+                <div class="track-slot">1</div>
+                <div class="track-slot">2</div>
+                <div class="track-slot">3</div>
+                <div class="track-slot">4</div>
+                <div class="track-slot">5</div>
+                <div class="track-slot effective-val">6<br><span style="font-size:0.6rem; color:#c59b27;">實際可用</span></div>
+                <div class="track-slot sin-covered">7</div>
+                <div class="track-slot sin-covered fruit-base">8</div>
+                <div class="track-slot sin-covered">9</div>
+                <div class="track-slot sin-covered">10</div>
+            </div>
+            <div style="font-size: 0.85rem; color: #64748b;">
+                公式：<strong>實際可用檢定值 ＝ 取較小者 (果子基礎值, 10 － 罪惡值) ＝ 取較小者 (8, 10 － 4) ＝ 6 點</strong>。
+            </div>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🕊️</div>
+                <h3 class="feature-title">主動虔誠權柄與聖靈充滿</h3>
+                <p class="feature-body">
+                    虔誠值（0~20）不再只是防禦血條！使徒可主動燃燒虔誠：<br>
+                    • <strong>【信心宣告】</strong>（消 2 虔誠）：檢定直接 +3。<br>
+                    • <strong>【破除堅壘】</strong>（消 3 虔誠 + 1 AP）：封印地點威脅 1 回合。<br>
+                    • <strong>【天使護衛】</strong>：每消 1 虔誠抵扣 1 點致命傷害。<br>
+                    • <strong>滿 20 點【聖靈充滿】</strong>：全場檢定 +1 光環，更可發動一次【神聖大爆發】免費帶人歸主！
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔨</div>
+                <h3 class="feature-title">保羅式親手做工（織帳棚）</h3>
+                <p class="feature-body">
+                    徹底破除飢荒死局！任何使徒耗費 1 AP 執行做工：<strong>穩定獲得 1 份糧食</strong>（100% 免除餓死風險）；更可進行【節制】DC 8 檢定，成功多得 1 份糧食或 1 銀幣！成全後勤聖徒後，即可交接產出專心傳道。
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🏛️</div>
+                <h3 class="feature-title">1 + 2 地點展開法</h3>
+                <p class="feature-body">
+                    場上常駐 <strong>1 張大能專屬地點 ＋ 2 張自由地點</strong>。大能者卡牌依地點直接就位！未歸主市民依據地點容量（Capacity 1~3人）開出，使徒每回合免費移動 1 次，親臨該地才能傳道與滿足需要。
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔵</div>
+                <h3 class="feature-title">代禱代幣互助網絡</h3>
+                <p class="feature-body">
+                    祈禱行動發放的【代禱代幣】不能留給自己，必須「發給每一位同伴」！使徒在進行檢定時消耗隊友贈予的代禱代幣，獲得 +2 判定加成、免費重骰或幫隊友認罪減罪。
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⏱️</div>
+                <h3 class="feature-title">OT 超時扣分（非中斷懲罰）</h3>
+                <p class="feature-body">
+                    取消時間到（Time Out）直接強迫認輸的挫折感！各地區以 10 輪為推薦標準，若未達成可繼續前進（11、12輪...），但每超時 1 輪在終局結算時扣除 5 點榮耀值，兼顧故事史詩感與時間緊迫性。
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🍇</div>
+                <h3 class="feature-title">三大宣教區屬靈共鳴</h3>
+                <p class="feature-body">
+                    第一區親和【仁愛】與【溫柔】（百姓愛宴供給）；第二區親和【忍耐】與【喜樂】（曠野甘泉免消耗）；第三區親和【信實】與【和平/節制】（化解萬人暴動與法庭審訊）。
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎲</div>
+                <h3 class="feature-title">靈果動態骰池與「罪惡墮落」</h3>
+                <p class="feature-body">
+                    <strong>可擲骰數量完全取決於當前可用靈果（4~8顆）</strong>，引入震撼的三色動態替換：<br>
+                    • ⚪ <strong>天意骰</strong>：`[0,0,1,1,2,2]`（常態努力，均值+1.0）；<br>
+                    • 🕊️ <strong>聖靈骰</strong>：`[1,1,1,2,2,2]`（<strong>神永不失敗！</strong> 每 5 虔誠升級 1 顆，保底+1）；<br>
+                    • ⛓️ <strong>罪惡骰</strong>：`[☠️罪,☠️罪,0,1,1,2]`（<strong>罪的工價乃是死亡！</strong> 罪惡每滿 2 點強制替換 1 顆）；<br>
+                    • 🩸 <strong>當場完全墮落</strong>：每擲出 1 個【☠️罪】，該項罪惡值<strong>當場 ＋1</strong>！累積滿 10 點立即引爆完全墮落！<br>
+                    • 🚨 <strong>罪骰優先法則</strong>：超出骰池時，<strong>以罪骰為絕對優先塞入！</strong> 擠出聖靈骰（罪使人與神隔絕）。
+                </p>
+            </div>
+            <div class="feature-card" style="border-color: #7c3aed; background: #faf5ff;">
+                <div class="feature-icon">😈</div>
+                <h3 class="feature-title" style="color: #581c87;">進階可選：欺瞞者擴充 (撒旦與真理)</h3>
+                <p class="feature-body" style="color: #4c1d95;">
+                    引入第三大仇敵——說謊之人的父：<br>
+                    • 🎲 <strong>欺瞞者骰</strong>：凡執行親近神行動前先骰 1 顆，骰出【😈謊言面】遭受仇敵控告阻撓！<br>
+                    • 🛡️ <strong>真理代幣</strong>：每次成功靈修累積 1 枚（常存不消耗，上限 10 枚，詩 119:11）；<br>
+                    • ⚖️ <strong>智慧識破檢定</strong>：以最高與最低果子的平均值為智慧骰數（含聖靈骰，不含罪骰），擲骰 ＋ 真理代幣 <strong>≥ 10 點</strong>，一舉識破謊言，奉主名斥退撒旦！
+                </p>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 遊戲規則與流程 -->
+    <section class="container" id="rules">
+        <div class="section-header">
+            <span class="section-tag">How to Play</span>
+            <h2 class="section-title">標準回合流程與開局布置</h2>
+            <p class="section-desc">從清晨的靈修守望，到正午的宣道拓荒，直至黃昏的愛宴感恩。</p>
+        </div>
+
+        <div class="steps-container">
+            <div class="step-row">
+                <div class="step-badge">1</div>
+                <div class="step-content">
+                    <h4>🌅 晨更階段 (Morning Phase) - 全隊共同結算</h4>
+                    <p>
+                        1. <strong>推進時間軌</strong>：時間標記前進 1 格（超過 10 輪進入 OT 超時記錄）。<br>
+                        2. <strong>選任團契主席</strong>：若身後已有建立之母會團契，指定 1 位聖徒發動遠距物資或防禦支援。<br>
+                        3. <strong>歸主者祈禱代幣產出</strong>：已歸主百姓產出 1 祈禱代幣（大能者產出 2 枚），全隊商討分配放置於未成全信徒上。<br>
+                        4. <strong>補滿地點市場</strong>：若地點有空位，從 16 張人民牌堆頂翻開補齊。
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-row">
+                <div class="step-badge">2</div>
+                <div class="step-content">
+                    <h4>🏃 使徒個人行動階段 (Action Phase) - 順時針輪流進行</h4>
+                    <p>
+                        每位使徒回合包含四步驟：<br>
+                        • <strong>步驟 1 (抽牌)</strong>：從 31 張地區遭遇牌堆抽 1 張（事件、試煉或災禍）。<br>
+                        • <strong>步驟 1.5 (位移)</strong>：免費移動至場上另一個活動地點一次（再次移動耗 1 AP）。<br>
+                        • <strong>步驟 2 (分配 3 AP)</strong>：
+                          <strong>祈禱</strong>（靈修+2虔誠/認罪消3罪/發放代禱代幣/守候神蹟）；
+                          <strong>傳道</strong>（滿足迫切需要/真理講道受洗）；
+                          <strong>成全聖徒</strong>（5代幣成全平民/15代幣成全大能者）；
+                          <strong>親手做工</strong>（織帳棚拿糧食）。<br>
+                        • <strong>步驟 3 (結算)</strong>：結算面前遭遇牌，可燃燒虔誠宣告【信心指引】獲得檢定 +3！
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-row">
+                <div class="step-badge">3</div>
+                <div class="step-content">
+                    <h4>🌆 黃昏結算階段 (Evening Phase) - 全隊共同檢驗</h4>
+                    <p>
+                        1. <strong>領取後勤支援</strong>：成全聖徒與周遊同工產生日用糧食與防護。<br>
+                        2. <strong>消耗日用糧食</strong>：全隊檢驗糧食消耗（每位使徒需消耗 1 糧食；每匱乏 1 份指定使徒扣 2 HP）。<br>
+                        3. <strong>罪惡侵蝕檢驗</strong>：若某項罪惡值達 6 點以上，扣除超標數量的虔誠值；滿 10 點觸發【完全墮落】抽取深淵墮落卡！
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 三大宣教地區 -->
+    <section class="container" id="regions">
+        <div class="section-header">
+            <span class="section-tag">3-Act Campaign Architecture</span>
+            <h2 class="section-title">三大宣教地區全貌</h2>
+            <p class="section-desc">穿插 26 張旅程牌的曠野序章與跋涉跨區旅程。</p>
+        </div>
+
+        <div class="region-tabs">
+            <button class="region-tab-btn active" onclick="switchRegion('r1')">第一區：故鄉基石 (耶路撒冷與猶太)</button>
+            <button class="region-tab-btn" onclick="switchRegion('r2')">第二區：異族荒原 (撒瑪利亞與曠野)</button>
+            <button class="region-tab-btn" onclick="switchRegion('r3')">第三區：帝國巨城 (羅馬、以弗所、雅典)</button>
+        </div>
+
+        <div id="panel-r1" class="region-panel active">
+            <h3 style="color: var(--primary-navy); margin-bottom: 8px;">第一區：故鄉基石 (Homeland Foundation)</h3>
+            <p style="color: #475569; margin-bottom: 16px;">
+                <strong>屬靈共鳴果子：【仁愛施予】 & 【溫柔謙卑】</strong>。初代教會同胞同心合意凡物公用，面對公會盤問與聖殿傳統。
+            </p>
+            <ul style="padding-left: 20px; color: #334155; line-height: 1.8;">
+                <li><strong>大能據點 (4處)</strong>：馬可樓聖所、會堂長宅邸、耶利哥桑樹公道、該撒利亞義大利營。</li>
+                <li><strong>關鍵大能者 (4位)</strong>：稅吏長撒該（四倍償還回滿虔誠）、會堂長睚魯（死裡復活消災禍）、迦瑪列拉比、百夫長哥尼流。</li>
+                <li><strong>核心持續災禍</strong>：猶太公會搜捕查禁、大希律王政治整肅、耶路撒冷大飢荒。</li>
+            </ul>
+        </div>
+
+        <div id="panel-r2" class="region-panel">
+            <h3 style="color: var(--primary-navy); margin-bottom: 8px;">第二區：異族荒原與撒瑪利亞 (Gentile Wilderness)</h3>
+            <p style="color: #475569; margin-bottom: 16px;">
+                <strong>屬靈共鳴果子：【忍耐寬容】 & 【喜樂熱心】</strong>。突破數百年猶太與撒瑪利亞民族仇恨，面對邪術迷惑與大痲瘋瘟疫隔離營。
+            </p>
+            <ul style="padding-left: 20px; color: #334155; line-height: 1.8;">
+                <li><strong>大能據點 (4處)</strong>：撒瑪利亞中央大廣場、安提阿帝國衛城公署、大馬士革直街大宅、約帕海港慈善工坊。</li>
+                <li><strong>關鍵大能者 (4位)</strong>：術士西門（邪術止息）、大臣馬拿念（王室資金翻倍）、門徒亞拿尼亞（按手復明）、女徒多加（慈惠聖所）。</li>
+                <li><strong>核心持續災禍</strong>：大痲瘋瘟疫大爆發、世代血仇暴力械鬥、行法術者的集體邪術蒙蔽。</li>
+            </ul>
+        </div>
+
+        <div id="panel-r3" class="region-panel">
+            <h3 style="color: var(--primary-navy); margin-bottom: 8px;">第三區：帝國巨城 (The Imperial Metropolis)</h3>
+            <p style="color: #475569; margin-bottom: 16px;">
+                <strong>屬靈共鳴果子：【信實公義】 & 【和平節制】</strong>。迎戰希臘哲學思辨傲慢、以弗所萬人暴動與該撒帝國最高法庭審判！
+            </p>
+            <ul style="padding-left: 20px; color: #334155; line-height: 1.8;">
+                <li><strong>大能據點 (4處)</strong>：腓立比河畔禱告處、雅典亞略巴古哲學山丘、該撒利亞巡撫官邸、羅馬租賃寓所囚房。</li>
+                <li><strong>關鍵大能者 (4位)</strong>：賣紫色布的呂底亞（商界庇護所）、亞略巴古官丟尼修（哲學法官）、巡撫腓力斯與百夫長、該撒家信徒與禁衛軍（鎖定終局大勝利！）。</li>
+                <li><strong>核心持續災禍</strong>：以弗所銀匠偶像暴動、尼祿火刑審判敕令、虛空哲學與諾斯底思潮。</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- 配件清單 (BOM) -->
+    <section class="container" id="components">
+        <div class="section-header">
+            <span class="section-tag">Bill of Materials</span>
+            <h2 class="section-title">全套實體配件清單 (BOM)</h2>
+            <p class="section-desc">共計 268 張卡牌、5 塊厚板、110+ 顆木質與壓克力專屬代幣、金屬鑄幣與判定骰。</p>
+        </div>
+
+        <table class="b-table">
+            <thead>
+                <tr>
+                    <th>配件名稱</th>
+                    <th>類別</th>
+                    <th>規格與材質</th>
+                    <th>數量</th>
+                    <th>功能說明</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>使徒角色卡</strong></td>
+                    <td>卡牌</td>
+                    <td>80 × 120 mm 大尺寸厚卡</td>
+                    <td>8 張</td>
+                    <td>8 位獨立使徒天賦與個人專屬特質</td>
+                </tr>
+                <tr>
+                    <td><strong>靈性核心卡</strong></td>
+                    <td>卡牌</td>
+                    <td>63 × 88 mm 藍芯紙</td>
+                    <td>44 張</td>
+                    <td>18 款恩賜 (32張) ＋ 4 款神蹟 (6張) ＋ 3 款誘惑 (6張)</td>
+                </tr>
+                <tr>
+                    <td><strong>旅程牌庫</strong></td>
+                    <td>卡牌</td>
+                    <td>63 × 88 mm 藍芯紙</td>
+                    <td>26 張</td>
+                    <td>16 旅程試煉 ＋ 10 旅程事件（序章與跨區跋涉專用）</td>
+                </tr>
+                <tr>
+                    <td><strong>三大地區牌庫</strong></td>
+                    <td>卡牌</td>
+                    <td>63 × 88 mm 藍芯紙</td>
+                    <td>153 張</td>
+                    <td>三區各 51 張（31 遭遇牌 ＋ 16 人民牌 ＋ 4 大能者）</td>
+                </tr>
+                <tr>
+                    <td><strong>活動地點卡</strong></td>
+                    <td>卡牌</td>
+                    <td>80 × 120 mm 大卡</td>
+                    <td>27 張</td>
+                    <td>三區各 9 張（4 大能據點 ＋ 5 自由地點，1+2 展開）</td>
+                </tr>
+                <tr>
+                    <td><strong>終極罪惡墮落卡</strong></td>
+                    <td>卡牌</td>
+                    <td>63 × 88 mm 純黑特規卡背</td>
+                    <td>10 張</td>
+                    <td>罪惡滿 10 點完全墮落時強制抽取</td>
+                </tr>
+                <tr>
+                    <td><strong>雙層開槽個人圖板</strong></td>
+                    <td>圖板</td>
+                    <td>A5 尺寸 (210 × 148 mm) 雙層灰板開槽</td>
+                    <td>4 塊</td>
+                    <td>HP/虔誠雙軌、7 條果子天平槽、恩賜槽</td>
+                </tr>
+                <tr>
+                    <td><strong>中央時代進程主板</strong></td>
+                    <td>圖板</td>
+                    <td>300 × 420 mm 對摺硬卡板</td>
+                    <td>1 塊</td>
+                    <td>輪數時間軌 (含OT軌)、1+2 地點展位、災禍區</td>
+                </tr>
+                <tr>
+                    <td><strong>彩色透明果子環</strong></td>
+                    <td>配件標記</td>
+                    <td>壓克力彩色透光環 (外徑14mm/孔徑8mm)</td>
+                    <td>28 枚</td>
+                    <td>套在軌道上框出使徒基礎天賦點數</td>
+                </tr>
+                <tr>
+                    <td><strong>純黑實心罪惡滑塊</strong></td>
+                    <td>配件標記</td>
+                    <td>黑色啞光實木長方塊</td>
+                    <td>28 枚</td>
+                    <td>從右向左遮蔽數字，直觀阻斷天花板</td>
+                </tr>
+                <tr>
+                    <td><strong>祈禱代幣 / 代禱代幣</strong></td>
+                    <td>木質代幣</td>
+                    <td>象牙白圓形鴿木片 / 天藍六角祈禱木片</td>
+                    <td>40 + 20 枚</td>
+                    <td>百姓成全（5枚/15枚）與使徒間彼此代禱互助</td>
+                </tr>
+                <tr>
+                    <td><strong>聖徒榮耀金標</strong></td>
+                    <td>木質代幣</td>
+                    <td>金色立體六角木塊 (直徑20mm/光芒十架)</td>
+                    <td>20 枚</td>
+                    <td>覆蓋於成全聖徒卡上永久激活恩賜</td>
+                </tr>
+                <tr>
+                    <td><strong>日用糧食 / 第納里銀幣</strong></td>
+                    <td>物資代幣</td>
+                    <td>棕黃小麵包木塊 / 仿古鋅合金金屬鑄幣</td>
+                    <td>30 + 20 枚</td>
+                    <td>黃昏日用生存補給與市集採購奉獻物資</td>
+                </tr>
+                <tr>
+                    <td><strong>常規天意骰</strong></td>
+                    <td>特規骰子</td>
+                    <td>16 mm 象牙白底刻黑字 [0, 0, 1, 1, 2, 2]</td>
+                    <td>8 顆</td>
+                    <td>常態基礎檢定骰池（依使徒實際可用靈果值抓取 4~8 顆）</td>
+                </tr>
+                <tr>
+                    <td><strong>聖靈特規骰</strong></td>
+                    <td>特規骰子</td>
+                    <td>16 mm 亮金天藍底燙印金十架 [1, 1, 1, 2, 2, 2]</td>
+                    <td>4 顆</td>
+                    <td><strong>神永不失敗！</strong> 每達 5 虔誠升級 1 顆，保底 +1</td>
+                </tr>
+                <tr>
+                    <td><strong>罪惡深淵骰</strong></td>
+                    <td>特規骰子</td>
+                    <td>16 mm 深淵黑底血紅字 [☠️罪, ☠️罪, 0, 1, 1, 2]</td>
+                    <td>4 顆</td>
+                    <td><strong>罪的工價乃是死亡！</strong> 罪惡每滿 2 點塞入，擲出【罪】當場+1罪惡值，優先覆蓋聖靈骰</td>
+                </tr>
+                <tr>
+                    <td><strong>欺瞞者骰 (撒旦骰)</strong></td>
+                    <td>擴充骰子</td>
+                    <td>16 mm 深淵紫黑特規骰 [2面謊言惡魔 / 4面平靜安息]</td>
+                    <td>1 顆</td>
+                    <td>【欺瞞者擴充】專用：宣告親近神前投擲，擲出謊言觸發阻撓</td>
+                </tr>
+                <tr>
+                    <td><strong>真理之盾代幣</strong></td>
+                    <td>擴充代幣</td>
+                    <td>直徑 18 mm 聖金色六角木質代幣 (燙印十架藤牌)</td>
+                    <td>40 枚</td>
+                    <td>【欺瞞者擴充】專用：每位使徒上限 10 枚，常存不消耗，用於識破謊言檢定</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </section>
+
+    <!-- 頁腳 -->
+    <footer>
+        <p style="font-weight: 700; color: #f1f5f9; font-size: 1rem;">🕊️ 《使徒:大使命》(Apostles: The Great Commission)</p>
+        <p>全套專案架構文件：<a href="docs/GDD.md" style="color:var(--accent-gold);">GDD.md</a> | <a href="docs/rulebook.md" style="color:var(--accent-gold);">rulebook.md</a> | <a href="data/cards.csv" style="color:var(--accent-gold);">cards.csv</a></p>
+        <p style="margin-top: 12px; font-size: 0.8rem; color: #64748b;">
+            Designed with theological depth and mechanical excellence. All rights reserved.
+        </p>
+    </footer>
+
+    <script>
+        function switchRegion(regionKey) {
+            document.querySelectorAll('.region-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.region-panel').forEach(panel => panel.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById('panel-' + regionKey).classList.add('active');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《使徒:大使命》官方正式手冊 | Apostles: The Great Commission Official Rulebook</title>
+    <style>
+        :root {
+            --primary-navy: #162a45;
+            --accent-gold: #c59b27;
+            --accent-gold-light: #fef9e7;
+            --sky-blue: #1d4ed8;
+            --sky-blue-light: #eff6ff;
+            --deep-red: #991b1b;
+            --deep-red-light: #fef2f2;
+            --bg-parchment: #faf8f5;
+            --card-bg: #ffffff;
+            --border-color: #e5dec9;
+            --text-main: #27272a;
+            --text-muted: #52525b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-parchment);
+            color: var(--text-main);
+            line-height: 1.75;
+            padding-bottom: 80px;
+        }
+
+        /* 頂部導航列 */
+        .top-bar {
+            background: var(--primary-navy);
+            color: #ffffff;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            border-bottom: 2px solid var(--accent-gold);
+        }
+
+        .top-bar a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-print {
+            background: var(--accent-gold);
+            color: #ffffff !important;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-print:hover {
+            background: #b38820;
+        }
+
+        /* 主手冊版面 */
+        .rulebook-wrapper {
+            max-width: 960px;
+            margin: 36px auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(22, 42, 69, 0.06);
+            padding: 56px 64px;
+        }
+
+        /* 封面 / 題頭 */
+        .book-header {
+            text-align: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 40px;
+            margin-bottom: 44px;
+            position: relative;
+        }
+
+        .cross-ornament {
+            font-size: 2.2rem;
+            color: var(--accent-gold);
+            margin-bottom: 12px;
+        }
+
+        .book-tag {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--accent-gold);
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        .book-title {
+            font-size: 2.6rem;
+            color: var(--primary-navy);
+            font-weight: 800;
+            margin: 10px 0 8px;
+            letter-spacing: 1px;
+        }
+
+        .book-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* 聖經引用卡片 (Scripture Box) */
+        .scripture-box {
+            background: var(--accent-gold-light);
+            border-left: 4px solid var(--accent-gold);
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin: 24px 0;
+            font-style: italic;
+            color: #451a03;
+            box-shadow: 0 2px 6px rgba(197, 155, 39, 0.08);
+        }
+
+        .scripture-box .scripture-cite {
+            display: block;
+            margin-top: 8px;
+            font-style: normal;
+            font-weight: 700;
+            text-align: right;
+            color: var(--accent-gold);
+            font-size: 0.9rem;
+        }
+
+        /* 神學默想側欄 (Theology Box) */
+        .theology-box {
+            background: var(--sky-blue-light);
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 28px 0;
+            position: relative;
+        }
+
+        .theology-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            color: var(--sky-blue);
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+
+        .theology-body {
+            color: #1e3a8a;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* 章節標題 */
+        h2.section-heading {
+            font-size: 1.65rem;
+            color: var(--primary-navy);
+            border-bottom: 2px solid var(--accent-gold);
+            padding-bottom: 8px;
+            margin: 48px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h3.sub-heading {
+            font-size: 1.25rem;
+            color: var(--primary-navy);
+            margin: 28px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        p {
+            margin-bottom: 16px;
+            font-size: 1.02rem;
+            color: #334155;
+        }
+
+        /* 重點強調卡片 */
+        .rule-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        /* 表格樣式 */
+        table.rule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+
+        table.rule-table th {
+            background: var(--primary-navy);
+            color: #ffffff;
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 700;
+        }
+
+        table.rule-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            background: #ffffff;
+        }
+
+        table.rule-table tr:nth-child(even) td {
+            background: #fafaf9;
+        }
+
+        /* 圖示徽章 */
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-gold { background: #fef08a; color: #854d0e; }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-red { background: #fee2e2; color: #991b1b; }
+
+        /* 雙標記天平軌直觀展示 */
+        .track-box {
+            display: flex;
+            gap: 6px;
+            margin: 16px 0;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .track-cell {
+            width: 58px;
+            height: 64px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.1rem;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .track-cell.effective {
+            border-color: var(--accent-gold);
+            background: #fffbeb;
+            color: var(--accent-gold);
+            box-shadow: 0 0 10px rgba(197, 155, 39, 0.4);
+        }
+
+        .track-cell.sin-covered {
+            background: #1e293b;
+            color: #94a3b8;
+            border-color: #0f172a;
+        }
+
+        .track-cell.sin-covered::after {
+            content: "⛓️ 遮蔽";
+            font-size: 0.55rem;
+            color: #e2e8f0;
+            position: absolute;
+            bottom: 3px;
+        }
+
+        .track-cell.fruit-base::before {
+            content: "🍇";
+            font-size: 0.75rem;
+            position: absolute;
+            top: 2px;
+        }
+
+        /* 流程步驟橫幅 */
+        .phase-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .phase-step {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .phase-step.active {
+            border-color: var(--accent-gold);
+            background: #fffcf2;
+        }
+
+        .phase-title {
+            font-weight: 800;
+            color: var(--primary-navy);
+            margin-bottom: 6px;
+        }
+
+        /* 頁腳 */
+        .book-footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .rulebook-wrapper { padding: 32px 20px; margin: 16px auto; }
+            .book-title { font-size: 2rem; }
+        }
+
+        @media print {
+            .top-bar { display: none; }
+            body { background: #ffffff; padding: 0; }
+            .rulebook-wrapper { border: none; box-shadow: none; padding: 0; max-width: 100%; }
+            h2.section-heading { page-break-before: always; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部列 -->
+    <header class="top-bar">
+        <a href="../index.html">⬅ 返回專案主頁</a>
+        <div style="font-weight: 700; color: var(--accent-gold);">🕊️ 官方全彩手冊標準版</div>
+        <div class="top-bar-actions">
+            <a href="quickstart.html" style="color: #ffffff; background: #2563eb; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-right: 10px; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 4px;">🚀 10分鐘速成手冊</a>
+            <button class="btn-print" onclick="window.print()">🖨️ 列印 / 另存 PDF</button>
+        </div>
+    </header>
+
+    <!-- 手冊主體 -->
+    <main class="rulebook-wrapper">
+
+        <!-- 題頭封面 -->
+        <div class="book-header">
+            <div class="cross-ornament">✝</div>
+            <div class="book-tag">Official Rulebook & Field Manual</div>
+            <h1 class="book-title">《使徒:大使命》</h1>
+            <div class="book-subtitle">Apostles: The Great Commission 官方正式遊戲手冊</div>
+        </div>
+
+        <div class="scripture-box">
+            「但聖靈降臨在你們身上，你們就必得著能力；並要在耶路撒冷、猶太全地和撒瑪利亞，直到地極，作我的見證。」
+            <span class="scripture-cite">——《使徒行傳 1:8》</span>
+        </div>
+
+        <div class="scripture-box">
+            「所以，你們要去，使萬民作我的門徒，奉父、子、聖靈的名給他們施洗。凡我所吩咐你們的，都教訓他們遵守，我就常與你們同在，直到世界的末了。」
+            <span class="scripture-cite">——《馬太福音 28:19-20》</span>
+        </div>
+
+        <!-- 第一章：大使命序曲 -->
+        <h2 class="section-heading"><span>一、</span> 大使命的序曲 (Prologue)</h2>
+        <p>
+            公元一世紀，羅馬帝國的軍團與大道橫跨地中海，希臘哲學的思辨迴盪在雅典衛城，耶路撒冷聖殿的公會肅穆森嚴。在荒漠戈壁、市集水泉與異邦港口間，一小群領受了復活救主囑託的普通人——漁夫、稅吏、醫生與帳棚匠，懷抱著改變人類歷史的火焰，踏上了前往地極的宣教征途。
+        </p>
+        <p>
+            在《使徒:大使命》中，1 ~ 4 位玩家扮演初代使徒團隊。你們將經歷狂風巨浪、荒野飢饉與帝國審判，彼此代禱扶持，以聖靈的九種果子回應世間的試煉，在三大宣教區域帶領百姓受洗歸主，攻堅大能者，建立自立自養的教會團契，將救恩的明燈點亮至地極！
+        </p>
+
+        <!-- 第二章：開局布置 -->
+        <h2 class="section-heading"><span>二、</span> 📦 遊戲配件與開局布置 (Setup)</h2>
+        <div class="scripture-box">
+            「凡事都要規規矩矩地按著次序行。」
+            <span class="scripture-cite">——《哥林多前書 14:40》</span>
+        </div>
+
+        <h3 class="sub-heading">六步驟快速備辦</h3>
+        <div class="rule-card">
+            <ol style="padding-left: 20px; line-height: 2;">
+                <li><strong>選擇使徒與個人圖板</strong>：挑選使徒角色卡與雙層板，初始化肉身生命 (HP) 與靈命虔誠 (Piety) 指示物；將 7 條果子軌道上的透明果子環套在基礎值上，罪惡滑塊推至最左端（0點）。</li>
+                <li><strong>建立公共儲備箱</strong>：放置 <strong>3n 份日用糧食</strong> 與 <strong>2n 枚銀幣</strong>（n為玩家人數）；集中祈禱代幣池（40枚）、代禱代幣池（20枚）與聖徒金標。</li>
+                <li><strong>公開展示大能神蹟卡</strong>：將 4 張史詩神蹟（磐石出水、天降嗎哪、烈火同行、紅海分開）置於中央聖所區。</li>
+                <li><strong>洗勻旅程牌庫與墮落牌庫</strong>：旅程牌（26張）面朝下置於旁側；終極罪惡墮落卡（10張）置於懲罰區。</li>
+                <li><strong>分開各地區卡牌與「1 + 2 地點」展開</strong>：
+                    <ul style="padding-left: 20px; margin-top: 6px;">
+                        <li>翻開 <strong>1 張大能者專屬地點</strong> ＋ <strong>2 張自由地點</strong>。</li>
+                        <li><strong>大能者直接就位</strong>：找出翻開據點對應的大能者卡，直接面朝上置於該地點！其餘大能者置於旁側備用。</li>
+                        <li><strong>未歸主人民</strong>：洗勻人民牌，依 3 個地點的容量翻出對應人數置於地點下方。</li>
+                        <li><strong>地區遭遇牌堆</strong>：僅將 3 災禍 ＋ 16 試煉 ＋ 12 事件（共 31 張）洗勻組成抽牌堆。</li>
+                    </ul>
+                </li>
+                <li><strong>使徒登場</strong>：每位使徒將自己的木質米寶自由放置在場上任意活動地點中。</li>
+            </ol>
+        </div>
+
+        <!-- 第三章：勝利目標與天平 -->
+        <h2 class="section-heading"><span>三、</span> 🎯 勝利目標、生存線與罪惡天平</h2>
+
+        <h3 class="sub-heading">1. 崇高終極使命：將福音傳遍世界・完成主的大使命 (The Great Commission)</h3>
+        <div class="scripture-box">
+            「所以，你們要去，使萬民作我的門徒，奉父、子、聖靈的名給他們施洗。凡我所吩咐你們的，都教訓他們遵守，我就常與你們同在，直到世界的末了。」
+            <span class="scripture-cite">——《馬太福音 28:19-20》</span>
+        </div>
+        <div class="scripture-box">
+            「並要在耶路撒冷、猶太全地和撒瑪利亞，直到地極，作我的見證。」
+            <span class="scripture-cite">——《使徒行傳 1:8》</span>
+        </div>
+        <p>
+            本作的真正終極目標，是全體使徒齊心協力<strong>將耶穌基督的福音傳遍世界，直到地極（羅馬）</strong>，使萬民作主的門徒，建立普世基督的身體！
+        </p>
+        <div class="rule-card" style="border-left: 4px solid var(--accent-gold);">
+            <strong>📍 各宣教地區的門徒扎根里程碑（4n + n 成全指標）</strong>
+            <p style="margin-top: 6px; font-size: 0.95rem;">
+                使徒每到一個宣教區域，必須在當地建立自立自傳的健全教會，方能交接事工、受差遣奔向下一站。因此在每個地區中，全體使徒必須合作達成：<br>
+                • <strong>帶領 4n 位普通百姓</strong> 受洗歸主並各盡其職成全為聖徒；<br>
+                • <strong>引導 n 位關鍵大能者</strong>（如撒該、睚魯、丟尼修、巡撫等）歸信破除堅壘（n 為使徒人數）。<br>
+                達成後進入【差遣階段】，成立當地教會團契，拔營起行邁向下一地區，直至地極完成大使命！
+            </p>
+        </div>
+
+        <h3 class="sub-heading">2. 雙重死亡線與【榮耀殉道・天家不住代求】(Martyrdom & Heavenly Intercession)</h3>
+        <div class="scripture-box">
+            「基督耶穌已經死了，而且從死裡復活，現今在神的右邊，也替我們祈求。」
+            <span class="scripture-cite">——《羅馬書 8:34》</span>
+        </div>
+        <div class="rule-card" style="border-left: 4px solid var(--deep-red);">
+            <p><strong>❤️ 肉身生命 (HP 歸零) 與榮耀殉道</strong>：</p>
+            <ul style="padding-left: 20px; font-size: 0.95rem; line-height: 1.8;">
+                <li><strong>榮耀殉道判定</strong>：當使徒 HP 降至 0 時，檢驗其靈命虔誠（Piety）。若 <strong>虔誠 ＞ 10 點</strong>，判定為【榮耀殉道】，靈魂息了勞苦歸入天家！若虔誠 <strong>≤ 10 點</strong>則為力竭身亡。</li>
+                <li><strong>地上同工的短期哀慟</strong>：下一輪中全體在世同工因悲慟<b>行動點 －1（由 3 AP 降為 2 AP，僅持續那一輪）</b>（徒 8:2）。</li>
+                <li><strong>天家不住代求（絕不出局！）</strong>：殉道使徒<b>絕不淘汰出局</b>！每輪依然擁有 <b>3 AP</b>，但專注於天上【祈禱職分】（為在世弟兄發放代禱代幣、守候史詩神蹟、在天上宣告天使護衛保同工免死）！</li>
+            </ul>
+            <p style="margin-top: 8px; font-size: 0.95rem;">
+                • 🕊️ <strong>靈命虔誠 (Piety 歸零)</strong>：屬靈死亡（與神隔絕，心靈盲目沉淪，需同工在聖所迫切代求方能復甦）。<br>
+                • <strong>全隊失敗判定</strong>：全隊僅在「<strong>全員 HP 歸零且無人能殉道代求</strong>」或「<strong>全員虔誠歸零</strong>」時宣告宣教受挫失敗！
+            </p>
+        </div>
+
+        <h3 class="sub-heading">3. 專利級「雙滑塊果子 vs 罪惡天平軌」</h3>
+        <div class="scripture-box">
+            「因為情慾和聖靈相爭，聖靈和情慾相爭...你們的罪孽使你們與神隔絕；你們的罪惡使他掩面不聽你們。」
+            <span class="scripture-cite">——《加拉太書 5:17》、《以賽亞書 59:2》</span>
+        </div>
+        <p>
+            每條 0~10 軌道上配有：<strong>彩色透明果子環</strong>（天賦基礎值）＋ <strong>純黑木質罪惡滑塊</strong>（從右端向左推動，遮蔽右側數字）。
+        </p>
+        <div style="font-weight: 700; margin-bottom: 6px;">範例：天賦基礎值 8 點，累積了 4 點罪惡（滑塊推至 7, 8, 9, 10 格）：</div>
+        <div class="track-box">
+            <div class="track-cell">0</div>
+            <div class="track-cell">1</div>
+            <div class="track-cell">2</div>
+            <div class="track-cell">3</div>
+            <div class="track-cell">4</div>
+            <div class="track-cell">5</div>
+            <div class="track-cell effective">6<br><span style="font-size: 0.6rem;">可用</span></div>
+            <div class="track-cell sin-covered">7</div>
+            <div class="track-cell sin-covered fruit-base">8</div>
+            <div class="track-cell sin-covered">9</div>
+            <div class="track-cell sin-covered">10</div>
+        </div>
+        <p style="font-size: 0.95rem; color: var(--text-muted);">
+            公式：<strong>實際可用檢定值 ＝ 取較小者 (果子基礎值, 10 － 罪惡值) ＝ 取較小者 (8, 10 － 4) ＝ 6 點</strong>。
+        </p>
+
+        <div class="theology-box">
+            <div class="theology-header">📜 屬靈默想：罪的阻隔與成聖工夫</div>
+            <div class="theology-body">
+                罪惡從未真正消滅神所賜予你的恩賜天賦，但它像一堵高牆阻隔在人與神之間。天平軌直觀呈現了「罪遮蔽美善」的神學現實——唯有使徒甘心花費時間「個人認罪悔改」，挪開罪惡滑塊，聖靈的果子方能重放光芒！
+            </div>
+        </div>
+
+        <!-- 第四章：三色骰池 -->
+        <h2 class="section-heading"><span>四、</span> 🎲 信仰檢定與三色動態骰池天平</h2>
+        <div class="scripture-box">
+            「因為罪的工價乃是死亡；惟有神的恩賜，在我們的主基督耶穌裡，乃是永生。」
+            <span class="scripture-cite">——《羅馬書 6:23》</span>
+        </div>
+
+        <h3 class="sub-heading">1. 靈果動態骰池容量 N（可擲骰數）</h3>
+        <p>
+            使徒進行靈果檢定時，可抓取的骰子數量 <strong>N</strong> <strong>完全等於該果子當前的實際可用值</strong>：
+            <div style="background: #ffffff; padding: 12px 18px; border-radius: 8px; font-weight: 700; color: var(--primary-navy); margin: 10px 0; border-left: 4px solid var(--accent-gold);">
+            總可擲骰數 N ＝ 實際可用靈果值 ＝ 取較小者 (果子天賦基礎值, 10 － 該項罪惡值)
+        </div>
+            • 果子 8 點（無罪）時，直接抓取 <strong>8 顆骰子</strong>！<br>
+            • 4 點罪惡將天花板壓至 6，能骰的骰子縮減為 <strong>6 顆骰子</strong>！<br>
+            • <strong>檢定總值</strong> ＝ 擲出點數總和 ＋ 代禱加成(+2) ＋ 恩賜加成 ＋ 信心宣告(+3)。大於等於 DC 即為成功。
+        </p>
+
+        <h3 class="sub-heading">2. 三種特規骰規格</h3>
+        <table class="rule-table">
+            <thead>
+                <tr>
+                    <th>骰子名稱</th>
+                    <th>六面分佈</th>
+                    <th>神學含意與效果</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>⚪ <strong>常規天意骰</strong></td>
+                    <td><code>[ 0, 0, 1, 1, 2, 2 ]</code></td>
+                    <td><strong>人的常態努力</strong>：基礎預設骰，波動平穩，平均期望值 +1.0。</td>
+                </tr>
+                <tr>
+                    <td>🕊️ <strong>聖靈特規骰</strong></td>
+                    <td><code>[ 1, 1, 1, 2, 2, 2 ]</code></td>
+                    <td><strong>「神永不失敗！」</strong>：絕無 0 點！保底 +1，平均期望值 +1.5。<br><span class="badge badge-gold">每 5 虔誠替換 1 顆</span></td>
+                </tr>
+                <tr>
+                    <td>⛓️ <strong>罪惡深淵骰</strong></td>
+                    <td><code>[ ☠️罪, ☠️罪, 0, 1, 1, 2 ]</code></td>
+                    <td><strong>「罪的工價乃是死亡！」</strong>：每骰出 1 個 <code>☠️罪</code> 該顆計 0 點，且<strong>該項罪惡值當場 ＋1</strong>！<br><span class="badge badge-red">每 2 罪惡替換 1 顆</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="sub-heading">3. 🚨 至高鐵律：【罪骰優先法則 (Law of Separation)】</h3>
+        <div class="rule-card" style="border-left: 4px solid var(--deep-red);">
+            <strong>「當罪骰與聖靈骰的總量大於總可擲數量 N 時，以罪骰為絕對優先！（因罪使人與神隔絕）」</strong>
+            <p style="margin-top: 8px; font-size: 0.95rem;">
+                若使徒虔誠 15 點（擁有 3 顆聖靈骰資格），但累積 6 點罪惡使可用骰數萎縮為 4 顆（並產生 3 顆罪惡骰）。此時 4 顆名額中，<strong>3 顆全數被罪惡骰霸佔！聖靈骰被擠到只剩 1 顆！</strong>
+            </p>
+            <p style="margin-top: 8px; font-size: 0.95rem; color: var(--deep-red); font-weight: 700;">
+                🩸 檢定中當場完全墮落：若原本罪惡值已達 8 或 9 點，檢定中骰出 <code>☠️罪</code> 面使罪惡累計達 10 點，使徒當場立即完全墮落！強制抽取【終極罪惡墮落卡】！
+            </p>
+        </div>
+
+        <!-- 第五章：回合流程 -->
+        <h2 class="section-heading"><span>五、</span> 🔄 每日宣教事奉流程 (Daily Round Flow)</h2>
+        
+        <div class="phase-flow">
+            <div class="phase-step active">
+                <div class="phase-title">🌅 第一階段：晨更階段</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">推進時間軌、產出祈禱代幣、選任團契主席</div>
+            </div>
+            <div class="phase-step">
+                <div class="phase-title">🏃 第二階段：使徒行動</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">抽牌、免費移動 1 次、規劃 3 AP 行動</div>
+            </div>
+            <div class="phase-step">
+                <div class="phase-title">🌆 第三階段：黃昏結算</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">領取聖徒支援、消耗糧食、罪惡反噬檢驗</div>
+            </div>
+        </div>
+
+        <h3 class="sub-heading">使徒 3 個行動點 (AP) 之四大職分</h3>
+        <div class="rule-card">
+            <ul style="padding-left: 20px; line-height: 2;">
+                <li>🕊️ <strong>祈禱職分</strong>：
+                    <ul style="padding-left: 20px;">
+                        <li><strong>親近靈修 (1 AP)</strong>：自身虔誠 +2（達 15 點覺醒專屬恩賜；滿 20 點進入聖靈充滿）。</li>
+                        <li><strong>個人認罪悔改 (1 AP)</strong>：消除自身 3 點罪惡值（同伴可消耗代禱代幣額外幫你多消 2 點！）。</li>
+                        <li><strong>為人代禱 (1 AP)</strong>：立即為全體每一位其他使徒各發放 1 枚【代禱代幣】！</li>
+                        <li><strong>守候神蹟 (1 AP)</strong>：在大能神蹟卡上放置 1 枚信心守候標記（滿 5 枚引爆神蹟）。</li>
+                    </ul>
+                </li>
+                <li>📢 <strong>傳道職分</strong>：
+                    <ul style="padding-left: 20px;">
+                        <li><strong>滿足迫切需要 (1 AP)</strong>：消耗 1 糧食/銀幣救濟，移除百姓需要標記，心門敞開！</li>
+                        <li><strong>真理宣講講道 (1 AP)</strong>：向心門敞開百姓講道，檢定通過者受洗為「歸主者」！</li>
+                    </ul>
+                </li>
+                <li>🛡️ <strong>成全聖徒職分 (1 AP)</strong>：
+                    <ul style="padding-left: 20px;">
+                        <li>身上的祈禱代幣集滿後（平民 5 枚，大能者 15 枚），替換為【聖徒金標】，永久激活其專屬恩賜！</li>
+                    </ul>
+                </li>
+                <li>🔨 <strong>日常生計職分：親手做工 / 織帳棚 (1 AP)</strong>：
+                    <ul style="padding-left: 20px;">
+                        <li>穩定獲得 1 份糧食（100% 免疫飢餓）；亦可選擇進行【節制】DC 8 檢定，成功額外多得 1 份糧食或 1 銀幣！</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="theology-box">
+            <div class="theology-header">📜 背景默想：保羅親手做工的典範</div>
+            <div class="theology-body">
+                「也未嘗白吃人的飯，倒是辛苦勞碌，晝夜做工，免得叫你們一人受累...若有人不肯做工，就不可吃飯。」（帖後 3:8, 10）。使徒親手做工（織帳棚）徹底解決了斷糧死局，更彰顯了初創拓荒自食其力的尊嚴。唯有盡快成全平民聖徒，使徒方能交接後勤、專心以祈禱傳道為事！
+            </div>
+        </div>
+
+        <h3 class="sub-heading">使徒三大主動虔誠權柄 (Active Piety Authorities)</h3>
+        <p>使徒虔誠值高於 4 點即可在行動中主動宣告行使：</p>
+        <p>
+            1. 🕊️ <strong>【信心宣告】</strong>（消耗 2 虔誠）：本次檢定直接 <strong>+3 加成</strong>！<br>
+            2. 🛡️ <strong>【破除堅壘】</strong>（消耗 3 虔誠 + 1 AP）：封印地點環境威脅 1 回合，或驅散 1 張異教阻礙！<br>
+            3. ❤️‍🔥 <strong>【天使護衛】</strong>（每消耗 1 虔誠抵扣 1 點傷害）：替自己或同工免除致命傷害！<br>
+            4. 🔥 <strong>【聖靈充滿神聖大爆發】</strong>（虔誠達 20 點頂峰）：全場檢定 +1 光環；更可宣告一次大爆發（0 AP），免費為在場所有敞開百姓各放 1 祈禱代幣或直接帶領 1 人受洗！宣告後虔誠降回 16 點。
+        </p>
+
+        <!-- 第六章：區域共鳴與差遣 -->
+        <h2 class="section-heading"><span>六、</span> 🗺️ 區域宣教、屬靈共鳴與差遣階段</h2>
+        <table class="rule-table">
+            <thead>
+                <tr>
+                    <th>宣教區域</th>
+                    <th>屬靈共鳴果子</th>
+                    <th>共鳴恩典效果</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>第一區：故鄉基石</strong><br>(猶太地與耶路撒冷)</td>
+                    <td>💖 <strong>仁愛施予</strong><br>🕊️ <strong>溫柔謙卑</strong></td>
+                    <td>檢定通過額外回覆 1 虔誠或 1 糧食；百姓傾囊相助愛宴供給。</td>
+                </tr>
+                <tr>
+                    <td><strong>第二區：異族荒原</strong><br>(撒瑪利亞與荒野)</td>
+                    <td>⏳ <strong>忍耐寬容</strong><br>🔥 <strong>喜樂熱心</strong></td>
+                    <td>檢定通過免除黃昏 1 糧食消耗或消除 1 罪惡；於沙漠中得甘泉。</td>
+                </tr>
+                <tr>
+                    <td><strong>第三區：帝國巨城</strong><br>(腓立比、雅典、羅馬)</td>
+                    <td>⚖️ <strong>信實公義</strong><br>🕊️ <strong>和平節制</strong></td>
+                    <td>降低 1 點法庭審判威脅，獲官長敬重；抵禦奢靡誘惑與暴動。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 class="sub-heading">差遣階段與「教會團契 (Koinonia)」</h3>
+        <div class="scripture-box">
+            「他們事奉主、禁食的時候，聖靈說：要為我分派巴拿巴和掃羅，去做我召他們召的工。於是禁食禱告，按手在他們頭上，就打發他們去了。」
+            <span class="scripture-cite">——《使徒行傳 13:2-3》</span>
+        </div>
+        <p>
+            當該區指標達成，全體進入差遣階段：原地所有聖徒合為一疊成立當地的<strong>【教會團契 (Fellowship)】</strong>！拔營邁向新地區後，每輪晨更可選任一位母會聖徒擔任「團契主席」，隔空提供物資或檢定庇護！
+        </p>
+
+        <!-- 第七章：終章結算 -->
+        <h2 class="section-heading"><span>七、</span> 🏆 終章：遊戲結束、OT 超時與【榮耀冠冕】評級</h2>
+        <p>
+            <strong>帝國得勝</strong>：在第三區帶領 4n 百姓成全 ＋ n 位帝國大能者歸信（如羅馬巡撫或該撒家信徒），福音征服帝國心臟！<br>
+            <strong>OT 超時扣分</strong>：各地區以 10 輪為推薦標準。若未達成可繼續堅守（第11、12輪...），但自第 11 輪起每輪記為 1 次 OT，終局結算扣 5 分，如實呈現同工疲竭與後勤損耗。
+        </p>
+
+        <div class="scripture-box">
+            「那美好的仗我已經打過了，當跑的路我已經跑盡了，所信的道我已經守住了。從此以後，有公義的冠冕為我存留。」
+            <span class="scripture-cite">——《提摩太後書 4:7-8》</span>
+        </div>
+
+        <table class="rule-table">
+            <thead>
+                <tr>
+                    <th>榮耀星級</th>
+                    <th>屬靈稱號</th>
+                    <th>結算標準與歷史定位</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>⭐⭐⭐⭐⭐</td>
+                    <td><strong>使徒柱石・萬邦明燈</strong></td>
+                    <td>總分 <strong>≥ 150 分</strong>。福音如野火燎原，初代教會在愛與真理中永不動搖，名垂青史！</td>
+                </tr>
+                <tr>
+                    <td>⭐⭐⭐⭐</td>
+                    <td><strong>忠心良善的忠僕</strong></td>
+                    <td>總分 <strong>110 ～ 149 分</strong>。歷經千難萬險，成功在三大都會建立健康團契，傳承薪火。</td>
+                </tr>
+                <tr>
+                    <td>⭐⭐⭐</td>
+                    <td><strong>淬鍊得勝的殘餘者</strong></td>
+                    <td>總分 <strong>80 ～ 109 分</strong>。肉身多有傷痕，但守住了真道，打過了那美好的仗。</td>
+                </tr>
+                <tr>
+                    <td>⭐⭐</td>
+                    <td><strong>歷經火煉的拓荒先鋒</strong></td>
+                    <td>總分 <strong>＜ 80 分</strong>。險象環生，雖然付出了慘痛代價，神的名依然在地極被傳開。</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 第八章：進階可選模組錦囊 -->
+        <h2 class="section-heading" style="border-color: #6b21a8; color: #4c1d95;"><span>八、</span> 📦 進階可選模組錦囊 (Modular Expansions)</h2>
+
+        <p>
+            為確保新進玩家與教會家庭能最快上手，前述一至七章為<strong>【本體核心規則】</strong>（包含傳道受洗、做工織帳棚、天平軌、三色骰池、榮耀殉道與教會差遣）。<br>
+            當全隊熟悉核心玩法後，可自由挑選以下三大進階模組加入遊戲，感受更極致深邃的屬靈爭戰與肢體之愛！
+        </p>
+
+        <!-- 模組一：欺瞞者擴充 -->
+        <h3 style="color: #6b21a8; margin: 24px 0 12px; font-size: 1.3rem;">😈 模組一：【欺瞞者擴充 (The Deceiver Expansion)】</h3>
+        
+        <div class="scripture-box" style="border-color: #7c3aed; background: #faf5ff; color: #4c1d95;">
+            「你們是出於你們的父魔鬼...他從起初是殺人的，不守真理，因他心裡沒有真理。他說謊是出於自己；因他本來是說謊的，也是說謊之人的父。」
+            <span class="scripture-cite" style="color: #7c3aed;">——《約翰福音 8:44》</span>
+        </div>
+        <div class="scripture-box" style="border-color: #7c3aed; background: #faf5ff; color: #4c1d95;">
+            「你們必曉得真理，真理必叫你們得以自由。」
+            <span class="scripture-cite" style="color: #7c3aed;">——《約翰福音 8:32》</span>
+        </div>
+
+        <p>
+            初代使徒的爭戰不僅來自外在的世界逼迫與內在的肉體罪惡，更有空中屬靈仇敵——<strong>說謊之人的父撒旦</strong>。撒旦最懼怕的就是聖徒同心親近神，因此每當使徒尋求神面時，魔鬼便會前來攪擾阻撓。熟悉基礎遊戲後，可加入本模組體驗深度的「全副軍裝與屬靈爭戰」！
+        </p>
+
+        <div class="rule-card" style="border-left: 4px solid #7c3aed; background: #faf5ff;">
+            <h3 style="color: #4c1d95; margin-bottom: 8px;">🎲 1. 欺瞞者骰 (The Deceiver Die) 與阻撓判定</h3>
+            <p style="font-size: 0.95rem; margin-bottom: 8px;">
+                <strong>配件規格</strong>：1 顆 16mm 深淵紫黑特規六面骰（2面惡魔謊言 😈、4面平靜安息 🕊️）。
+            </p>
+            <p style="font-size: 0.95rem;">
+                <strong>投擲時機</strong>：凡使徒宣告執行<strong>「任何親近神相關的行動」</strong>（親近靈修、守候神蹟、宣告聖靈大爆發）時，<strong>在行動前必須先投擲 1 顆欺瞞者骰</strong>！<br>
+                • 擲出平靜安息：心靈澄澈，行動正常結算。<br>
+                • 擲出 😈【謊言面】：<strong>仇敵謊言襲來！心神受阻，必須立即進行【識破謊言檢定】！</strong>
+            </p>
+        </div>
+
+        <div class="rule-card" style="border-left: 4px solid var(--accent-gold);">
+            <h3 style="color: var(--primary-navy); margin-bottom: 8px;">🛡️ 2. 真理代幣 (Truth Tokens) —— 永不磨滅的護心鏡</h3>
+            <p style="font-size: 0.95rem; margin-bottom: 8px;">
+                <strong>獲得方式</strong>：每當使徒<strong>成功完成一次親近神行動</strong>（未受阻撓或成功識破謊言），該使徒獲得 <strong>1 枚【真理代幣】</strong>。
+            </p>
+            <p style="font-size: 0.95rem;">
+                <strong>常存不消耗（上限 10 枚）</strong>：<strong>真理代幣永遠不會被消耗！</strong> 象徵神的話語常存於心（詩 119:11）。當累積滿 10 枚時，真理滿溢，仇敵的一切謊言都將不攻自破！
+            </p>
+        </div>
+
+        <div class="rule-card" style="border-left: 4px solid var(--sky-blue);">
+            <h3 style="color: var(--sky-blue); margin-bottom: 8px;">⚖️ 3. 辨別謊言的智慧值 (Wisdom Stat)</h3>
+            <p style="font-size: 0.95rem; margin-bottom: 8px;">
+                智慧是屬靈生命的平衡與成熟，非單一恩賜之偏執：
+            </p>
+            <div style="background: #ffffff; padding: 10px 16px; border-radius: 6px; font-weight: 700; color: var(--primary-navy); margin-bottom: 8px;">
+                智慧值 (Wisdom) ＝ (最高靈果數值 ＋ 最低靈果數值) ÷ 2（無條件捨去小數）
+            </div>
+            <p style="font-size: 0.95rem;">
+                智慧值直接決定使徒進行「識破謊言檢定」時的基礎可擲骰數量 <strong>N (智慧骰數)</strong>（通常為 5 ~ 7 顆）。
+            </p>
+        </div>
+
+        <div class="rule-card" style="border-left: 4px solid #10b981; background: #f0fdf4;">
+            <h3 style="color: #065f46; margin-bottom: 8px;">⚔️ 4. 識破謊言檢定 (Discernment Check)</h3>
+            <ol style="padding-left: 20px; font-size: 0.95rem; line-height: 1.8;">
+                <li><strong>抓取骰池</strong>：數量等於使徒的【智慧值】。包含<strong>聖靈骰</strong>（每 5 虔誠 1 顆，神永不失敗！），<strong>絕不包含罪惡骰</strong>（罪惡無法干預真理交鋒），剩餘為天意骰。</li>
+                <li><strong>判定目標</strong>：<strong>固定 DC 10 點！</strong></li>
+                <li><strong>計算公式</strong>：<strong>識破總值 ＝ 擲骰點數總和 ＋ 使徒當前真理代幣數量</strong>。</li>
+                <li><strong>勝負結算</strong>：<br>
+                    • 🌟 <strong>識破成功（總值 ≥ 10）</strong>：真理破除謊言！親近神行動順利成功完成，並照常獲得 1 枚【真理代幣】！<br>
+                    • 🌫️ <strong>識破失敗（總值 ＜ 10）</strong>：使徒被流言疑惑所困，該行動中斷失敗（消耗 1 AP，未得虔誠或充能）。
+                </li>
+            </ol>
+        </div>
+
+        <div class="theology-box" style="border-color: #c084fc; background: #faf5ff;">
+            <div class="theology-header" style="color: #7e22ce;">📜 屬靈默想：真理使人自由的厚度</div>
+            <div class="theology-body" style="color: #581c87;">
+                在宣教初期，使徒心中真理尚淺，極易受仇敵控告與流言動搖；然而隨著使徒一次又一次清心靈修、深讀聖言，真理代幣持續累積。當心中充滿 6、7 枚甚至 10 枚真理時，即便擲骰不如意，神的話語便成為最堅固的磐石，仇敵的謊言瞬間消散！
+            </div>
+        </div>
+
+        <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 32px 0;">
+
+        <!-- 模組二：彼此擔當與謙卑模組 -->
+        <h3 style="color: #b45309; margin: 24px 0 12px; font-size: 1.3rem;">💖 模組二：【彼此擔當與謙卑模組 (Bearing Burdens & Humility)】</h3>
+
+        <div class="scripture-box" style="border-color: #d97706; background: #fffbeb; color: #92400e;">
+            「你們各人的重擔要互相擔當，如此，就完全了基督的律法。」
+            <span class="scripture-cite" style="color: #b45309;">——《加拉太書 6:2》</span>
+        </div>
+        <div class="scripture-box" style="border-color: #d97706; background: #fffbeb; color: #92400e;">
+            「凡自高的，必降為卑；自卑的，必升為高。」
+            <span class="scripture-cite" style="color: #b45309;">——《馬太福音 23:12》</span>
+        </div>
+        <div class="scripture-box" style="border-color: #d97706; background: #fffbeb; color: #92400e;">
+            「反倒虛己，取了奴僕的形象...存心順服，以至於死。」
+            <span class="scripture-cite" style="color: #b45309;">——《腓立比書 2:7-8》</span>
+        </div>
+
+        <p>
+            在宣教征途中，使徒同工恩賜各異。有的肢體信德剛強，有的肢體仁愛深廣。本模組活出基督「謙卑虛己」與「愛中互相擔當」的肢體生命，讓團隊合作達到深刻感動的屬靈境界。
+        </p>
+
+        <div class="rule-card" style="border-left: 4px solid #d97706; background: #fffbeb;">
+            <h3 style="color: #92400e; margin-bottom: 8px;">🤝 1. 主動虛己・暫借靈果 (Voluntary Humility)</h3>
+            <p style="font-size: 0.95rem; line-height: 1.7;">
+                當同地點的同工面臨一項艱難的靈果檢定時，另一位該果子數值較高的使徒，可在其擲骰前宣告<strong>【主動虛己】</strong>：<br>
+                將自己身上該項果子的可用點數，暫時「出借 1~2 點」加入受試煉弟兄的檢定骰池中，協助肢體共渡難關！
+            </p>
+        </div>
+
+        <div class="rule-card" style="border-left: 4px solid #b91c1c; background: #fef2f2;">
+            <h3 style="color: #991b1b; margin-bottom: 8px;">🛡️ 2. 替弟兄受過・代受罪惡 (Bearing Sins for Brethren)</h3>
+            <p style="font-size: 0.95rem; line-height: 1.7;">
+                當同地點同工在檢定中遭遇挫敗、即將承受罪惡值增加時，另一位使徒可宣告<strong>【替弟兄擔當】</strong>：<br>
+                將該次增加的罪惡滑塊轉移到自己身上承受！正如基督替我們擔當了罪孽。
+            </p>
+        </div>
+
+        <div class="rule-card" style="border-left: 4px solid #059669; background: #ecfdf5;">
+            <h3 style="color: #065f46; margin-bottom: 8px;">🕊️ 3. 天父的加倍賞賜 (Divine Exaltation)</h3>
+            <p style="font-size: 0.95rem; line-height: 1.7;">
+                <em>「自卑的，必升為高。」</em> 凡在該輪主動宣告【虛己借果】或【代受罪惡】的使徒，在該輪黃昏結算時，<strong>自身虔誠立即額外 ＋1 點</strong>，並在下一輪享有「神必暗中報答」的光環庇護！
+            </p>
+        </div>
+
+        <hr style="border: none; border-top: 1px dashed var(--border-color); margin: 32px 0;">
+
+        <!-- 模組三：個人屬靈負擔模組 -->
+        <h3 style="color: #0369a1; margin: 24px 0 12px; font-size: 1.3rem;">📜 模組三：【個人屬靈負擔模組 (Personal Spiritual Burdens)】</h3>
+
+        <div class="scripture-box" style="border-color: #0284c7; background: #f0f9ff; color: #075985;">
+            「各人要隨本心所酌定的，不要作難，不要勉強，因為捐得樂意的人是神所喜愛的。」
+            <span class="scripture-cite" style="color: #0284c7;">——《哥林多後書 9:7》</span>
+        </div>
+
+        <p>
+            為徹底根除合作桌遊常見的「主導玩家（一人指揮全場，大家失去代入感）」現象，本模組引入每位使徒心中隱密的美好感動與個人使命，鼓勵同工按各人領受獨立做工。
+        </p>
+
+        <div class="rule-card" style="border-left: 4px solid #0284c7; background: #f0f9ff;">
+            <h3 style="color: #075985; margin-bottom: 8px;">🤫 1. 暗抽屬靈負擔 (Secret Burden Cards)</h3>
+            <p style="font-size: 0.95rem; line-height: 1.7;">
+                每個宣教區域開局時，每位玩家從【屬靈負擔牌堆】暗抽 1 張，僅自己可見。<br>
+                <strong>負擔範例</strong>：<br>
+                • <em>《顧念赤貧孤寡》</em>：本區由你親自完成 2 次滿足需要（施捨糧食）。<br>
+                • <em>《深宵守望者》</em>：本區由你親自累積守候神蹟 2 次。<br>
+                • <em>《向羅馬權貴作見證》</em>：本區由你親自向大能者講道。
+            </p>
+        </div>
+
+        <div class="rule-card" style="border-left: 4px solid #d97706; background: #fffbeb;">
+            <h3 style="color: #92400e; margin-bottom: 8px;">✨ 2. 順服感動的恩典解鎖 (Grace Unlocked)</h3>
+            <p style="font-size: 0.95rem; line-height: 1.7;">
+                這不是自私的背叛任務，而是聖靈對各人專屬的託付。當你順服心中的負擔完成該項善工時，將負擔卡公開翻開：<strong>全體使徒立即同蒙恩惠</strong>（例如全員各獲 1 枚代禱代幣，或立刻平息場上 1 張持續災禍）！<br>
+                此機制賦予每位玩家獨立的決策空間與心靈寄託，讓宣教歷程充滿豐富多樣的感人見證！
+            </p>
+        </div>
+
+        <!-- 結尾祝福 -->
+        <div class="book-footer">
+            <p style="font-weight: 700; color: var(--primary-navy);">《使徒:大使命》(Apostles: The Great Commission) 官方手冊完畢</p>
+            <p>願主耶穌基督的恩惠、神的慈愛、聖靈的感動，常與眾使徒同在！</p>
+        </div>
+
+    </main>
+
+</body>
+</html>
