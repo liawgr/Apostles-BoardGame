@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎲 《使徒:大使命》卡牌視覺化預覽與列印系統</title>
+    <title>🎲 《使徒:大使命》卡牌排版與 A4 打樣列印系統</title>
     <style>
         :root {
             --card-width: 63mm;
@@ -144,19 +144,21 @@
 
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(254px, 1fr));
             gap: 22px;
             justify-items: center;
         }
 
-        /* 卡牌本體框架 */
+        /* ===================================================
+           卡牌本體框架與半透明背景水印 (Watermark Artwork)
+           =================================================== */
         .card-frame {
-            width: 248px;
-            height: 348px;
+            width: 254px;
+            height: 356px;
             background: #ffffff;
             border: 2.5px solid #334155;
             border-radius: 12px;
-            padding: 10px;
+            padding: 10px 11px;
             display: flex;
             flex-direction: column;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
@@ -167,7 +169,69 @@
             font-family: inherit;
         }
 
-        /* 卡牌種類邊框與背景底色 */
+        /* 半透明背景圖案：置於文字後方，不擋字 */
+        .card-frame::before {
+            content: "";
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: 160px;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            opacity: 0.09;
+            pointer-events: none;
+            z-index: 0;
+            filter: grayscale(20%);
+        }
+
+        /* 各卡牌種類專屬半透明水印圖騰 (SVG Data URIs) */
+        /* 災禍：深淵風暴火焰 */
+        .card-frame.card-type-災禍::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23b91c1c'%3E%3Cpath d='M12 2c1.1 0 2 .9 2 2v1.1C17.6 5.7 20 8.6 20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8c0-3.4 2.4-6.3 6-6.9V4c0-1.1.9-2 2-2zm0 6c-2.2 0-4 1.8-4 4 0 1.5.8 2.8 2 3.5V17h4v-1.5c1.2-.7 2-2 2-3.5 0-2.2-1.8-4-4-4z'/%3E%3C/svg%3E");
+        }
+        /* 試煉 / 複合試煉 / 旅程試煉：爭戰盾牌與寶劍 */
+        .card-frame.card-type-試煉::before,
+        .card-frame.card-type-旅程試煉::before,
+        .card-frame.card-type-複合試煉::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237c3aed'%3E%3Cpath d='M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z'/%3E%3C/svg%3E");
+        }
+        /* 事件 / 旅程事件：聖靈和平白鴿 */
+        .card-frame.card-type-事件::before,
+        .card-frame.card-type-旅程事件::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23059669'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z'/%3E%3C/svg%3E");
+        }
+        /* 恩賜：天國華冠與恩膏 */
+        .card-frame.card-type-恩賜::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'%3E%3Cpath d='M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .55-.45 1-1 1H6c-.55 0-1-.45-1-1v-1h14v1z'/%3E%3C/svg%3E");
+        }
+        /* 神蹟：放射光芒與十架神聖光輝 */
+        .card-frame.card-type-神蹟::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d97706'%3E%3Cpath d='M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z'/%3E%3C/svg%3E");
+        }
+        /* 誘惑 / 墮落：破碎枷鎖 */
+        .card-frame.card-type-誘惑::before,
+        .card-frame.card-type-墮落::before,
+        .card-frame.card-type-終極墮落::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23b91c1c'%3E%3Cpath d='M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 13.59z'/%3E%3C/svg%3E");
+        }
+        /* 角色：教會柱石與使徒聖召 */
+        .card-frame.card-type-角色::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230284c7'%3E%3Cpath d='M12 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 12c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z'/%3E%3C/svg%3E");
+        }
+        /* 人民 / 大能者：禱告尋道百姓 */
+        .card-frame.card-type-人民::before,
+        .card-frame.card-type-大能者::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230d9488'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E");
+        }
+        /* 地點：古代希臘羅馬城門與聖殿柱 */
+        .card-frame.card-type-地點::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23334155'%3E%3Cpath d='M12 1L2 6v2h20V6L12 1zm-7 9v8h2v-8H5zm5 0v8h2v-8h-2zm5 0v8h2v-8h-2zm5 0v8h2v-8h-2zM2 20v2h20v-2H2z'/%3E%3C/svg%3E");
+        }
+
+        /* 卡牌種類邊框與背景底色微調 */
         .card-frame.card-type-角色 { border-color: #0284c7; background: #f0f9ff; }
         .card-frame.card-type-恩賜 { border-color: #4f46e5; background: #f5f3ff; }
         .card-frame.card-type-神蹟 { border-color: #d97706; background: #fffbeb; }
@@ -176,20 +240,24 @@
         .card-frame.card-type-大能者 { border-color: #b45309; background: #fffbeb; }
         .card-frame.card-type-複合試煉 { border-color: #7c3aed; background: #faf5ff; }
         .card-frame.card-type-試煉, .card-frame.card-type-旅程試煉 { border-color: #6d28d9; background: #fdf4ff; }
-        .card-frame.card-type-事件 { border-color: #059669; background: #ecfdf5; }
+        .card-frame.card-type-事件, .card-frame.card-type-旅程事件 { border-color: #059669; background: #ecfdf5; }
         .card-frame.card-type-人民 { border-color: #0d9488; background: #f0fdfa; }
         .card-frame.card-type-地點 { border-color: #334155; background: #f8fafc; }
         .card-frame.card-type-墮落, .card-frame.card-type-終極墮落 { border-color: #000000; background: #f3f4f6; }
 
-        /* 卡牌頭部 */
+        /* ===================================================
+           1. 卡牌最上方：卡牌名稱、類型與費用標籤
+           =================================================== */
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid #cbd5e1;
             padding-bottom: 5px;
-            margin-bottom: 6px;
+            margin-bottom: 7px;
             gap: 6px;
+            position: relative;
+            z-index: 1;
         }
 
         .card-cost {
@@ -216,13 +284,13 @@
         .card-type-大能者 .card-cost { background: #b45309; }
         .card-type-複合試煉 .card-cost { background: #7c3aed; }
         .card-type-試煉 .card-cost, .card-type-旅程試煉 .card-cost { background: #6d28d9; }
-        .card-type-事件 .card-cost { background: #059669; }
+        .card-type-事件 .card-cost, .card-type-旅程事件 .card-cost { background: #059669; }
         .card-type-人民 .card-cost { background: #0d9488; }
         .card-type-地點 .card-cost { background: #334155; }
         .card-type-墮落 .card-cost, .card-type-終極墮落 .card-cost { background: #09090b; }
 
         .card-name {
-            font-size: 1.02rem;
+            font-size: 1.05rem;
             font-weight: 900;
             color: #0f172a;
             flex: 1;
@@ -249,67 +317,91 @@
         .type-大能者 { background: #b45309; color: white; }
         .type-複合試煉 { background: #7c3aed; color: white; }
         .type-試煉, .type-旅程試煉 { background: #6d28d9; color: white; }
-        .type-事件 { background: #059669; color: white; }
+        .type-事件, .type-旅程事件 { background: #059669; color: white; }
         .type-人民 { background: #0d9488; color: white; }
         .type-地點 { background: #334155; color: white; }
         .type-墮落, .type-終極墮落 { background: #09090b; color: white; }
         .type-default { background: #64748b; color: white; }
 
-        /* 插圖佔位區 */
-        .card-image-slot {
-            height: 72px;
-            background: rgba(255, 255, 255, 0.7);
-            border: 1.5px dashed #94a3b8;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #64748b;
-            font-size: 0.8rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        /* 效果內容區（全粗體強化、高對比） */
-        .card-content-box {
+        /* ===================================================
+           卡牌主體：下方為描述，再往下才是執行或行動
+           =================================================== */
+        .card-body {
             flex: 1;
-            background: rgba(255, 255, 255, 0.96);
-            border: 1.5px solid #94a3b8;
-            border-radius: 6px;
-            padding: 7px 8px;
-            font-size: 0.82rem;
-            line-height: 1.52;
-            color: #0f172a;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            position: relative;
+            z-index: 1;
+            gap: 6px;
+        }
+
+        /* 2. 下方：情境背景描述 / 聖經經文 (Narrative Description) */
+        .card-story-desc {
+            background: rgba(255, 255, 255, 0.85);
+            border-left: 3.5px solid #94a3b8;
+            padding: 6px 9px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-style: italic;
+            font-weight: 700;
+            color: #334155;
+            line-height: 1.45;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .card-type-災禍 .card-story-desc { border-left-color: #dc2626; background: rgba(254, 242, 242, 0.88); color: #7f1d1d; }
+        .card-type-試煉 .card-story-desc, .card-type-旅程試煉 .card-story-desc, .card-type-複合試煉 .card-story-desc { border-left-color: #7c3aed; background: rgba(250, 245, 255, 0.88); color: #4c1d95; }
+        .card-type-事件 .card-story-desc, .card-type-旅程事件 .card-story-desc { border-left-color: #059669; background: rgba(240, 253, 244, 0.88); color: #064e3b; }
+        .card-type-恩賜 .card-story-desc { border-left-color: #4f46e5; background: rgba(245, 243, 255, 0.88); color: #312e81; }
+        .card-type-神蹟 .card-story-desc { border-left-color: #d97706; background: rgba(254, 249, 231, 0.88); color: #78350f; }
+
+        /* 3. 再往下：執行或行動區 (Action / Mechanical Execution) */
+        .card-action-box {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 7px 9px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+        }
+
+        .card-action-title {
+            font-size: 0.72rem;
+            font-weight: 900;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 4px;
+            padding-bottom: 3px;
+            border-bottom: 1px dashed #e2e8f0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .card-effect {
+            font-size: 0.83rem;
             font-weight: 800;
             color: #0f172a;
+            line-height: 1.55;
             word-break: break-word;
         }
 
-        .card-flavor {
-            font-size: 0.74rem;
-            color: #475569;
-            font-style: italic;
-            font-weight: 700;
-            border-top: 1px dashed #cbd5e1;
-            padding-top: 3px;
-            margin-top: 4px;
-            line-height: 1.35;
-        }
-
+        /* 底部資訊列 */
         .card-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-top: 5px;
-            font-size: 0.75rem;
-            color: #334155;
+            font-size: 0.74rem;
+            color: #475569;
             font-weight: 800;
+            position: relative;
+            z-index: 1;
+            padding-top: 2px;
         }
 
         .card-vp {
@@ -361,12 +453,12 @@
             display: inline-block;
         }
 
-        /* 3. DC 難度門檻（金色高亮粗字） */
+        /* 3. 目標點數（金色高亮粗字膠囊） */
         .tag-dc {
             background: #b45309;
             color: #ffffff;
             font-weight: 900;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             padding: 1px 5px;
             border-radius: 4px;
             margin: 0 2px;
@@ -378,7 +470,7 @@
             background: #0284c7;
             color: #ffffff;
             font-weight: 900;
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             padding: 1px 5px;
             border-radius: 4px;
             margin: 0 2px;
@@ -408,7 +500,7 @@
             display: inline-block;
         }
 
-        /* 6. 🩸 肉身傷害（亮紅底高注意度） */
+        /* 6. 🩸 生命扣損（亮紅底高注意度） */
         .tag-damage {
             background: #fef2f2;
             color: #dc2626;
@@ -541,27 +633,36 @@
                 box-shadow: none;
                 border: 1px solid #64748b;
                 border-radius: 4px;
-                padding: 4mm;
+                padding: 3.5mm;
                 margin: 0;
                 page-break-inside: avoid;
             }
-            .card-image-slot {
-                height: 18mm;
-                font-size: 0.7rem;
+            .card-frame::before {
+                width: 32mm;
+                height: 32mm;
+                opacity: 0.07;
             }
-            .card-content-box {
-                padding: 2mm;
-                font-size: 0.75rem;
+            .card-story-desc {
+                font-size: 0.68rem;
+                padding: 1mm 2mm;
+                margin-bottom: 1.5mm;
+                line-height: 1.25;
+            }
+            .card-action-box {
+                padding: 1.5mm 2mm;
+            }
+            .card-effect {
+                font-size: 0.72rem;
                 line-height: 1.35;
             }
             .card-name {
-                font-size: 0.88rem;
+                font-size: 0.86rem;
                 font-weight: 900;
             }
             .card-cost {
-                min-width: 24px;
-                height: 24px;
-                font-size: 0.8rem;
+                min-width: 22px;
+                height: 22px;
+                font-size: 0.78rem;
             }
         }
     </style>
@@ -628,11 +729,10 @@
             // 4. 果子檢定名稱高亮
             text = text.replace(/【(信實良善|信實|良善|和平忍耐|和平|忍耐|喜樂熱心|喜樂|熱心|仁愛施予|仁愛|恩慈憐憫|恩慈|溫柔謙卑|溫柔|節制克己|節制|色慾|傲慢|貪婪|暴怒|嫉妒|怠惰|暴食)】/g, '<span class="tag-fruit">【$1】</span>');
             
-            // 5. DC 難度數值高亮
+            // 5. 目標點數 (前身為 DC) 高亮
             text = text.replace(/目標\s*([0-9]+)\s*點/g, '<span class="tag-dc">目標 $1 點</span>');
             text = text.replace(/DC\s*([0-9]+)/g, '<span class="tag-dc">目標 $1 點</span>');
             text = text.replace(/檢定目標\s*([+-]?[0-9]+)\s*點?/g, '<span class="tag-dc-mod">目標 $1 點</span>');
-            text = text.replace(/DC\s*([+-][0-9]+)/g, '<span class="tag-dc-mod">DC $1</span>');
 
             // 6. 🚨 罪惡增加（強烈紅字警示）
             text = text.replace(/(罪惡值?(?:各)?\s*\+[0-9]+(?:點)?)/g, '<span class="tag-sin-gain">⚠ $1</span>');
@@ -646,9 +746,8 @@
             text = text.replace(/(生命\s*-[0-9]+)/g, '<span class="tag-damage">🩸 $1</span>');
             text = text.replace(/(HP\s*-[0-9]+)/g, '<span class="tag-damage">🩸 $1</span>');
             text = text.replace(/((?:各?扣|失去)\s*[0-9]+\s*點?\s*生命)/g, '<span class="tag-damage">🩸 $1</span>');
-            text = text.replace(/(受到\s*[0-9]+\s*點?\s*生命\s*傷害)/g, '<span class="tag-damage">🩸 $1</span>');
-            text = text.replace(/(恢復\s*[0-9]+\s*(?:點\s*)?生命)/g, '<span class="tag-heal">💚 $1</span>');
             text = text.replace(/((?:各?扣|失去)\s*[0-9]+\s*點?\s*HP)/g, '<span class="tag-damage">🩸 $1</span>');
+            text = text.replace(/(受到\s*[0-9]+\s*點?\s*生命\s*傷害)/g, '<span class="tag-damage">🩸 $1</span>');
             text = text.replace(/(受到\s*[0-9]+\s*點?\s*HP\s*傷害)/g, '<span class="tag-damage">🩸 $1</span>');
 
             // 9. 虔誠扣減（橙紅警示）
@@ -657,8 +756,10 @@
 
             // 10. ✨ 虔誠獲得與治癒（綠字祝福）
             text = text.replace(/((?:全隊)?虔誠\s*\+[0-9]+)/g, '<span class="tag-piety-gain">✨ $1</span>');
+            text = text.replace(/(恢復\s*[0-9]+\s*(?:點\s*)?生命)/g, '<span class="tag-heal">💚 $1</span>');
             text = text.replace(/(恢復\s*[0-9]+\s*(?:點\s*)?HP)/g, '<span class="tag-heal">💚 $1</span>');
             text = text.replace(/(起始虔誠:\s*[0-9]+)/g, '<span class="tag-piety-init">$1</span>');
+            text = text.replace(/(生命\s*:\s*[0-9]+)/g, '<span class="tag-piety-init">$1</span>');
 
             // 11. 受洗與歸主
             text = text.replace(/(受洗為歸主者|直接歸主|引導歸主|成全聖徒)/g, '<span class="tag-baptism">💧 $1</span>');
@@ -702,6 +803,25 @@
             return data;
         }
 
+        function getActionTitle(cardType) {
+            if (['災禍', '試煉', '旅程試煉', '複合試煉', '事件', '旅程事件'].includes(cardType)) {
+                return '⚡ 執行與行動判定';
+            } else if (cardType === '角色') {
+                return '👤 使徒體魄與專屬特質';
+            } else if (cardType === '恩賜') {
+                return '🕊️ 聖靈恩賜常駐果效';
+            } else if (cardType === '神蹟') {
+                return '🔥 史詩神蹟守候條件與彰顯';
+            } else if (cardType === '人民' || cardType === '大能者') {
+                return '🤝 迫切需要與講道受洗';
+            } else if (cardType === '地點') {
+                return '🗺️ 宣教工場合一事奉效果';
+            } else if (cardType === '誘惑' || cardType === '墮落' || cardType === '終極墮落') {
+                return '☠ 罪惡試探與墮落後果';
+            }
+            return '⚡ 效果與執行';
+        }
+
         function renderCards(cards) {
             const grid = document.getElementById('cardsGrid');
             grid.innerHTML = '';
@@ -717,23 +837,37 @@
                     cardEl.className = `card-frame card-type-${cardType}`;
                     const typeClass = 'type-' + cardType;
 
-                    let costLabel = card.capacity ? `容 ${card.capacity}` : (card.cost && card.cost !== '0' ? `虔誠 ${card.cost}` : (cardType === '角色' ? `信仰` : `即發`));
+                    let costLabel = card.capacity ? `容 ${card.capacity}` : (card.cost && card.cost !== '0' ? `虔誠 ${card.cost}` : (cardType === '角色' ? `使徒` : `即發`));
 
                     const formattedEffect = formatCardEffect(card.description || '');
+                    const actionTitle = getActionTitle(cardType);
 
+                    // 新結構：
+                    // 1. 最上方：卡牌名稱、費用、徽章
+                    // 2. 下方：描述文字 (情境/經文背景)
+                    // 3. 再往下：執行或行動 (檢定、效果、判定分支)
+                    // 4. 原獨立插圖方框已刪除，改在 CSS ::before 放置半透明水印插圖
                     cardEl.innerHTML = `
                         <div class="card-header">
                             <div class="card-cost">${costLabel}</div>
                             <div class="card-name" title="${card.name}">${card.name}</div>
                             <span class="card-badge ${typeClass}">${card.type || card.deck_type || '卡牌'}</span>
                         </div>
-                        <div class="card-image-slot">
-                            [ ${card.name} 插圖區 ]
+                        
+                        <div class="card-body">
+                            ${card.flavor_text ? `
+                            <div class="card-story-desc">
+                                ${card.flavor_text}
+                            </div>` : ''}
+
+                            <div class="card-action-box">
+                                <div class="card-action-title">
+                                    ${actionTitle}
+                                </div>
+                                <div class="card-effect">${formattedEffect}</div>
+                            </div>
                         </div>
-                        <div class="card-content-box">
-                            <div class="card-effect">${formattedEffect}</div>
-                            ${card.flavor_text ? `<div class="card-flavor">${card.flavor_text}</div>` : ''}
-                        </div>
+
                         <div class="card-footer">
                             <span>ID: ${card.id || ''} (${k + 1}/${count})</span>
                             <span class="card-vp">${card.bound_pillar ? card.bound_pillar : (card.vp && card.vp !== '0' ? `靈力: ${card.vp}` : '常規')}</span>
@@ -765,7 +899,8 @@
                 const name = (c.name || '').toLowerCase();
                 const desc = (c.description || '').toLowerCase();
                 const type = (c.type || c.deck_type || '').toLowerCase();
-                return name.includes(q) || desc.includes(q) || type.includes(q);
+                const flavor = (c.flavor_text || '').toLowerCase();
+                return name.includes(q) || desc.includes(q) || type.includes(q) || flavor.includes(q);
             });
             renderCards(filtered);
         }
@@ -782,9 +917,9 @@
             reader.readAsText(file, 'utf-8');
         });
 
-        // 預設載入核心牌庫
+        // 預設載入旅程試煉牌庫
         window.addEventListener('DOMContentLoaded', () => {
-            onDeckSelect('core');
+            onDeckSelect('journey');
         });
     </script>
 </body>
