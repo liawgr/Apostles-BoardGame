@@ -13,7 +13,7 @@
 - 📖 **專案展示提案手冊 (3 分鐘掌握全案)**：[docs/PROJECT_PITCH.md](docs/PROJECT_PITCH.md)
 - 📋 **完整遊戲企劃文件 (GDD v1.0 全案完成)**：[docs/GDD.md](docs/GDD.md)
 - 🖨️ **實體卡牌預覽與 A4 列印工具**：[tools/previewer.html](tools/previewer.html)（支援瀏覽器直接預覽與 Ctrl+P 快速打樣列印）
-- 📦 **全套實體配件清單 (BOM, 35項物料)**：[data/components.csv](data/components.csv)
+- 📦 **全套實體全盒實體配件完整清單 (35項物料)**：[data/components.csv](data/components.csv)
 
 ---
 
@@ -33,7 +33,7 @@ BoardGameProject/
 ├── data/                       # 遊戲資料庫
 │   ├── cards.csv               # 通用卡牌資料表（角色、恩賜、神蹟、誘惑）
 │   ├── decks/                  # 模組化地區專屬牌堆 (三大宣教區)
-│   ├── components.csv          # 配件規格控管表 (BOM)
+│   ├── components.csv          # 全盒實體配件完整清單
 │   └── balance_guide.md        # 數值平衡指南
 ├── playtesting/                # 測試與回饋
 │   ├── test_feedback_template.md # 盲測試玩回饋問卷

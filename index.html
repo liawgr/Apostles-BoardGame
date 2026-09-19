@@ -484,7 +484,7 @@
             <li><a href="#features">獨創機制</a></li>
             <li><a href="#rules">規則速覽</a></li>
             <li><a href="#regions">三大宣教區</a></li>
-            <li><a href="#components">配件清單 (BOM)</a></li>
+            <li><a href="#components">全盒實體配件完整清單</a></li>
         </ul>
         <div style="display: flex; gap: 8px;">
             <a href="docs/quickstart.html" target="_blank" class="nav-btn" style="background: #2563eb; color: #ffffff; border: 1px solid #60a5fa;">🚀 10分鐘速成</a>
@@ -546,7 +546,7 @@
                 <div class="feature-icon">⚖️</div>
                 <h3 class="feature-title">純粹的雙重死亡判定</h3>
                 <p class="feature-body">
-                    <strong>肉身生命 (HP) 歸零</strong>即肉身殉道；<strong>靈命虔誠 (Piety) 歸零</strong>即屬靈死亡（與神隔絕沉淪）。全隊僅在「全員 HP 歸零」或「全員虔誠歸零」時宣告失敗！時間用盡不會強制失敗，而是轉為 OT 超時扣分！
+                    <strong>肉身生命 歸零</strong>即肉身殉道；<strong>靈命虔誠 (Piety) 歸零</strong>即屬靈死亡（與神隔絕沉淪）。全隊僅在「全員生命歸零」或「全員虔誠歸零」時宣告失敗！時間用盡不會強制失敗，而是轉為 超時輪次扣分！
                 </p>
             </div>
         </div>
@@ -598,16 +598,16 @@
                 <p class="feature-body">
                     虔誠值（0~20）不再只是防禦血條！使徒可主動燃燒虔誠：<br>
                     • <strong>【信心宣告】</strong>（消 2 虔誠）：檢定直接 +3。<br>
-                    • <strong>【破除堅壘】</strong>（消 3 虔誠 + 1 AP）：封印地點威脅 1 回合。<br>
+                    • <strong>【破除堅壘】</strong>（消 3 虔誠 + 1 個行動點）：封印地點威脅 1 回合。<br>
                     • <strong>【天使護衛】</strong>：每消 1 虔誠抵扣 1 點致命傷害。<br>
-                    • <strong>滿 20 點【聖靈充滿】</strong>：全場檢定 +1 光環，更可發動一次【神聖大爆發】免費帶人歸主！
+                    • <strong>滿 20 點【聖靈充滿】</strong>：全場檢定 +1 光環（同地點使徒共享的聖靈加成），更可發動一次【神聖大爆發】免費帶人歸主！
                 </p>
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🔨</div>
                 <h3 class="feature-title">保羅式親手做工（織帳棚）</h3>
                 <p class="feature-body">
-                    徹底破除飢荒死局！任何使徒耗費 1 AP 執行做工：<strong>穩定獲得 1 份糧食</strong>（100% 免除餓死風險）；更可進行【節制】DC 8 檢定，成功多得 1 份糧食或 1 銀幣！成全後勤聖徒後，即可交接產出專心傳道。
+                    徹底破除飢荒死局！任何使徒耗費 1 個行動點 執行做工：<strong>穩定獲得 1 份糧食</strong>（100% 免除餓死風險）；更可進行【節制】目標 8 點 檢定，成功多得 1 份糧食或 1 銀幣！成全後勤聖徒後，即可交接產出專心傳道。
                 </p>
             </div>
             <div class="feature-card">
@@ -626,7 +626,7 @@
             </div>
             <div class="feature-card">
                 <div class="feature-icon">⏱️</div>
-                <h3 class="feature-title">OT 超時扣分（非中斷懲罰）</h3>
+                <h3 class="feature-title">超時輪次扣分（非中斷懲罰）</h3>
                 <p class="feature-body">
                     取消時間到（Time Out）直接強迫認輸的挫折感！各地區以 10 輪為推薦標準，若未達成可繼續前進（11、12輪...），但每超時 1 輪在終局結算時扣除 5 點榮耀值，兼顧故事史詩感與時間緊迫性。
                 </p>
@@ -640,14 +640,14 @@
             </div>
             <div class="feature-card">
                 <div class="feature-icon">🎲</div>
-                <h3 class="feature-title">靈果動態骰池與「罪惡墮落」</h3>
+                <h3 class="feature-title">靈果可用骰數與「罪惡墮落」</h3>
                 <p class="feature-body">
                     <strong>可擲骰數量完全取決於當前可用靈果（4~8顆）</strong>，引入震撼的三色動態替換：<br>
                     • ⚪ <strong>天意骰</strong>：`[0,0,1,1,2,2]`（常態努力，均值+1.0）；<br>
                     • 🕊️ <strong>聖靈骰</strong>：`[1,1,1,2,2,2]`（<strong>神永不失敗！</strong> 每 5 虔誠升級 1 顆，保底+1）；<br>
                     • ⛓️ <strong>罪惡骰</strong>：`[☠️罪,☠️罪,0,1,1,2]`（<strong>罪的工價乃是死亡！</strong> 罪惡每滿 2 點強制替換 1 顆）；<br>
                     • 🩸 <strong>當場完全墮落</strong>：每擲出 1 個【☠️罪】，該項罪惡值<strong>當場 ＋1</strong>！累積滿 10 點立即引爆完全墮落！<br>
-                    • 🚨 <strong>罪骰優先法則</strong>：超出骰池時，<strong>以罪骰為絕對優先塞入！</strong> 擠出聖靈骰（罪使人與神隔絕）。
+                    • 🚨 <strong>罪骰優先法則</strong>：超出可用骰數時，<strong>以罪骰為絕對優先塞入！</strong> 擠出聖靈骰（罪使人與神隔絕）。
                 </p>
             </div>
             <div class="feature-card" style="border-color: #7c3aed; background: #faf5ff;">
@@ -678,7 +678,7 @@
                 <div class="step-content">
                     <h4>🌅 晨更階段 (Morning Phase) - 全隊共同結算</h4>
                     <p>
-                        1. <strong>推進時間軌</strong>：時間標記前進 1 格（超過 10 輪進入 OT 超時記錄）。<br>
+                        1. <strong>推進時間軌</strong>：時間標記前進 1 格（超過 10 輪進入 超時輪次記錄）。<br>
                         2. <strong>選任團契主席</strong>：若身後已有建立之母會團契，指定 1 位聖徒發動遠距物資或防禦支援。<br>
                         3. <strong>歸主者祈禱代幣產出</strong>：已歸主百姓產出 1 祈禱代幣（大能者產出 2 枚），全隊商討分配放置於未成全信徒上。<br>
                         4. <strong>補滿地點市場</strong>：若地點有空位，從 16 張人民牌堆頂翻開補齊。
@@ -693,8 +693,8 @@
                     <p>
                         每位使徒回合包含四步驟：<br>
                         • <strong>步驟 1 (抽牌)</strong>：從 31 張地區遭遇牌堆抽 1 張（事件、試煉或災禍）。<br>
-                        • <strong>步驟 1.5 (位移)</strong>：免費移動至場上另一個活動地點一次（再次移動耗 1 AP）。<br>
-                        • <strong>步驟 2 (分配 3 AP)</strong>：
+                        • <strong>步驟 1.5 (位移)</strong>：免費移動至場上另一個活動地點一次（再次移動耗 1 個行動點）。<br>
+                        • <strong>步驟 2 (分配 3 個行動點)</strong>：
                           <strong>祈禱</strong>（靈修+2虔誠/認罪消3罪/發放代禱代幣/守候神蹟）；
                           <strong>傳道</strong>（滿足迫切需要/真理講道受洗）；
                           <strong>成全聖徒</strong>（5代幣成全平民/15代幣成全大能者）；
@@ -710,7 +710,7 @@
                     <h4>🌆 黃昏結算階段 (Evening Phase) - 全隊共同檢驗</h4>
                     <p>
                         1. <strong>領取後勤支援</strong>：成全聖徒與周遊同工產生日用糧食與防護。<br>
-                        2. <strong>消耗日用糧食</strong>：全隊檢驗糧食消耗（每位使徒需消耗 1 糧食；每匱乏 1 份指定使徒扣 2 HP）。<br>
+                        2. <strong>消耗日用糧食</strong>：全隊檢驗糧食消耗（每位使徒需消耗 1 糧食；每匱乏 1 份指定使徒扣 2 點生命）。<br>
                         3. <strong>罪惡侵蝕檢驗</strong>：若某項罪惡值達 6 點以上，扣除超標數量的虔誠值；滿 10 點觸發【完全墮落】抽取深淵墮落卡！
                     </p>
                 </div>
@@ -769,11 +769,11 @@
         </div>
     </section>
 
-    <!-- 配件清單 (BOM) -->
+    <!-- 全盒實體配件完整清單 -->
     <section class="container" id="components">
         <div class="section-header">
             <span class="section-tag">Bill of Materials</span>
-            <h2 class="section-title">全套實體配件清單 (BOM)</h2>
+            <h2 class="section-title">全套實體全盒實體配件完整清單</h2>
             <p class="section-desc">共計 268 張卡牌、5 塊厚板、110+ 顆木質與壓克力專屬代幣、金屬鑄幣與判定骰。</p>
         </div>
 
@@ -835,7 +835,7 @@
                     <td>圖板</td>
                     <td>A5 尺寸 (210 × 148 mm) 雙層灰板開槽</td>
                     <td>4 塊</td>
-                    <td>HP/虔誠雙軌、7 條果子天平槽、恩賜槽</td>
+                    <td>生命/虔誠雙軌、7 條果子天平槽、恩賜槽</td>
                 </tr>
                 <tr>
                     <td><strong>中央時代進程主板</strong></td>
@@ -884,7 +884,7 @@
                     <td>特規骰子</td>
                     <td>16 mm 象牙白底刻黑字 [0, 0, 1, 1, 2, 2]</td>
                     <td>8 顆</td>
-                    <td>常態基礎檢定骰池（依使徒實際可用靈果值抓取 4~8 顆）</td>
+                    <td>常態基礎檢定可用骰數（依使徒實際可用靈果值抓取 4~8 顆）</td>
                 </tr>
                 <tr>
                     <td><strong>聖靈特規骰</strong></td>
