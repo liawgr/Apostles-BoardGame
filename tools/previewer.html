@@ -386,7 +386,7 @@
             font-size: 0.83rem;
             font-weight: 800;
             color: #0f172a;
-            line-height: 1.55;
+            line-height: 1.62;
             word-break: break-word;
         }
 
@@ -410,200 +410,85 @@
         }
 
         /* ===================================================
-           高注意度關鍵資訊標籤樣式 (High-Attention Badges)
+           高注意度文字色彩系統 (純色強調，告別繁雜小框框)
            =================================================== */
 
-        /* 1. 檢定開頭與職分 */
-        .tag-check-hdr {
-            background: #1e293b;
-            color: #f8fafc;
-            font-weight: 900;
-            font-size: 0.74rem;
-            padding: 1px 5px;
-            border-radius: 4px;
-            display: inline-block;
-            border: 1px solid #475569;
-            margin-right: 2px;
-        }
-
-        .tag-need-hdr, .tag-preach-hdr {
-            background: #0284c7;
-            color: #ffffff;
-            font-weight: 900;
-            font-size: 0.74rem;
-            padding: 1px 5px;
-            border-radius: 4px;
-            display: inline-block;
-            margin-right: 2px;
-        }
-
-        .tag-trait {
-            color: #4338ca;
+        /* 1. 檢定前綴與標題（純色粗體，無框） */
+        .txt-check-title {
+            color: #0f172a;
             font-weight: 900;
         }
 
-        /* 2. 靈果檢定名稱（高對比亮藍標籤） */
-        .tag-fruit {
-            color: #1e3a8a;
-            font-weight: 900;
-            background: #e0e7ff;
-            padding: 0 3px;
-            border-radius: 3px;
-            border: 1px solid #a5b4fc;
-            display: inline-block;
-        }
-
-        /* 3. 目標點數（金色高亮粗字膠囊） */
-        .tag-dc {
-            background: #b45309;
-            color: #ffffff;
-            font-weight: 900;
-            font-size: 0.76rem;
-            padding: 1px 5px;
-            border-radius: 4px;
-            margin: 0 2px;
-            display: inline-block;
-            box-shadow: 0 1px 3px rgba(180, 83, 9, 0.3);
-        }
-
-        .tag-dc-mod {
-            background: #0284c7;
-            color: #ffffff;
-            font-weight: 900;
-            font-size: 0.76rem;
-            padding: 1px 5px;
-            border-radius: 4px;
-            margin: 0 2px;
-            display: inline-block;
-        }
-
-        /* 4. 🚨 罪惡增加（醒目亮紅底、深紅字、危險警告） */
-        .tag-sin-gain {
-            background: #fee2e2;
-            color: #b91c1c;
-            font-weight: 900;
-            padding: 1px 6px;
-            border-radius: 4px;
-            border: 1.5px solid #ef4444;
-            display: inline-block;
-            box-shadow: 0 1px 4px rgba(239, 68, 68, 0.25);
-        }
-
-        /* 5. 罪惡消除/洗淨（潔淨翠綠） */
-        .tag-sin-clear {
-            background: #ecfdf5;
-            color: #065f46;
-            font-weight: 900;
-            padding: 1px 5px;
-            border-radius: 3px;
-            border: 1px solid #6ee7b7;
-            display: inline-block;
-        }
-
-        /* 6. 🩸 生命扣損（亮紅底高注意度） */
-        .tag-damage {
-            background: #fef2f2;
-            color: #dc2626;
-            font-weight: 900;
-            padding: 1px 5px;
-            border-radius: 4px;
-            border: 1.5px solid #f87171;
-            display: inline-block;
-        }
-
-        /* 7. 虔誠損失（橙紅警示） */
-        .tag-piety-loss {
-            background: #fff7ed;
-            color: #c2410c;
-            font-weight: 900;
-            padding: 1px 5px;
-            border-radius: 4px;
-            border: 1.5px solid #fb923c;
-            display: inline-block;
-        }
-
-        /* 8. ✨ 虔誠獲得與治癒（生機翠綠） */
-        .tag-piety-gain, .tag-heal {
-            background: #f0fdf4;
-            color: #15803d;
-            font-weight: 900;
-            padding: 1px 5px;
-            border-radius: 4px;
-            border: 1.5px solid #86efac;
-            display: inline-block;
-        }
-
-        .tag-piety-init {
+        .txt-need-title, .txt-preach-title {
             color: #0284c7;
             font-weight: 900;
         }
 
-        /* 9. 分支判定結果（成功綠 / 失敗紅 / 部分過橙） */
-        .tag-outcome-pass {
-            background: #15803d;
-            color: #ffffff;
+        .txt-trait {
+            color: #4338ca;
             font-weight: 900;
-            padding: 1px 6px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            display: inline-block;
-            margin-top: 3px;
         }
 
-        .tag-outcome-warn {
-            background: #b45309;
-            color: #ffffff;
+        .txt-hazard {
+            color: #b91c1c;
             font-weight: 900;
-            padding: 1px 6px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            display: inline-block;
-            margin-top: 3px;
         }
 
-        .tag-outcome-fail {
-            background: #b91c1c;
-            color: #ffffff;
-            font-weight: 900;
-            padding: 1px 6px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            display: inline-block;
-            margin-top: 3px;
-        }
-
-        /* 10. 持續災禍（深赤紅警報） */
-        .tag-hazard {
-            background: #7f1d1d;
-            color: #fef2f2;
-            font-weight: 900;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.78rem;
-            display: inline-block;
-            border: 1px solid #ef4444;
-        }
-
-        /* 11. 受洗與歸主標籤 */
-        .tag-baptism {
-            background: #eff6ff;
+        /* 2. 靈果檢定名稱（高對比亮藍純色，無框） */
+        .txt-fruit {
             color: #1d4ed8;
             font-weight: 900;
-            padding: 1px 5px;
-            border-radius: 4px;
-            border: 1px solid #93c5fd;
-            display: inline-block;
         }
 
-        /* 12. 行動點損失 */
-        .tag-ap-loss {
-            background: #fef2f2;
-            color: #991b1b;
+        /* 3. 目標 XX 點：僅突出數字本身！ */
+        .num-target {
+            color: #b45309;
             font-weight: 900;
-            padding: 1px 5px;
-            border-radius: 3px;
-            border: 1px solid #fca5a5;
-            display: inline-block;
+            font-size: 1.06em;
+            padding: 0 1px;
+        }
+
+        /* 4. 🚨 罪惡增加與受到傷害（強烈亮紅純色，無框） */
+        .txt-danger {
+            color: #dc2626;
+            font-weight: 900;
+        }
+
+        /* 5. 虔誠扣減（暖橙紅純色，無框） */
+        .txt-warn {
+            color: #ea580c;
+            font-weight: 900;
+        }
+
+        /* 6. ✨ 虔誠獲得、治癒與洗淨（生機翠綠純色，無框） */
+        .txt-success {
+            color: #15803d;
+            font-weight: 900;
+        }
+
+        /* 7. 受洗與救恩（湛藍純色，無框） */
+        .txt-blue {
+            color: #2563eb;
+            font-weight: 900;
+        }
+
+        /* 8. 分支判定結果（自然換行 + 醒目彩色前綴，無按鈕框） */
+        .branch-pass {
+            color: #15803d;
+            font-weight: 900;
+            display: inline;
+        }
+
+        .branch-warn {
+            color: #b45309;
+            font-weight: 900;
+            display: inline;
+        }
+
+        .branch-fail {
+            color: #dc2626;
+            font-weight: 900;
+            display: inline;
         }
 
         /* 列印排版樣式優化 (A4 9格標準排版) */
@@ -711,61 +596,61 @@
         function formatCardEffect(text) {
             if (!text) return '';
 
-            // 1. 持續災禍標籤
-            text = text.replace(/^(持續災禍：)/g, '<span class="tag-hazard">【持續災禍】</span> ');
+            // 1. 持續災禍標題（純紅粗字，無框）
+            text = text.replace(/^(持續災禍：)/g, '<span class="txt-hazard">【持續災禍】</span> ');
 
-            // 2. 檢定與需求前綴
-            text = text.replace(/(複合檢定：)/g, '<span class="tag-check-hdr">複合檢定</span> ');
-            text = text.replace(/(檢定：)/g, '<span class="tag-check-hdr">檢定</span> ');
-            text = text.replace(/(需要：)/g, '<span class="tag-need-hdr">需要</span> ');
-            text = text.replace(/(講道：)/g, '<span class="tag-preach-hdr">講道</span> ');
-            text = text.replace(/(特質【.*?】：)/g, '<span class="tag-trait">$1</span>');
+            // 2. 檢定與需求前綴（純色粗字，無框）
+            text = text.replace(/(複合檢定：)/g, '<span class="txt-check-title">【複合檢定】</span> ');
+            text = text.replace(/(檢定：)/g, '<span class="txt-check-title">【檢定】</span> ');
+            text = text.replace(/(需要：)/g, '<span class="txt-need-title">【需要】</span> ');
+            text = text.replace(/(講道：)/g, '<span class="txt-preach-title">【講道】</span> ');
+            text = text.replace(/(特質【.*?】：)/g, '<span class="txt-trait">$1</span>');
 
-            // 3. 分支判斷結果（雙過、成功、雙敗、失敗、過/敗組合）
-            text = text.replace(/｜(雙過|成功|全過|雙成|成)：/g, '<br><span class="tag-outcome-pass">✔ $1</span>：');
-            text = text.replace(/｜([^\s：:]*(?:過|成)[^\s：:]*(?:敗|未)[^\s：:]*|[^\s：:]*(?:敗|未)[^\s：:]*(?:過|成)[^\s：:]*)：/g, '<br><span class="tag-outcome-warn">▲ $1</span>：');
-            text = text.replace(/｜(雙敗|失敗|全敗|敗)：/g, '<br><span class="tag-outcome-fail">✘ $1</span>：');
+            // 3. 分支判斷結果（換行 + 醒目彩色前綴，無框不壓縮排版）
+            text = text.replace(/｜(雙過|成功|全過|雙成|成)：/g, '<br><span class="branch-pass">✔ $1：</span>');
+            text = text.replace(/｜([^\s：:]*(?:過|成)[^\s：:]*(?:敗|未)[^\s：:]*|[^\s：:]*(?:敗|未)[^\s：:]*(?:過|成)[^\s：:]*)：/g, '<br><span class="branch-warn">▲ $1：</span>');
+            text = text.replace(/｜(雙敗|失敗|全敗|敗)：/g, '<br><span class="branch-fail">✘ $1：</span>');
 
-            // 4. 果子檢定名稱高亮
-            text = text.replace(/【(信實良善|信實|良善|和平忍耐|和平|忍耐|喜樂熱心|喜樂|熱心|仁愛施予|仁愛|恩慈憐憫|恩慈|溫柔謙卑|溫柔|節制克己|節制|色慾|傲慢|貪婪|暴怒|嫉妒|怠惰|暴食)】/g, '<span class="tag-fruit">【$1】</span>');
+            // 4. 靈果檢定名稱（高對比亮藍純色，無框）
+            text = text.replace(/【(信實良善|信實|良善|和平忍耐|和平|忍耐|喜樂熱心|喜樂|熱心|仁愛施予|仁愛|恩慈憐憫|恩慈|溫柔謙卑|溫柔|節制克己|節制|色慾|傲慢|貪婪|暴怒|嫉妒|怠惰|暴食)】/g, '<span class="txt-fruit">【$1】</span>');
             
-            // 5. 目標點數 (前身為 DC) 高亮
-            text = text.replace(/目標\s*([0-9]+)\s*點/g, '<span class="tag-dc">目標 $1 點</span>');
-            text = text.replace(/DC\s*([0-9]+)/g, '<span class="tag-dc">目標 $1 點</span>');
-            text = text.replace(/檢定目標\s*([+-]?[0-9]+)\s*點?/g, '<span class="tag-dc-mod">目標 $1 點</span>');
+            // 5. 目標 XX 點：依照指示，只強調數字部分！
+            text = text.replace(/目標\s*([0-9]+)\s*點/g, '目標 <span class="num-target">$1</span> 點');
+            text = text.replace(/DC\s*([0-9]+)/g, '目標 <span class="num-target">$1</span> 點');
+            text = text.replace(/檢定目標\s*([+-]?[0-9]+)\s*點?/g, '目標 <span class="num-target">$1</span> 點');
 
-            // 6. 🚨 罪惡增加（強烈紅字警示）
-            text = text.replace(/(罪惡值?(?:各)?\s*\+[0-9]+(?:點)?)/g, '<span class="tag-sin-gain">⚠ $1</span>');
-            text = text.replace(/(染上\s*[0-9]+\s*點罪惡)/g, '<span class="tag-sin-gain">⚠ $1</span>');
-            text = text.replace(/(完全墮落|立即完全墮落|陷入迷夢|陷入墮落)/g, '<span class="tag-sin-gain">☠ $1</span>');
+            // 6. 🚨 罪惡增加（純紅粗字，無框）
+            text = text.replace(/(罪惡值?(?:各)?\s*\+[0-9]+(?:點)?)/g, '<span class="txt-danger">⚠ $1</span>');
+            text = text.replace(/(染上\s*[0-9]+\s*點罪惡)/g, '<span class="txt-danger">⚠ $1</span>');
+            text = text.replace(/(完全墮落|立即完全墮落|陷入迷夢|陷入墮落)/g, '<span class="txt-danger">☠ $1</span>');
 
-            // 7. 罪惡洗淨消除
-            text = text.replace(/((?:消除|洗淨)(?:自身)?\s*[0-9]+\s*點罪惡值?)/g, '<span class="tag-sin-clear">🕊 $1</span>');
+            // 7. 罪惡洗淨消除（純綠粗字，無框）
+            text = text.replace(/((?:消除|洗淨)(?:自身)?\s*[0-9]+\s*點罪惡值?)/g, '<span class="txt-success">🕊 $1</span>');
 
-            // 8. 🩸 肉身傷害扣損（強烈紅字警示）
-            text = text.replace(/(生命\s*-[0-9]+)/g, '<span class="tag-damage">🩸 $1</span>');
-            text = text.replace(/(HP\s*-[0-9]+)/g, '<span class="tag-damage">🩸 $1</span>');
-            text = text.replace(/((?:各?扣|失去)\s*[0-9]+\s*點?\s*生命)/g, '<span class="tag-damage">🩸 $1</span>');
-            text = text.replace(/((?:各?扣|失去)\s*[0-9]+\s*點?\s*HP)/g, '<span class="tag-damage">🩸 $1</span>');
-            text = text.replace(/(受到\s*[0-9]+\s*點?\s*生命\s*傷害)/g, '<span class="tag-damage">🩸 $1</span>');
-            text = text.replace(/(受到\s*[0-9]+\s*點?\s*HP\s*傷害)/g, '<span class="tag-damage">🩸 $1</span>');
+            // 8. 🩸 肉身生命扣損（純紅粗字，無框）
+            text = text.replace(/(生命\s*-[0-9]+)/g, '<span class="txt-danger">🩸 $1</span>');
+            text = text.replace(/(HP\s*-[0-9]+)/g, '<span class="txt-danger">🩸 $1</span>');
+            text = text.replace(/((?:各?扣|失去)\s*[0-9]+\s*點?\s*生命)/g, '<span class="txt-danger">🩸 $1</span>');
+            text = text.replace(/((?:各?扣|失去)\s*[0-9]+\s*點?\s*HP)/g, '<span class="txt-danger">🩸 $1</span>');
+            text = text.replace(/(受到\s*[0-9]+\s*點?\s*生命\s*傷害)/g, '<span class="txt-danger">🩸 $1</span>');
+            text = text.replace(/(受到\s*[0-9]+\s*點?\s*HP\s*傷害)/g, '<span class="txt-danger">🩸 $1</span>');
 
-            // 9. 虔誠扣減（橙紅警示）
-            text = text.replace(/(虔誠\s*-[0-9]+)/g, '<span class="tag-piety-loss">🔻 $1</span>');
-            text = text.replace(/((?:全體|使徒)?失去\s*[0-9]+\s*點虔誠)/g, '<span class="tag-piety-loss">🔻 $1</span>');
+            // 9. 虔誠扣減（純橙紅粗字，無框）
+            text = text.replace(/(虔誠\s*-[0-9]+)/g, '<span class="txt-warn">🔻 $1</span>');
+            text = text.replace(/((?:全體|使徒)?失去\s*[0-9]+\s*點虔誠)/g, '<span class="txt-warn">🔻 $1</span>');
 
-            // 10. ✨ 虔誠獲得與治癒（綠字祝福）
-            text = text.replace(/((?:全隊)?虔誠\s*\+[0-9]+)/g, '<span class="tag-piety-gain">✨ $1</span>');
-            text = text.replace(/(恢復\s*[0-9]+\s*(?:點\s*)?生命)/g, '<span class="tag-heal">💚 $1</span>');
-            text = text.replace(/(恢復\s*[0-9]+\s*(?:點\s*)?HP)/g, '<span class="tag-heal">💚 $1</span>');
-            text = text.replace(/(起始虔誠:\s*[0-9]+)/g, '<span class="tag-piety-init">$1</span>');
-            text = text.replace(/(生命\s*:\s*[0-9]+)/g, '<span class="tag-piety-init">$1</span>');
+            // 10. ✨ 虔誠獲得與治癒（純綠粗字，無框）
+            text = text.replace(/((?:全隊)?虔誠\s*\+[0-9]+)/g, '<span class="txt-success">✨ $1</span>');
+            text = text.replace(/(恢復\s*[0-9]+\s*(?:點\s*)?生命)/g, '<span class="txt-success">💚 $1</span>');
+            text = text.replace(/(恢復\s*[0-9]+\s*(?:點\s*)?HP)/g, '<span class="txt-success">💚 $1</span>');
+            text = text.replace(/(起始虔誠:\s*[0-9]+)/g, '<span class="txt-blue">$1</span>');
+            text = text.replace(/(生命\s*:\s*[0-9]+)/g, '<span class="txt-blue">$1</span>');
 
-            // 11. 受洗與歸主
-            text = text.replace(/(受洗為歸主者|直接歸主|引導歸主|成全聖徒)/g, '<span class="tag-baptism">💧 $1</span>');
+            // 11. 受洗與歸主（純深藍粗字，無框）
+            text = text.replace(/(受洗為歸主者|直接歸主|引導歸主|成全聖徒)/g, '<span class="txt-blue">💧 $1</span>');
 
-            // 12. 行動點損失
-            text = text.replace(/(行動點\s*(?:各)?\s*-[0-9]+)/g, '<span class="tag-ap-loss">⌛ $1</span>');
+            // 12. 行動點損失（純紅粗字，無框）
+            text = text.replace(/(行動點\s*(?:各)?\s*-[0-9]+)/g, '<span class="txt-danger">⌛ $1</span>');
 
             return text;
         }
