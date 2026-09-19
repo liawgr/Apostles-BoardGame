@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎲 《使徒:大使命》卡牌視覺化預覽與列印工具</title>
+    <title>🎲 《使徒:大使命》卡牌視覺化預覽與列印系統</title>
     <style>
         :root {
             --card-width: 63mm;
             --card-height: 88mm;
-            --primary: #4361ee;
+            --primary-navy: #0f172a;
+            --accent-blue: #2563eb;
             --bg-page: #f1f5f9;
         }
 
@@ -19,58 +20,92 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
             background-color: var(--bg-page);
-            color: #1e293b;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* 頂部操作控制列 */
         .controls {
             background: #ffffff;
             border-bottom: 2px solid #cbd5e1;
-            padding: 16px 24px;
+            padding: 14px 24px;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            gap: 16px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
         .controls h1 {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
+            font-weight: 900;
             color: #0f172a;
             display: flex;
             align-items: center;
             gap: 8px;
+            margin-right: 8px;
+        }
+
+        .select-deck {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: 2px solid #2563eb;
+            background: #ffffff;
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .search-box {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 600;
+            outline: none;
+            width: 160px;
+        }
+        .search-box:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
         }
 
         .btn {
-            background: var(--primary);
+            background: #2563eb;
             color: white;
             border: none;
-            padding: 8px 18px;
+            padding: 8px 16px;
             border-radius: 6px;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             cursor: pointer;
-            font-weight: 600;
+            font-weight: 800;
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn:hover {
-            opacity: 0.9;
+            background: #1d4ed8;
             transform: translateY(-1px);
         }
 
         .btn-outline {
-            background: transparent;
-            border: 1px solid #94a3b8;
+            background: #ffffff;
+            border: 1.5px solid #64748b;
             color: #334155;
         }
 
         .btn-outline:hover {
-            background: #e2e8f0;
+            background: #f8fafc;
+            border-color: #334155;
         }
 
         .file-input-wrapper {
@@ -92,179 +127,394 @@
         .stats-bar {
             margin-left: auto;
             font-size: 0.9rem;
-            color: #475569;
-            font-weight: 500;
+            color: #334155;
+            font-weight: 800;
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #cbd5e1;
         }
 
+        /* 預覽網格佈局 */
         .preview-container {
-            max-width: 1300px;
-            margin: 30px auto;
+            max-width: 1380px;
+            margin: 28px auto;
             padding: 0 20px;
         }
 
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 24px;
+            grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+            gap: 22px;
             justify-items: center;
         }
 
+        /* 卡牌本體框架 */
         .card-frame {
-            width: 240px;
-            height: 336px;
-            background: white;
-            border: 2px solid #334155;
+            width: 248px;
+            height: 348px;
+            background: #ffffff;
+            border: 2.5px solid #334155;
             border-radius: 12px;
-            padding: 12px;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
             position: relative;
             overflow: hidden;
             page-break-inside: avoid;
             background-clip: padding-box;
+            font-family: inherit;
         }
 
-        /* 卡牌邊框與背景風格 */
+        /* 卡牌種類邊框與背景底色 */
         .card-frame.card-type-角色 { border-color: #0284c7; background: #f0f9ff; }
-        .card-frame.card-type-恩賜 { border-color: #6366f1; background: #f5f3ff; }
+        .card-frame.card-type-恩賜 { border-color: #4f46e5; background: #f5f3ff; }
         .card-frame.card-type-神蹟 { border-color: #d97706; background: #fffbeb; }
-        .card-frame.card-type-誘惑 { border-color: #991b1b; background: #fef2f2; }
+        .card-frame.card-type-誘惑 { border-color: #dc2626; background: #fef2f2; }
         .card-frame.card-type-災禍 { border-color: #b91c1c; background: #fff1f2; }
         .card-frame.card-type-大能者 { border-color: #b45309; background: #fffbeb; }
         .card-frame.card-type-複合試煉 { border-color: #7c3aed; background: #faf5ff; }
-        .card-frame.card-type-試煉 { border-color: #6d28d9; background: #fdf4ff; }
+        .card-frame.card-type-試煉, .card-frame.card-type-旅程試煉 { border-color: #6d28d9; background: #fdf4ff; }
         .card-frame.card-type-事件 { border-color: #059669; background: #ecfdf5; }
         .card-frame.card-type-人民 { border-color: #0d9488; background: #f0fdfa; }
         .card-frame.card-type-地點 { border-color: #334155; background: #f8fafc; }
-        .card-frame.card-type-墮落 { border-color: #000000; background: #f3f4f6; }
+        .card-frame.card-type-墮落, .card-frame.card-type-終極墮落 { border-color: #000000; background: #f3f4f6; }
 
+        /* 卡牌頭部 */
         .card-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid #cbd5e1;
-            padding-bottom: 6px;
-            margin-bottom: 8px;
+            padding-bottom: 5px;
+            margin-bottom: 6px;
+            gap: 6px;
         }
 
         .card-cost {
-            min-width: 30px;
-            height: 30px;
+            min-width: 32px;
+            height: 32px;
             padding: 0 6px;
             background: #475569;
             color: white;
-            border-radius: 15px;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 900;
             font-size: 0.95rem;
+            letter-spacing: -0.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
 
         .card-type-角色 .card-cost { background: #0284c7; }
-        .card-type-恩賜 .card-cost { background: #4f46e5; }
+        .card-type-恩賜 .card-cost { background: #4338ca; }
         .card-type-神蹟 .card-cost { background: #d97706; }
         .card-type-誘惑 .card-cost { background: #dc2626; }
         .card-type-災禍 .card-cost { background: #b91c1c; }
         .card-type-大能者 .card-cost { background: #b45309; }
         .card-type-複合試煉 .card-cost { background: #7c3aed; }
-        .card-type-試煉 .card-cost { background: #6d28d9; }
+        .card-type-試煉 .card-cost, .card-type-旅程試煉 .card-cost { background: #6d28d9; }
         .card-type-事件 .card-cost { background: #059669; }
         .card-type-人民 .card-cost { background: #0d9488; }
         .card-type-地點 .card-cost { background: #334155; }
-        .card-type-墮落 .card-cost { background: #111827; }
+        .card-type-墮落 .card-cost, .card-type-終極墮落 .card-cost { background: #09090b; }
 
         .card-name {
-            font-size: 1.05rem;
-            font-weight: 800;
+            font-size: 1.02rem;
+            font-weight: 900;
             color: #0f172a;
             flex: 1;
             text-align: center;
-            padding: 0 6px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            letter-spacing: -0.3px;
         }
 
         .card-badge {
-            font-size: 0.75rem;
+            font-size: 0.76rem;
             padding: 2px 8px;
             border-radius: 9999px;
-            font-weight: 700;
+            font-weight: 900;
+            white-space: nowrap;
         }
 
         .type-角色 { background: #0284c7; color: white; }
-        .type-恩賜 { background: #6366f1; color: white; }
+        .type-恩賜 { background: #4f46e5; color: white; }
         .type-神蹟 { background: #d97706; color: white; }
         .type-誘惑 { background: #dc2626; color: white; }
         .type-災禍 { background: #b91c1c; color: white; }
         .type-大能者 { background: #b45309; color: white; }
         .type-複合試煉 { background: #7c3aed; color: white; }
-        .type-試煉 { background: #6d28d9; color: white; }
+        .type-試煉, .type-旅程試煉 { background: #6d28d9; color: white; }
         .type-事件 { background: #059669; color: white; }
         .type-人民 { background: #0d9488; color: white; }
         .type-地點 { background: #334155; color: white; }
-        .type-墮落 { background: #111827; color: white; }
+        .type-墮落, .type-終極墮落 { background: #09090b; color: white; }
         .type-default { background: #64748b; color: white; }
 
+        /* 插圖佔位區 */
         .card-image-slot {
-            height: 90px;
-            background: rgba(255, 255, 255, 0.6);
-            border: 1px dashed #94a3b8;
+            height: 72px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1.5px dashed #94a3b8;
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #64748b;
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-bottom: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 6px;
         }
 
+        /* 效果內容區（全粗體強化、高對比） */
         .card-content-box {
             flex: 1;
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid #cbd5e1;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1.5px solid #94a3b8;
             border-radius: 6px;
-            padding: 8px;
+            padding: 7px 8px;
             font-size: 0.82rem;
-            line-height: 1.45;
-            color: #1e293b;
+            line-height: 1.52;
+            color: #0f172a;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
 
         .card-effect {
-            font-weight: 600;
+            font-weight: 800;
+            color: #0f172a;
+            word-break: break-word;
         }
 
         .card-flavor {
-            font-size: 0.75rem;
-            color: #64748b;
+            font-size: 0.74rem;
+            color: #475569;
             font-style: italic;
+            font-weight: 700;
             border-top: 1px dashed #cbd5e1;
-            padding-top: 4px;
+            padding-top: 3px;
             margin-top: 4px;
+            line-height: 1.35;
         }
 
         .card-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 6px;
+            margin-top: 5px;
             font-size: 0.75rem;
-            color: #475569;
-            font-weight: 500;
+            color: #334155;
+            font-weight: 800;
         }
 
         .card-vp {
-            font-weight: bold;
+            font-weight: 900;
             color: #0369a1;
         }
 
-        /* 列印樣式優化 (A4 9格排版) */
+        /* ===================================================
+           高注意度關鍵資訊標籤樣式 (High-Attention Badges)
+           =================================================== */
+
+        /* 1. 檢定開頭與職分 */
+        .tag-check-hdr {
+            background: #1e293b;
+            color: #f8fafc;
+            font-weight: 900;
+            font-size: 0.74rem;
+            padding: 1px 5px;
+            border-radius: 4px;
+            display: inline-block;
+            border: 1px solid #475569;
+            margin-right: 2px;
+        }
+
+        .tag-need-hdr, .tag-preach-hdr {
+            background: #0284c7;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 0.74rem;
+            padding: 1px 5px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 2px;
+        }
+
+        .tag-trait {
+            color: #4338ca;
+            font-weight: 900;
+        }
+
+        /* 2. 靈果檢定名稱（高對比亮藍標籤） */
+        .tag-fruit {
+            color: #1e3a8a;
+            font-weight: 900;
+            background: #e0e7ff;
+            padding: 0 3px;
+            border-radius: 3px;
+            border: 1px solid #a5b4fc;
+            display: inline-block;
+        }
+
+        /* 3. DC 難度門檻（金色高亮粗字） */
+        .tag-dc {
+            background: #b45309;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 0.78rem;
+            padding: 1px 5px;
+            border-radius: 4px;
+            margin: 0 2px;
+            display: inline-block;
+            box-shadow: 0 1px 3px rgba(180, 83, 9, 0.3);
+        }
+
+        .tag-dc-mod {
+            background: #0284c7;
+            color: #ffffff;
+            font-weight: 900;
+            font-size: 0.78rem;
+            padding: 1px 5px;
+            border-radius: 4px;
+            margin: 0 2px;
+            display: inline-block;
+        }
+
+        /* 4. 🚨 罪惡增加（醒目亮紅底、深紅字、危險警告） */
+        .tag-sin-gain {
+            background: #fee2e2;
+            color: #b91c1c;
+            font-weight: 900;
+            padding: 1px 6px;
+            border-radius: 4px;
+            border: 1.5px solid #ef4444;
+            display: inline-block;
+            box-shadow: 0 1px 4px rgba(239, 68, 68, 0.25);
+        }
+
+        /* 5. 罪惡消除/洗淨（潔淨翠綠） */
+        .tag-sin-clear {
+            background: #ecfdf5;
+            color: #065f46;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 3px;
+            border: 1px solid #6ee7b7;
+            display: inline-block;
+        }
+
+        /* 6. 🩸 肉身傷害（亮紅底高注意度） */
+        .tag-damage {
+            background: #fef2f2;
+            color: #dc2626;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 4px;
+            border: 1.5px solid #f87171;
+            display: inline-block;
+        }
+
+        /* 7. 虔誠損失（橙紅警示） */
+        .tag-piety-loss {
+            background: #fff7ed;
+            color: #c2410c;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 4px;
+            border: 1.5px solid #fb923c;
+            display: inline-block;
+        }
+
+        /* 8. ✨ 虔誠獲得與治癒（生機翠綠） */
+        .tag-piety-gain, .tag-heal {
+            background: #f0fdf4;
+            color: #15803d;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 4px;
+            border: 1.5px solid #86efac;
+            display: inline-block;
+        }
+
+        .tag-piety-init {
+            color: #0284c7;
+            font-weight: 900;
+        }
+
+        /* 9. 分支判定結果（成功綠 / 失敗紅 / 部分過橙） */
+        .tag-outcome-pass {
+            background: #15803d;
+            color: #ffffff;
+            font-weight: 900;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-top: 3px;
+        }
+
+        .tag-outcome-warn {
+            background: #b45309;
+            color: #ffffff;
+            font-weight: 900;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-top: 3px;
+        }
+
+        .tag-outcome-fail {
+            background: #b91c1c;
+            color: #ffffff;
+            font-weight: 900;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            display: inline-block;
+            margin-top: 3px;
+        }
+
+        /* 10. 持續災禍（深赤紅警報） */
+        .tag-hazard {
+            background: #7f1d1d;
+            color: #fef2f2;
+            font-weight: 900;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            display: inline-block;
+            border: 1px solid #ef4444;
+        }
+
+        /* 11. 受洗與歸主標籤 */
+        .tag-baptism {
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 4px;
+            border: 1px solid #93c5fd;
+            display: inline-block;
+        }
+
+        /* 12. 行動點損失 */
+        .tag-ap-loss {
+            background: #fef2f2;
+            color: #991b1b;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 3px;
+            border: 1px solid #fca5a5;
+            display: inline-block;
+        }
+
+        /* 列印排版樣式優化 (A4 9格標準排版) */
         @media print {
             body {
                 background: white;
@@ -289,40 +539,59 @@
                 width: 63mm;
                 height: 88mm;
                 box-shadow: none;
-                border: 1px solid #94a3b8;
+                border: 1px solid #64748b;
                 border-radius: 4px;
-                padding: 5mm;
+                padding: 4mm;
                 margin: 0;
                 page-break-inside: avoid;
             }
             .card-image-slot {
-                height: 22mm;
+                height: 18mm;
                 font-size: 0.7rem;
             }
             .card-content-box {
-                font-size: 0.68rem;
-                padding: 4px;
-                line-height: 1.3;
+                padding: 2mm;
+                font-size: 0.75rem;
+                line-height: 1.35;
             }
             .card-name {
-                font-size: 0.85rem;
+                font-size: 0.88rem;
+                font-weight: 900;
             }
             .card-cost {
-                min-width: 22px;
-                height: 22px;
-                font-size: 0.75rem;
+                min-width: 24px;
+                height: 24px;
+                font-size: 0.8rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="controls">
-        <h1>🕊️ 《使徒:大使命》卡牌檢視與 A4 列印排版系統</h1>
+        <a href="../index.html" style="text-decoration: none; color: #475569; font-weight: 800; font-size: 0.9rem; margin-right: 4px;">⬅ 返回主頁</a>
+        <h1>🕊️ 卡牌排版列印系統</h1>
+        
+        <label style="font-weight: 800; font-size: 0.9rem; color: #334155;">選擇牌庫：</label>
+        <select id="deckSelector" class="select-deck" onchange="onDeckSelect(this.value)">
+            <option value="core">🎴 核心角色與恩賜神蹟 (52張)</option>
+            <option value="journey">🧭 旅程試煉牌庫 (26張)</option>
+            <option value="r1">🏛️ 第一區：故鄉基石 (51張)</option>
+            <option value="r1_loc">🗺️ 第一區地點牌 (9張)</option>
+            <option value="r2">🌵 第二區：異族荒原 (51張)</option>
+            <option value="r2_loc">🗺️ 第二區地點牌 (9張)</option>
+            <option value="r3">🏛️ 第三區：帝國巨城 (51張)</option>
+            <option value="r3_loc">🗺️ 第三區地點牌 (9張)</option>
+            <option value="depravity">🖤 終極罪惡墮落牌 (10張)</option>
+            <option value="all">🌟 全套完整牌庫 (全部 268張)</option>
+        </select>
+
+        <input type="text" id="searchInput" class="search-box" placeholder="🔍 搜尋名稱或關鍵字..." oninput="onSearch(this.value)">
+
         <div class="file-input-wrapper">
-            <button class="btn btn-outline">📂 載入自訂 CSV 牌庫</button>
+            <button class="btn btn-outline">📂 載入外部 CSV</button>
             <input type="file" id="csvFileInput" accept=".csv">
         </div>
-        <button class="btn btn-outline" onclick="loadSampleCards()">🔄 重置回核心預設牌庫</button>
+
         <button class="btn" onclick="window.print()">🖨️ 列印 A4 卡牌 (Ctrl + P)</button>
         <div class="stats-bar" id="statsBar">準備就緒</div>
     </div>
@@ -332,52 +601,77 @@
     </div>
 
     <script>
-        const defaultCsv = `id,name,type,cost,vp,count,description,flavor_text
-CHR_01,純真赤子,角色,0,16,1,HP: 8 / 起始虔誠: 16。特質【赤子純真】：無法常規覺醒恩賜。守候神蹟常規充能 +1；隊友代禱額外多給 1 代幣。,「凡要承受神國的，若不像小孩子，斷不能進去。」
-CHR_02,剛烈開路者,角色,0,8,1,HP: 18 / 起始虔誠: 8。特質【前鋒破障】：面對旅程與荒野試煉 DC -2；全隊免除一次飢餓扣血。,「看我一把開山斧，為主的道鋪平坦途！」
-CHR_03,曠野守望者,角色,0,12,1,HP: 12 / 起始虔誠: 12。特質【守候之柱】：執行守候神蹟常規直接充能 2 枚信心代幣（他人 1 枚）。,「在寂靜的風沙中，我聽見微小的聲音。」
-CHR_04,撒瑪利亞良醫,角色,0,10,1,HP: 14 / 起始虔誠: 10。特質【仁心療傷】：救治病患免除物資改以檢定化解；黃昏免費為隊友恢復 2 HP。,「願神憐憫的手，藉著我的指尖安慰你。」
-CHR_05,勸慰之子巴拿巴,角色,0,12,1,HP: 14 / 起始虔誠: 12。特質【成全之手】：成全聖徒所需代幣永久 -1；每成全一人全隊各得 1 代禱代幣。,「賣了田產家業，一心堅固剛信主的弟兄。」
-CHR_06,辯道學者亞波羅,角色,0,10,1,HP: 10 / 起始虔誠: 10。特質【無愧工人】：真理講道判定自動 +2；講道成功使另一位敞開者一同受洗。,「極有學問，在眾人面前引經據典極力駁倒頑固之人。」
-CHR_07,讚美歌者西拉,角色,0,14,1,HP: 12 / 起始虔誠: 14。特質【午夜詩歌】：為人代禱自己額外得 1 代幣；同伴罪惡纏身每輪扣虔誠 -1。,「約在半夜，禱告唱詩讚美神，地大震動監門全開！」
-CHR_08,異象先知亞迦布,角色,0,14,1,HP: 10 / 起始虔誠: 14。特質【先知預言】：晨更可密看地區牌堆頂部 2 張牌並調整順序或移底。,「被聖靈感動，預言將有大飢荒，使門徒及早防備。」
-GFT_01,信心之盾,恩賜,0,0,2,數值置換：當你或身旁同伴即將失去肉身生命時，可消耗 2 點虔誠力完全抵擋該次傷害。,信就是所望之事的實底，是未見之事的確據。
-GFT_02,大能的勇力,恩賜,0,0,2,判定減免：進行開路、移石或負重等【喜樂熱心】檢定時，難度門檻 (DC) 直接 -4。,我的力量是在人的軟弱上顯得完全。
-GFT_03,恆切祈求,恩賜,0,0,2,神蹟加速：在守候蓄力大能神蹟時，每次守候行動額外免費充能 1 枚信心代幣。,要常常喜樂，不住地禱告，凡事謝恩。
-GFT_04,萬國方言,恩賜,0,0,2,團隊光環：招募任何文化與種族的大使命同路人 (NPC) 時，直接免除判定條件。,聖靈降臨在他們身上，說出萬國的言語。
-GFT_05,五餅二魚的祝福,恩賜,0,0,2,物資轉換：在物資結算階段，可將 2 點【仁愛施予】直接轉化為全隊所需的糧食補給。,在人這是不能的，在神凡事都能。
-GFT_06,先知的洞察,恩賜,0,0,2,判定減免：在面對【色慾】或【傲慢】的誘惑事件時，檢定難度門檻直接 -4。,主的靈使我心眼明亮，識破仇敵的網羅。
-GFT_07,禁食的恩膏,恩賜,0,0,2,罪惡抗性：執行親近靈修時，連帶消除自身 2 點罪惡值，且本輪免除一切飢餓判定。,「這一類的鬼，若不禱告禁食，他就不出來。」
-GFT_08,彼此認罪之軛,恩賜,0,0,2,認罪強化：你執行認罪時，同地塊所有其他使徒可免費各自消除 1 點罪惡值。,「你們要彼此認罪，互相代求，使你們可以得醫治。」
-GFT_09,基甸的羊毛,恩賜,0,0,1,靈命守護：若虔誠即將跌破 15 點時，可強制鎖定在 15 點不暗淡（每局限 1 次）。,「求你容我用羊毛再試一次。」
-GFT_10,澆灌的甘霖,恩賜,0,0,2,代禱發放：執行為人代禱時，每位隊友各獲得 2 枚【代禱代幣】！,「我口中的言語要像細雨落下，如甘霖降在嫩草上。」
-GFT_11,拔摩島的異象,恩賜,0,0,2,檢定減免：進行任何雙屬性複合試煉時，兩個屬性的 DC 門檻全部直接 -3！,「我聽見在天上有大聲音說：我神的國度都來到了！」
-GFT_12,靈巧如蛇,恩賜,0,0,2,誘惑豁免：抽到誘惑卡時，可直接宣告識破並將其棄除，免除任何罪惡增長與判定。,「你們要靈巧像蛇，馴良像鴿子。」
-GFT_13,聖殿的棟樑,恩賜,0,0,2,聖徒共鳴：本地教會每有 1 位成全聖徒，你所有聖靈果子檢定獲得被動 +1 加成！,「得勝的，我要叫他在我神殿中作柱子。」
-GFT_14,初代大公宴,恩賜,0,0,1,愛宴供應：執行成全聖徒時，場上所有需求為【糧食/飢餓】的未歸主人民，立即自動滿足其需要！,「天天同心合意恆切的在殿裡，且在家中擘餅。」
-GFT_15,以利亞的火車,恩賜,0,0,1,神蹟爆發：守候神蹟時，可一次消耗 3 枚代禱代幣，直接充能滿額立即引爆！,「忽有火車火馬將二人隔開，以利亞就乘旋風升天去了。」
-GFT_16,保羅的刺,恩賜,0,0,2,逆境轉化：當你的肉身 HP 低於一半時，你的所有祈禱行動獲得雙倍效果（加 4 虔誠）。,「因我什麼時候軟弱，什麼時候就剛強了。」
-GFT_17,亞居拉的帳棚,恩賜,0,0,2,旅程庇護：在 3 輪旅程階段中，全體使徒免疫強盜與風暴災害，且每輪產出 2 物資。,「他們本是製造帳棚為業，保羅因與他們同業就和他們同做工。」
-GFT_18,真理的束腰,恩賜,0,0,1,墮落抗體：當身上任何罪惡達到 9 點時，罪惡被聖潔之鎖鎖定，永遠無法達 10 點！,「所以要站穩了，用真理當作帶子束腰。」
-MRC_01,磐石出水,神蹟,0,5,2,大能神蹟（需蓄力 5 點信心代幣）。在極度乾旱之地湧出甘泉，全隊補滿水分與體力，恢復 6 點 HP！,他使磐石變為水池，使水泉從堅石流出。
-MRC_02,天降嗎哪,神蹟,0,5,2,大能神蹟（需蓄力 5 點信心代幣）。立即產出 8 份天糧物資，並使全隊飢餓虛弱狀態全數解除！,清晨露水消逝之後，地面上留下了白色的甜餅。
-MRC_03,烈火同行,神蹟,0,5,1,大能神蹟（需蓄力 5 點信心代幣）。全隊免疫一切環境致命烈火與瘴氣傷害，並驅散全圖黑暗恐怖！,火無能力傷他們的身體，頭髮也沒有燒焦。
-MRC_04,紅海分開,神蹟,0,5,1,史詩神蹟（需蓄力 5 點信心代幣）。將阻隔去路的浩瀚汪洋完全分開，開闢出一條通天坦途！,大東風吹了一整夜，水便分開成了牆垣。
-SIN_01,溫柔鄉的迷霧,誘惑,0,0,2,色慾誘惑：若屈服可立即獲得 3 點體力補給，但罪惡值 +4，且【信實】判定受阻。,看似香甜的蜜酒，裡頭藏著讓人忘卻誓約的毒。
-SIN_02,巴別塔的狂妄,誘惑,0,0,2,傲慢誘惑：試圖靠血氣解決難關，成功率翻倍，但若失敗直接失去 4 點虔誠力。,我們要建造一座城和一座塔，塔頂通天，傳揚我們的名。
-SIN_03,曠野的抱怨,誘惑,0,0,2,怠惰與憤怒：隊伍原地停滯一輪，全體若不認罪，每回合持續失去 1 點虔誠。,難道埃及沒有墳地，你把我們帶來死在曠野嗎？
-`;
+        // 內建預載全套牌庫資料
+        const PRELOADED_DECKS = {"core": [{"﻿id": "CHR_01", "name": "純真赤子", "type": "角色", "cost": "0", "vp": "16", "count": "1", "description": "HP: 8 / 起始虔誠: 16。特質【赤子純真】：無法常規覺醒恩賜。守候神蹟常規充能 +1；隊友代禱額外多給 1 代幣。", "flavor_text": "「凡要承受神國的，若不像小孩子，斷不能進去。」"}, {"﻿id": "CHR_02", "name": "剛烈開路者", "type": "角色", "cost": "0", "vp": "8", "count": "1", "description": "HP: 18 / 起始虔誠: 8。特質【前鋒破障】：面對旅程與荒野試煉 DC -2；全隊免除一次飢餓扣血。", "flavor_text": "「看我一把開山斧，為主的道鋪平坦途！」"}, {"﻿id": "CHR_03", "name": "曠野守望者", "type": "角色", "cost": "0", "vp": "12", "count": "1", "description": "HP: 12 / 起始虔誠: 12。特質【守候之柱】：執行守候神蹟常規直接充能 2 枚信心代幣（他人 1 枚）。", "flavor_text": "「在寂靜的風沙中，我聽見微小的聲音。」"}, {"﻿id": "CHR_04", "name": "撒瑪利亞良醫", "type": "角色", "cost": "0", "vp": "10", "count": "1", "description": "HP: 14 / 起始虔誠: 10。特質【仁心療傷】：救治病患免除物資改以檢定化解；黃昏免費為隊友恢復 2 HP。", "flavor_text": "「願神憐憫的手，藉著我的指尖安慰你。」"}, {"﻿id": "CHR_05", "name": "勸慰之子巴拿巴", "type": "角色", "cost": "0", "vp": "12", "count": "1", "description": "HP: 14 / 起始虔誠: 12。特質【成全之手】：成全聖徒所需代幣永久 -1；每成全一人全隊各得 1 代禱代幣。", "flavor_text": "「賣了田產家業，一心堅固剛信主的弟兄。」"}, {"﻿id": "CHR_06", "name": "辯道學者亞波羅", "type": "角色", "cost": "0", "vp": "10", "count": "1", "description": "HP: 10 / 起始虔誠: 10。特質【無愧工人】：真理講道判定自動 +2；講道成功使另一位敞開者一同受洗。", "flavor_text": "「極有學問，在眾人面前引經據典極力駁倒頑固之人。」"}, {"﻿id": "CHR_07", "name": "讚美歌者西拉", "type": "角色", "cost": "0", "vp": "14", "count": "1", "description": "HP: 12 / 起始虔誠: 14。特質【午夜詩歌】：為人代禱自己額外得 1 代幣；同伴罪惡纏身每輪扣虔誠 -1。", "flavor_text": "「約在半夜，禱告唱詩讚美神，地大震動監門全開！」"}, {"﻿id": "CHR_08", "name": "異象先知亞迦布", "type": "角色", "cost": "0", "vp": "14", "count": "1", "description": "HP: 10 / 起始虔誠: 14。特質【先知預言】：晨更可密看地區牌堆頂部 2 張牌並調整順序或移底。", "flavor_text": "「被聖靈感動，預言將有大飢荒，使門徒及早防備。」"}, {"﻿id": "GFT_01", "name": "信心之盾", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "數值置換：當你或身旁同伴即將失去肉身生命時，可消耗 2 點虔誠力完全抵擋該次傷害。", "flavor_text": "信就是所望之事的實底，是未見之事的確據。"}, {"﻿id": "GFT_02", "name": "大能的勇力", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "判定減免：進行開路、移石或負重等【喜樂熱心】檢定時，難度門檻 (DC) 直接 -4。", "flavor_text": "我的力量是在人的軟弱上顯得完全。"}, {"﻿id": "GFT_03", "name": "恆切祈求", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "神蹟加速：在守候蓄力大能神蹟時，每次守候行動額外免費充能 1 枚信心代幣。", "flavor_text": "要常常喜樂，不住地禱告，凡事謝恩。"}, {"﻿id": "GFT_04", "name": "萬國方言", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "團隊光環：招募任何文化與種族的大使命同路人 (NPC) 時，直接免除判定條件。", "flavor_text": "聖靈降臨在他們身上，說出萬國的言語。"}, {"﻿id": "GFT_05", "name": "五餅二魚的祝福", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "物資轉換：在物資結算階段，可將 2 點【仁愛施予】直接轉化為全隊所需的糧食補給。", "flavor_text": "在人這是不能的，在神凡事都能。"}, {"﻿id": "GFT_06", "name": "先知的洞察", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "判定減免：在面對【色慾】或【傲慢】的誘惑事件時，檢定難度門檻直接 -4。", "flavor_text": "主的靈使我心眼明亮，識破仇敵的網羅。"}, {"﻿id": "GFT_07", "name": "禁食的恩膏", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "罪惡抗性：執行親近靈修時，連帶消除自身 2 點罪惡值，且本輪免除一切飢餓判定。", "flavor_text": "「這一類的鬼，若不禱告禁食，他就不出來。」"}, {"﻿id": "GFT_08", "name": "彼此認罪之軛", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "認罪強化：你執行認罪時，同地塊所有其他使徒可免費各自消除 1 點罪惡值。", "flavor_text": "「你們要彼此認罪，互相代求，使你們可以得醫治。」"}, {"﻿id": "GFT_09", "name": "基甸的羊毛", "type": "恩賜", "cost": "0", "vp": "0", "count": "1", "description": "靈命守護：若虔誠即將跌破 15 點時，可強制鎖定在 15 點不暗淡（每局限 1 次）。", "flavor_text": "「求你容我用羊毛再試一次。」"}, {"﻿id": "GFT_10", "name": "澆灌的甘霖", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "代禱發放：執行為人代禱時，每位隊友各獲得 2 枚【代禱代幣】！", "flavor_text": "「我口中的言語要像細雨落下，如甘霖降在嫩草上。」"}, {"﻿id": "GFT_11", "name": "拔摩島的異象", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "檢定減免：進行任何雙屬性複合試煉時，兩個屬性的 DC 門檻全部直接 -3！", "flavor_text": "「我聽見在天上有大聲音說：我神的國度都來到了！」"}, {"﻿id": "GFT_12", "name": "靈巧如蛇", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "誘惑豁免：抽到誘惑卡時，可直接宣告識破並將其棄除，免除任何罪惡增長與判定。", "flavor_text": "「你們要靈巧像蛇，馴良像鴿子。」"}, {"﻿id": "GFT_13", "name": "聖殿的棟樑", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "聖徒共鳴：本地教會每有 1 位成全聖徒，你所有聖靈果子檢定獲得被動 +1 加成！", "flavor_text": "「得勝的，我要叫他在我神殿中作柱子。」"}, {"﻿id": "GFT_14", "name": "初代大公宴", "type": "恩賜", "cost": "0", "vp": "0", "count": "1", "description": "愛宴供應：執行成全聖徒時，場上所有需求為【糧食/飢餓】的未歸主人民，立即自動滿足其需要！", "flavor_text": "「天天同心合意恆切的在殿裡，且在家中擘餅。」"}, {"﻿id": "GFT_15", "name": "以利亞的火車", "type": "恩賜", "cost": "0", "vp": "0", "count": "1", "description": "神蹟爆發：守候神蹟時，可一次消耗 3 枚代禱代幣，直接充能滿額立即引爆！", "flavor_text": "「忽有火車火馬將二人隔開，以利亞就乘旋風升天去了。」"}, {"﻿id": "GFT_16", "name": "保羅的刺", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "逆境轉化：當你的肉身 HP 低於一半時，你的所有祈禱行動獲得雙倍效果（加 4 虔誠）。", "flavor_text": "「因我什麼時候軟弱，什麼時候就剛強了。」"}, {"﻿id": "GFT_17", "name": "亞居拉的帳棚", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "旅程庇護：在 3 輪旅程階段中，全體使徒免疫強盜與風暴災害，且每輪產出 2 物資。", "flavor_text": "「他們本是製造帳棚為業，保羅因與他們同業就和他們同做工。」"}, {"﻿id": "GFT_18", "name": "真理的束腰", "type": "恩賜", "cost": "0", "vp": "0", "count": "1", "description": "墮落抗體：當身上任何罪惡達到 9 點時，罪惡被聖潔之鎖鎖定，永遠無法達 10 點！", "flavor_text": "「所以要站穩了，用真理當作帶子束腰。」"}, {"﻿id": "MRC_01", "name": "磐石出水", "type": "神蹟", "cost": "0", "vp": "5", "count": "2", "description": "大能神蹟（需蓄力 5 點信心代幣）。在極度乾旱之地湧出甘泉，全隊補滿水分與體力，恢復 6 點 HP！", "flavor_text": "他使磐石變為水池，使水泉從堅石流出。"}, {"﻿id": "MRC_02", "name": "天降嗎哪", "type": "神蹟", "cost": "0", "vp": "5", "count": "2", "description": "大能神蹟（需蓄力 5 點信心代幣）。立即產出 8 份天糧物資，並使全隊飢餓虛弱狀態全數解除！", "flavor_text": "清晨露水消逝之後，地面上留下了白色的甜餅。"}, {"﻿id": "MRC_03", "name": "烈火同行", "type": "神蹟", "cost": "0", "vp": "5", "count": "1", "description": "大能神蹟（需蓄力 5 點信心代幣）。全隊免疫一切環境致命烈火與瘴氣傷害，並驅散全圖黑暗恐怖！", "flavor_text": "火無能力傷他們的身體，頭髮也沒有燒焦。"}, {"﻿id": "MRC_04", "name": "紅海分開", "type": "神蹟", "cost": "0", "vp": "5", "count": "1", "description": "史詩神蹟（需蓄力 5 點信心代幣）。將阻隔去路的浩瀚汪洋完全分開，開闢出一條通天坦途！", "flavor_text": "大東風吹了一整夜，水便分開成了牆垣。"}, {"﻿id": "SIN_01", "name": "溫柔鄉的迷霧", "type": "誘惑", "cost": "0", "vp": "0", "count": "2", "description": "色慾誘惑：若屈服可立即獲得 3 點體力補給，但罪惡值 +4，且【信實】判定受阻。", "flavor_text": "看似香甜的蜜酒，裡頭藏著讓人忘卻誓約的毒。"}, {"﻿id": "SIN_02", "name": "巴別塔的狂妄", "type": "誘惑", "cost": "0", "vp": "0", "count": "2", "description": "傲慢誘惑：試圖靠血氣解決難關，成功率翻倍，但若失敗直接失去 4 點虔誠力。", "flavor_text": "我們要建造一座城和一座塔，塔頂通天，傳揚我們的名。"}, {"﻿id": "SIN_03", "name": "曠野的抱怨", "type": "誘惑", "cost": "0", "vp": "0", "count": "2", "description": "怠惰與憤怒：隊伍原地停滯一輪，全體若不認罪，每回合持續失去 1 點虔誠。", "flavor_text": "難道埃及沒有墳地，你把我們帶來死在曠野嗎？"}], "journey": [{"﻿id": "JNY_TRL_01", "name": "加利利海的狂風巨浪", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【和平忍耐】DC 12 ＋【信實良善】DC 10。｜雙過：平息風浪，全隊虔誠 +3。｜失敗：船體受損，全隊各扣 3 點 HP，且損失 2 份物資。", "flavor_text": "「夫子！我們喪命，你不顧嗎？」"}, {"﻿id": "JNY_TRL_02", "name": "曠野路遇強盜伏擊", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【喜樂熱心】DC 10（抗擊開路）或【仁愛施予】DC 10（捨財化險）。｜失敗：使徒受重傷 HP -4，且損失 1 份重要物資。", "flavor_text": "落在強盜手中，他們剝去他的衣裳，把他打個半死。"}, {"﻿id": "JNY_TRL_03", "name": "毒蛇咬手的致命驚險", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12。｜成功：甩蛇入火中絲毫無損，全隊靈命大振虔誠 +4！｜失敗：身中劇毒，肉身 HP -5 且陷入虛弱。", "flavor_text": "手被毒蛇咬住，土人想他必死，看見他毫無傷害，就轉念說他是個神！"}, {"﻿id": "JNY_TRL_04", "name": "烈日戈壁的斷水乾渴", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 10。｜成功：耐渴前行安然渡過。｜失敗：脫水虛脫，使徒 HP -3 且下輪行動點 -1。", "flavor_text": "在乾旱無水之地，我的心渴想你，我的肉體切慕你。"}, {"﻿id": "JNY_TRL_05", "name": "山洪暴發的渡河之險", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【喜樂熱心】DC 12 ＋【和平忍耐】DC 10。｜雙過：劈浪護送全隊安然渡河！｜失敗：被急流沖走，損失 2 份物資且每人扣 2 HP。", "flavor_text": "大水氾濫的時候，耶和華坐著為王。"}, {"﻿id": "JNY_TRL_06", "name": "荒漠黑夜的毒蠍沙暴", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【溫柔謙卑】DC 10 ＋【節制克己】DC 10。｜雙過：伏於磐石穴中安然避風。｜失敗：受風沙撕扯且被毒蠍刺傷，HP -3，虔誠 -2。", "flavor_text": "狂風大作，沙塵蔽日，天地都在震動。"}, {"﻿id": "JNY_TRL_07", "name": "陡峭絕壁的落石險道", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 12。｜成功：敏捷避開滾石，護全隊行李。｜失敗：被落石砸傷，使徒 HP -4。", "flavor_text": "他為你吩咐他的使者，在你看守你的一切道路。"}, {"﻿id": "JNY_TRL_08", "name": "嚴冬暴風雪的失溫考驗", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 12。｜成功：同心取暖抗住極寒。｜失敗：嚴重凍傷，HP -4 且本輪黃昏需消耗雙倍糧食。", "flavor_text": "誰能當得起他的寒冷呢？他一出令，這些就都消化。"}, {"﻿id": "JNY_TRL_09", "name": "異教神龕的迷幻薰香", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12（抗拒肉慾與虛妄香氣）。｜成功：斥責幻象守住聖潔。｜失敗：陷入迷夢，罪惡值 +3（色慾），且下輪行動點 -1。", "flavor_text": "路旁有異教女子歌唱，香氣迷人，引誘過路旅客轉向假神。"}, {"﻿id": "JNY_TRL_10", "name": "逃亡奴隸的暗中求助", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 10 ＋【恩慈憐憫】DC 10（阿尼西母式的相遇）。｜雙過：收留並帶領該奴隸歸主，全隊虔誠 +3！｜失敗：恐懼連累而冷漠驅趕，罪惡值 +2（自私）。", "flavor_text": "不再是奴僕，乃是高過奴僕，是親愛的弟兄。"}, {"﻿id": "JNY_TRL_11", "name": "邊境關卡的蠻橫盤查", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【溫柔謙卑】DC 12。｜成功：溫和回答化解暴戾，關卡守兵放行。｜失敗：被拘留扣押，全體使徒下輪行動點各 -1。", "flavor_text": "巡撫的兵丁在關隘盤查，勒索過路之人。"}, {"﻿id": "JNY_TRL_12", "name": "荒野假先知的迎面攔截", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【溫柔謙卑】DC 10。｜雙過：揭穿謊言使其自慚形穢！｜失敗：信徒隊伍信心受攪擾，虔誠 -3。", "flavor_text": "有假先知迎面而來，口出狂言，要使使徒轉離正道。"}, {"﻿id": "JNY_TRL_13", "name": "草叢中被棄嬰孩的啼哭", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【恩慈憐憫】DC 8。｜成功：悉心抱起照護，行神所悅納的善，全隊虔誠 +3！｜失敗：視而不見匆匆趕路，使徒罪惡值 +2（冷酷）。", "flavor_text": "王要回答說：「這些事你們既做在我這弟兄中一個最小的身上，就是做在我身上了。」"}, {"﻿id": "JNY_TRL_14", "name": "林間饑餓孤狼的凶狠撲咬", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 10 或【喜樂熱心】DC 10。｜成功：以杖驅離野獸，全隊無損。｜失敗：被野獸撕咬，使徒受到 3 點 HP 傷害。", "flavor_text": "我差你們去，如同羊進入狼群；所以你們要靈巧像蛇，馴良像鴿子。"}, {"﻿id": "JNY_TRL_15", "name": "缺糧瀕死商隊的微弱哀求", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 10（自願分出 1 份物資）。｜成功：救人性命，商隊感激涕零，全隊獲得 2 枚【代禱代幣】！｜失敗：護食拒絕，全隊虔誠 -2。", "flavor_text": "你的仇敵若餓了，就給他吃；若渴了，就給他喝。"}, {"﻿id": "JNY_TRL_16", "name": "密林濃霧的迷途方向", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 10。｜成功：仰望星辰信靠神的引導走出迷霧。｜失敗：繞路迷途，本輪全隊額外消耗 1 份糧食。", "flavor_text": "你的話是我腳前的燈，是我路上的光。"}, {"﻿id": "JNY_EVT_01", "name": "曠野星空下的安息默想", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "神聖安息：全體使徒在此刻安靜休整，每位使徒各自恢復 4 點虔誠力或 3 點 HP！", "flavor_text": "他使我躺臥在青草地上，領我在可安歇的水邊。"}, {"﻿id": "JNY_EVT_02", "name": "馬其頓的呼聲與異象", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "神聖引導：夜間異象顯現！進入下一宣教地區時，第一輪全體使徒傳道講道 DC 全部 -3！", "flavor_text": "有一個馬其頓人站著求他說：「請你過到馬其頓來幫助我們！」"}, {"﻿id": "JNY_EVT_03", "name": "枯木逢春的甘泉補給", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "及時供應：在石縫中發現清冽甘泉，全隊立即獲得 4 份糧水物資補給！", "flavor_text": "神在曠野開道路，在沙漠開江河。"}, {"﻿id": "JNY_EVT_04", "name": "雲柱火柱的神聖引導", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "天父看顧：本輪內全體使徒免疫一切旅程傷害與物資損失！", "flavor_text": "日間，耶和華在雲柱中領他們的路；夜間，在火柱中光照他們。"}, {"﻿id": "JNY_EVT_05", "name": "天使送來的炭火燒餅", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "以利亞的盛宴：使徒肉身 HP 恢復 5 點，且下輪行動點 +1（大有力量健步前行）！", "flavor_text": "有一個天使拍他，說：「起來吃吧！」他觀看，見頭旁有炭火燒的餅，與一瓶水。"}, {"﻿id": "JNY_EVT_06", "name": "信徒聚落的熱情款待", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "肢體相通：遇見路途上的分散信徒，全隊獲贈 2 份物資並消除所有罪惡值 1 點！", "flavor_text": "他們接待我們，住了七天；這樣，我們就來到羅馬。"}, {"﻿id": "JNY_EVT_07", "name": "野地百合花的默想", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "驅散憂慮：全體使徒心中的焦慮全消，虔誠力各自恢復 3 點！", "flavor_text": "想一想野地裡的百合花怎麼長起來；它也不勞苦，也不紡線。"}, {"﻿id": "JNY_EVT_08", "name": "以馬忤斯路上的奇妙同行", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "與主同行！當前守候中的神蹟直接增加 3 枚信心代幣，全體使徒靈命大得復興虔誠全滿！", "flavor_text": "正談論的時候，耶穌親自就近他們，和他們同行。"}, {"﻿id": "JNY_EVT_09", "name": "拾獲曠野先知古卷殘片", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "經卷真理：全體使徒可挑選一人，使其任意一項聖靈果子基礎點數永久 +1！", "flavor_text": "草必枯乾，花必凋殘，唯有我們神的話必永遠立定。"}, {"﻿id": "JNY_EVT_10", "name": "寂靜曠野中的微小聲音", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "聖靈微聲：使徒完全降服於神，當前使徒身上的所有罪惡值直接全數洗淨！", "flavor_text": "風後有地震，地震後有火，火後有微小的聲音。"}], "r1": [{"﻿id": "REG1_DIS_01", "name": "大公會的嚴厲查禁", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：全體使徒公開傳道難度門檻 +4。若 2 輪內未平息，每輪全體失去 2 點虔誠。", "flavor_text": "「我們不是嚴嚴地吩咐你們，不可奉這名教訓人嗎？」"}, {"﻿id": "REG1_DIS_02", "name": "全城大飢荒", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：每輪結束全隊需消耗雙倍糧食，否則每人扣 4 點 HP。", "flavor_text": "天無甘霖，地產枯槁，城中窮人流落街頭哀哭。"}, {"﻿id": "REG1_DIS_03", "name": "寡婦分糧的紛爭抱怨", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：考驗教會合一。每輪黃昏若未成全聖徒，全隊使徒罪惡值各 +1（嫉妒與紛爭）。", "flavor_text": "說希臘話的猶太人向希伯來人發怨言，因在天天的供給上忽略了他們的寡婦。"}, {"﻿id": "REG1_TRL_01", "name": "公會受審與鞭笞", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 10（放膽直言）＋【和平忍耐】DC 10（受苦不發怨言）。｜雙過：HP -2，全隊虔誠 +4，且目擊平民 1 人直接歸主！｜信實過忍耐敗：保住信仰但 HP -5。｜信實敗忍耐過：免皮肉苦但虔誠 -4 且罪惡 +2。｜雙敗：HP -6、虔誠 -4、罪惡 +3！", "flavor_text": "使徒離開公會，心裡歡喜，因被算是配為這名受辱。"}, {"﻿id": "REG1_TRL_02", "name": "術士西門的金錢誘惑", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12（識破偽術）＋【節制克己】DC 10（拒絕大額金銀）。｜雙過：斥責貪慾，全隊聖潔，吸引 1 名尋道者前來。｜若屈服接受：獲得 4 物資，但罪惡值 +5，神蹟能力封印 2 輪！｜檢定失敗：陷入貪婪試探，每輪失去 2 點虔誠直到認罪。", "flavor_text": "「你的銀子跟你一同滅亡吧！因你想神的恩賜是可以用錢買的。」"}, {"﻿id": "REG1_TRL_03", "name": "為逼迫者代求的石刑", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【仁愛施予】DC 10（為仇敵代求）＋【溫柔謙卑】DC 10（靈魂交託神）。｜雙過：使徒受傷 HP -3，但大愛震動人心，城中一名大能者心門被暗中鬆動！｜部分過：HP -4。｜雙敗：HP -6，心懷怨毒罪惡值 +3。", "flavor_text": "「主啊，不要將這罪歸於他們！」說了這話，就睡了。"}, {"﻿id": "REG1_TRL_04", "name": "私藏財物的虛偽誘惑", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12。｜成功：識破貪婪與偽善，維持團契聖潔。｜失敗：未辨欺瞞，城中 1 名未信者心門剛硬（需求門檻 +2）。", "flavor_text": "「你不是欺哄人，乃是欺哄神了！」"}, {"﻿id": "REG1_TRL_05", "name": "守望城牆的嚴寒夜巡", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 10。｜成功：克制睡意與嚴寒，守護信徒安眠，全隊士氣高昂。｜失敗：受風寒侵蝕，肉身 HP -3 且下輪行動點 -1。", "flavor_text": "黑夜已深，白晝將近，我們應當脫去暗昧的行為，帶上光明的兵器。"}, {"﻿id": "REG1_TRL_06", "name": "狂暴暴民的圍攻辱罵", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【溫柔謙卑】DC 10。｜成功：溫和的舌頭能折斷骨頭，群眾怒氣頓消四散。｜失敗：被激怒與群眾對罵，罪惡值 +3（憤怒），且 HP -2。", "flavor_text": "回答柔和，使怒消退；言語暴戾，觸動怒氣。"}, {"﻿id": "REG1_TRL_07", "name": "連續跋涉的極限勞役", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【喜樂熱心】DC 12。｜成功：心裡火熱常常服事，移開塌方巨石，開通道路並獲得 2 份物資！｜失敗：體力耗盡陷入怠惰，本輪無法執行傳道動作。", "flavor_text": "殷勤不可懶惰；要心裡火熱，常常服事主。"}, {"﻿id": "REG1_TRL_08", "name": "異邦孤兒的啼哭哀求", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 10。｜成功：給予熱湯與愛心擁抱，全隊虔誠 +3 且吸引該孤兒跟隨信主。｜失敗：冷漠拒絕，使徒背負 2 點罪惡值（自私與貪婪）。", "flavor_text": "在神我們的父面前，那清潔沒有玷污的虔誠，就是看顧在患難中的孤兒寡婦。"}, {"﻿id": "REG1_TRL_09", "name": "撒都該人的復活詰難", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【溫柔謙卑】DC 10。｜雙過：引經據典駁倒異端，全隊虔誠 +3 且公會威脅暫緩 1 輪。｜失敗：神學辯論失利，全隊信徒信心動搖虔誠 -2。", "flavor_text": "撒都該人常說沒有復活的事，那天他們前來詰難耶穌。"}, {"﻿id": "REG1_TRL_10", "name": "深夜客西馬尼的逮捕", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 12。｜成功：收刀入鞘安然順服神旨意，同伴免受波及。｜失敗：血氣拔刀傷人，罪惡值 +3（暴怒），且受重創 HP -4。", "flavor_text": "「收刀入鞘吧！凡動刀的，必死在刀下。」"}, {"﻿id": "REG1_TRL_11", "name": "公堂假見證的惡毒誣陷", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【溫柔謙卑】DC 12。｜成功：如同羊在剪毛人手下無聲，神親自為其申冤，洗淨 2 點罪惡！｜失敗：怒不可遏反唇相譏，罪惡值 +2（驕傲與憤怒）。", "flavor_text": "有幾個人站起來，作假見證告他說：「我們聽見他說過...」"}, {"﻿id": "REG1_TRL_12", "name": "荒野黑夜的毒蠍之災", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 10。｜成功：警醒謹慎避開毒腺，安然度夜。｜失敗：被毒蠍刺傷，HP -3 且中毒（下輪黃昏額外扣 1 HP）。", "flavor_text": "「我已經給你們權柄可以踐踏蛇和蠍子，又勝過仇敵一切的能力。」"}, {"﻿id": "REG1_TRL_13", "name": "異教地痞的勒索強佔", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 10 或【喜樂熱心】DC 10。｜成功：以真道折服地痞，化敵為友。｜失敗：聚會據點受損，損失 2 份糧食且全隊虔誠 -1。", "flavor_text": "他們搶奪信徒的田產，強行索取過路規費。"}, {"﻿id": "REG1_TRL_14", "name": "連夜修補聖所的苦工", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【喜樂熱心】DC 12。｜成功：全隊聚會所修繕完畢，防禦力大增！｜失敗：使徒體力透支，HP -3 且下輪行動點 -1。", "flavor_text": "各人一手做工，一手拿兵器，日夜修築耶路撒冷的城牆。"}, {"﻿id": "REG1_TRL_15", "name": "傷殘惡犬的暴戾威脅", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 10。｜成功：以溫柔馴服猛犬，平息險情。｜失敗：被野犬咬傷撕扯，HP -3。", "flavor_text": "神必差遣使者救你脫離捕鳥人的網羅和毒害的瘟疫。"}, {"﻿id": "REG1_TRL_16", "name": "混入團契的偽使徒", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【恩慈憐憫】DC 10。｜雙過：明察秋毫勸誡挽回，團契聖潔且該偽徒悔改歸正！｜失敗：破壞教會合一，全隊使徒罪惡值各 +1。", "flavor_text": "那等人是假使徒，行事詭詐，裝作基督使徒的模樣。"}, {"﻿id": "REG1_EVT_01", "name": "天使夜間開監門", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "神蹟恩典：直接平息當前 1 項生效中的災禍，且全體使徒虔誠力 +2！", "flavor_text": "「主的使者夜間開了監門，領他們出來，說：去站在聖殿裡講道！」"}, {"﻿id": "REG1_EVT_02", "name": "索羅門廊下的辯道", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "恩典機遇：當前使徒可立即免費執行一次講道，且檢定獲得 +4 修正！", "flavor_text": "百姓都十分驚奇，一齊跑到所羅門的廊下。"}, {"﻿id": "REG1_EVT_03", "name": "聖靈如大風吹過", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "聖靈充滿：全體使徒虔誠力 +4！且本輪內所有向百姓傳道講道的 DC 門檻全部 -2！", "flavor_text": "忽然從天上有響聲下來，好像一陣大風吹過，充滿了他們所坐的屋子。"}, {"﻿id": "REG1_EVT_04", "name": "初代信徒凡物公用", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "團契之美：全隊獲得 2 份糧食，且每位使徒各自消除 2 點罪惡值。", "flavor_text": "信的人都在一處，凡物公用，並且賣了田產家業，照各人所需的分給各人。"}, {"﻿id": "REG1_EVT_05", "name": "西羅亞池的泥土醫治", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "神蹟醫治：若隊伍中有任何患病或受傷的未信人民，直接免費移除其需要標記，使其心門敞開！", "flavor_text": "用唾沫和泥抹在瞎子的眼睛上，對他說：「你往西羅亞池子裡去洗。」"}, {"﻿id": "REG1_EVT_06", "name": "七執事的按手設立", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "成全契機：場上一名已歸主者可立即免費成全為【聖徒】（免去 2 枚祈禱代幣需求）！", "flavor_text": "使徒禱告了，就按手在他們頭上。"}, {"﻿id": "REG1_EVT_07", "name": "迦拿婚宴的豐盛恩典", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "喜樂洋溢：全隊獲得 3 份糧食水產物資，且使徒本輪【喜樂熱心】檢定獲得 +2 修正！", "flavor_text": "管筵席的嘗了那水變的酒，便對新郎說：「你倒把好酒留到如今！」"}, {"﻿id": "REG1_EVT_08", "name": "橄欖山晨曦的聖靈膏抹", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "晨曦甘露：全體使徒在山丘安靜默想，每位使徒各自恢復 3 點【虔誠力】！", "flavor_text": "清晨天未亮的時候，耶穌起來，到曠野地方去，在那裡禱告。"}, {"﻿id": "REG1_EVT_09", "name": "法利賽長老的夜間造訪", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "暗中渴慕：尼哥底母式的探訪！該長老暗中資助全隊 2 份物資，並使公會查禁災禍暫緩 1 輪！", "flavor_text": "有一個法利賽人，名叫尼哥底母，是猶太人的官，這人夜裡來見耶穌。"}, {"﻿id": "REG1_EVT_10", "name": "窮寡婦的罈麵瓶油不絕", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "奇蹟供應：全隊現有糧食儲量直接翻倍（最多增加 4 份糧食）！", "flavor_text": "罈內的麵果不減少，瓶裡的油也不缺短，正如耶和華藉以利亞所說的話。"}, {"﻿id": "REG1_EVT_11", "name": "羅馬巡撫的旁觀公函", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "政權緩和：羅馬官員判定信徒無犯罪行為，本輪內所有地點的講道門檻全部 -2！", "flavor_text": "迦流回答說：「若是關乎言語、名目和你們的律法，你們自己去辦吧！」"}, {"﻿id": "REG1_EVT_12", "name": "五旬節火舌的降臨", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "聖靈烈火：全體使徒各獲得 1 枚【代禱代幣】，且當前守候中的神蹟免費增加 2 枚信心代幣！", "flavor_text": "又有舌頭如火焰顯現出來，分開落在他們各人頭上。"}, {"﻿id": "REG1_PP_01", "name": "美門口癱瘓的乞丐", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：施捨 1 糧食或【醫治神蹟】。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚祈禱代幣。｜聖徒恩賜【讚美跳躍】：使徒在此城傳道時，所有講道 DC 全部 -2！", "flavor_text": "「金銀我都沒有，只把我所有的給你。」"}, {"﻿id": "REG1_PP_02", "name": "迷茫的加利利漁夫", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【喜樂熱心】DC 8 協助捕魚。｜講道：【信實良善】DC 10。｜成全門檻：5 枚祈禱代幣。｜聖徒恩賜【得人如得魚】：每輪黃昏穩定產出 1 份魚獲糧食！", "flavor_text": "「主啊，離開我，我是個罪人！」"}, {"﻿id": "REG1_PP_03", "name": "患血漏的憔悴婦人", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：經歷任意神蹟（觸摸衣裳）。｜講道：【恩慈憐憫】DC 8。｜成全門檻：5 枚祈禱代幣。｜聖徒恩賜【完全痊癒】：全隊抵擋病痛疫病檢定 DC -4！", "flavor_text": "「我只要摸祂的衣裳，就必痊癒。」"}, {"﻿id": "REG1_PP_04", "name": "患病的異邦行商", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "標籤【周遊】（隨隊同行跨區）。｜需要：【仁愛施予】DC 8 照料疫病。｜講道：【恩慈憐憫】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【萬里通商】：跨區隨行！在任何地區每輪提供 1 糧食與 1 祈禱代幣！", "flavor_text": "走遍萬里商道，如今在基督裡尋得真安息。"}, {"﻿id": "REG1_PP_05", "name": "貧寒的借貸農夫", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：施予 1 財物或【仁愛施予】DC 8。｜講道：【信實良善】DC 8。｜成全門檻：5 枚祈禱代幣。｜聖徒恩賜【初熟之果】：在當地市集購買補給花費 -1！", "flavor_text": "終日勞碌卻入不敷出，渴望真正的安息。"}, {"﻿id": "REG1_PP_06", "name": "被惡鬼壓迫的狂躁少年", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：消耗 2 點虔誠力施行【趕鬼釋放】。｜講道：【和平忍耐】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【清心守望】：全隊在黃昏時自動消除 1 點罪惡值！", "flavor_text": "眾人都看見鬼從那孩子身上出來，孩子就痊癒了。"}, {"﻿id": "REG1_PP_07", "name": "恪守律法的年輕經學家", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：在會堂與其辯論，【信實良善】DC 10。｜講道：【溫柔謙卑】DC 12。｜成全門檻：5 枚代幣。｜聖徒恩賜【經卷明光】：全體使徒在該區傳道時，祈求神蹟的信心代幣門檻 -1！", "flavor_text": "「夫子，律法中哪一條誡命是第一要緊的？」"}, {"﻿id": "REG1_PP_08", "name": "喪失獨子的哀慟寡婦", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：以【恩慈憐憫】DC 10 安慰，或祈求【死裡復活神蹟】。｜講道：【仁愛施予】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【馨香禱告】：每輪晨更額外為全隊產出 2 枚【祈禱代幣】！", "flavor_text": "主看見那寡婦，就憐憫她，對她說：「不要哭！」"}, {"﻿id": "REG1_PP_09", "name": "畢士大池旁癱瘓三十八年者", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：呼求【醫治神蹟】或【和平忍耐】DC 10 服事。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【立起行走】：使徒執行大步移動時可攜帶 1 名同伴一同前往，且開拓檢定 +2！", "flavor_text": "「先生，水動的時候，沒有人把我放在池子裡。」"}, {"﻿id": "REG1_PP_10", "name": "悔改痛哭的城中罪婦", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：頂住長老非議施予接納【恩慈憐憫】DC 8。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【香膏膏主】：使徒每次執行認罪行動時，額外消除 2 點罪惡值！", "flavor_text": "她不住地用眼淚濕了耶穌的腳，用自己的頭髮擦乾，又用嘴連連親他的腳。"}, {"﻿id": "REG1_PP_11", "name": "城門口盲眼乞丐巴底買", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：聽見其呼求停步醫治【仁愛施予】DC 8。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【明亮眼目】：晨更階段可額外秘密查看地區牌堆頂部 1 張牌！", "flavor_text": "「大衛的子孫耶穌啊，可憐我吧！」"}, {"﻿id": "REG1_PP_12", "name": "愧疚的羅馬稅吏助手", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【仁愛施予】DC 8 協助其退還不義之財。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【公義帳目】：在市集購買任何補給花費減半！", "flavor_text": "自知為同胞所唾棄，日夜渴望重新做人。"}, {"﻿id": "REG1_PP_13", "name": "熱血衝動的奮銳黨青年", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【和平忍耐】DC 12 平息其武裝起義之怒。｜講道：【溫柔謙卑】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【捨身護衛】：抵擋暴民騷動或傷害時，替全隊吸收 3 點傷害！", "flavor_text": "滿腔熱血欲推翻強權，卻不知真正的救贖在於十字架。"}, {"﻿id": "REG1_PP_14", "name": "熱病得癒的彼得岳母", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：使徒按手醫治退熱【恩慈憐憫】DC 8。｜講道：【信實良善】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【殷勤款待】：每日黃昏為全隊免費產出 1 份糧食！", "flavor_text": "耶穌摸她的手，熱就退了；她就起來服事耶穌。"}, {"﻿id": "REG1_PP_15", "name": "摧毀神龕的異教石匠", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【喜樂熱心】DC 10 協助其砸毀祖傳假神雕像。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【堅定磐石】：建立地方教會聖所時所需門檻 -2！", "flavor_text": "世代雕刻虛無偶像，如今方知天上有一位造物真神。"}, {"﻿id": "REG1_PP_16", "name": "外邦歸鄉的埃提阿伯太監", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "標籤【周遊】（跨區隨行）。｜需要：登上其座車講解以賽亞書【信實良善】DC 12。｜講道：【溫柔謙卑】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【歡然前行】：跨區同行！在後續地區每輪穩定提供 2 枚【祈禱代幣】！", "flavor_text": "「看哪，這裡有水，我受洗有什麼妨礙呢？」"}, {"﻿id": "REG1_PIL_01", "name": "稅吏長撒該", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 3 平民歸主。｜需要：使徒進其家同席承受非議。｜講道：【溫柔謙卑】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【四倍償還】：全隊虔誠回滿，且每輪產出 2 份大額物資！", "flavor_text": "「今天救恩到了這家，他也是亞伯拉罕的子孫。」"}, {"﻿id": "REG1_PIL_02", "name": "猶太會堂長睚魯", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 4 平民歸主。｜需要：守候 1 輪祈求【死裡復活神蹟】。｜講道：【和平忍耐】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【磐石聖所】：會堂開放為永久聖所，該區所有災禍效果永久消除！", "flavor_text": "「不要怕，只要信！你的女兒必得痊癒。」"}, {"﻿id": "REG1_PIL_03", "name": "德高望重的學者迦瑪列", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 5 平民歸主。｜需要：使徒在公會受審時展現剛強見證。｜講道：【信實良善】DC 16。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【公會保釋】：徹底平息大公會查禁災禍，且所有法利賽人與官長試煉自動視為成功！", "flavor_text": "「他們所謀的若出於人，必要敗壞；若是出於神，你們就不能敗壞他們。」"}, {"﻿id": "REG1_PIL_04", "name": "敬虔的羅馬百夫長哥尼流", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 4 平民歸主。｜需要：突破民族偏見，【恩慈憐憫】DC 12。｜講道：【信實良善】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【帝國護照】：全隊獲得羅馬軍隊庇護，免受暴民騷動，且進入下一地區時直接攜帶 3 份軍糧！", "flavor_text": "「你的禱告和你的賙濟達到神面前，已蒙記念了。」"}], "r1_loc": [{"﻿id": "LOC_PIL_01", "name": "耶利哥大路稅關", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG1_PIL_01 稅吏長撒該", "effect_type": "大能據點", "description": "綁定大能者【稅吏長撒該】！常駐效果：在處購買補給花費 -1，但在此處結束回合有 50% 機率罪惡值 +1（貪慾環境）。", "flavor_text": "耶穌進了耶利哥，正經過的時候，有一個人名叫撒該，作稅吏長，是個財主。"}, {"﻿id": "LOC_PIL_02", "name": "加百農猶太會堂", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG1_PIL_02 會堂長睚魯", "effect_type": "大能據點", "description": "綁定大能者【會堂長睚魯】！常駐效果：在此處進行真理講道檢定自動 +2，但在此處禱告呼求神蹟門檻需多 1 代幣。", "flavor_text": "有一個管會堂的人，名叫睚魯，來見耶穌，就俯伏在他腳前。"}, {"﻿id": "LOC_PIL_03", "name": "耶路撒冷公審法庭", "type": "地點", "deck_type": "大能者據點", "capacity": "1", "bound_pillar": "REG1_PIL_03 學者迦瑪列", "effect_type": "大能據點", "description": "綁定大能者【學者迦瑪列】！常駐效果：負面險境！在此處傳道講道 DC 全部 +2；在此處結束回合需額外多抽 1 張試煉牌！", "flavor_text": "眾祭司長和長老聚集在公會，商議要怎樣除滅使徒。"}, {"﻿id": "LOC_PIL_04", "name": "該撒利亞羅馬駐軍營", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG1_PIL_04 百夫長哥尼流", "effect_type": "大能據點", "description": "綁定大能者【百夫長哥尼流】！常駐效果：外邦營寨！猶太百姓在此處講道門檻 +2，但在此處面對暴民騷動試煉自動免疫！", "flavor_text": "在該撒利亞有一個人，名叫哥尼流，是「義大利營」的百夫長。"}, {"﻿id": "LOC_FREE_01", "name": "聖殿美門", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "神蹟聖地", "description": "無大能者。常駐效果：在此處祈禱施展【醫治神蹟】時所需代幣 -1；在此處傳道講道時【溫柔謙卑】檢定 +2。", "flavor_text": "申初禱告的時候，彼得、約翰上聖殿去，正有一個生來瘸腿的坐在美門口。"}, {"﻿id": "LOC_FREE_02", "name": "馬可樓使徒聚集處", "type": "地點", "deck_type": "自由地點", "capacity": "1", "bound_pillar": "無", "effect_type": "避難聖所", "description": "無大能者。常駐效果：在此處執行【親近靈修】虔誠額外 +1；且在此處時免疫一切外部環境災禍扣血！", "flavor_text": "他們進了城，就上了所住的一間樓房，同心合意的恆切禱告。"}, {"﻿id": "LOC_FREE_03", "name": "城中熱鬧大市集", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "熙攘群眾", "description": "無大能者。常駐效果：容量多達 3 人！在處購買補給花費 -1，但每次抽到誘惑卡時增加的罪惡值 +1。", "flavor_text": "保羅在雅典與市集上所遇見的人天天辯論。"}, {"﻿id": "LOC_FREE_04", "name": "客西馬尼橄欖山", "type": "地點", "deck_type": "自由地點", "capacity": "1", "bound_pillar": "無", "effect_type": "通宵守望", "description": "無大能者。常駐效果：在此處執行【為人代禱】時，每位隊友額外多得 1 枚【代禱代幣】！", "flavor_text": "耶穌出來，照常往橄欖山去，門徒也跟隨他。"}, {"﻿id": "LOC_FREE_05", "name": "瓦器谷貧民窟", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "困苦流離", "description": "無大能者。常駐效果：容量多達 3 人！黃昏若停留在此每人扣 1 HP，但在此處進行【仁愛施予】救濟時，講道 DC -3！", "flavor_text": "見許多的人就憐憫他們，因為他們困苦流離，如同羊沒有牧人一般。"}], "r2": [{"﻿id": "REG2_DIS_01", "name": "大痲瘋瘟疫大爆發", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：全體使徒若未處於聖所或馬可樓，每輪黃昏需承受【節制克己】DC 10 檢定，失敗者染病扣 3 點 HP！", "flavor_text": "惡疾如野火般在城外隔離營蔓延，無人敢靠近，哀哭之聲直透雲霄。"}, {"﻿id": "REG2_DIS_02", "name": "猶太與撒瑪利亞世代血仇", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：兩族爆發暴力械鬥！全體使徒每輪行動點各 -1，且所有平民講道門檻全部 +4！", "flavor_text": "原來猶太人和撒瑪利亞人沒有來往，數百年來彼此仇恨唾棄。"}, {"﻿id": "REG2_DIS_03", "name": "行法術者的集體邪術蒙蔽", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：全城被巫術與法術蒙蔽心智，祈禱呼求大能神蹟所需信心代幣全部 +2！", "flavor_text": "西門在城裡行邪術，妄自尊大，使撒瑪利亞的百姓都驚奇。"}, {"﻿id": "REG2_TRL_01", "name": "雅各井旁的世仇爭辯", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【溫柔謙卑】DC 12 ＋【恩慈憐憫】DC 10。｜雙過：破除百年民族芥蒂，引發全井平民歡呼，全隊虔誠 +3！｜失敗：被民族仇恨言論激怒，罪惡值 +3（憤怒）。", "flavor_text": "「你既是猶太人，怎麼向我一個撒瑪利亞婦人要水喝呢？」"}, {"﻿id": "REG2_TRL_02", "name": "觸摸大痲瘋患者的腐爛膿血", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【仁愛施予】DC 12 ＋【節制克己】DC 10。｜雙過：大愛勝過恐懼與細菌，該患者當場痊癒，全隊虔誠 +4！｜失敗：心生厭惡退縮，被膿血噴濺感染，HP -4。", "flavor_text": "耶穌伸手摸他說：「我肯，你潔淨了吧！」他的大痲瘋立刻潔淨了。"}, {"﻿id": "REG2_TRL_03", "name": "巫術占卜女奴的尖銳騷擾", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【和平忍耐】DC 10。｜雙過：奉主名驅逐占卜之靈，女奴得釋放，全隊獲 2 代禱代幣！｜失敗：使徒心煩意亂，下輪行動點 -1。", "flavor_text": "有一個使女迎面而來，她被巫鬼所附，用法術叫她主人們大得財利。"}, {"﻿id": "REG2_TRL_04", "name": "大馬士革路上的盲眼強光", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【溫柔謙卑】DC 12。｜雙過：見證復活救主的大光，全隊靈命大振虔誠回滿！｜失敗：肉體被強光震懾盲眼 1 輪，本輪無法移動。", "flavor_text": "忽從天上發光，四面照著他；他就仆倒在地，聽見有聲音說：「掃羅！掃羅！你為什麼逼迫我？」"}, {"﻿id": "REG2_TRL_05", "name": "安提阿教會的外邦紛爭", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【和平忍耐】DC 12 ＋【恩慈憐憫】DC 10。｜雙過：調解猶太與外邦信徒同席吃飯，教會大得平安！｜失敗：群體分裂互不相讓，全隊罪惡各 +1。", "flavor_text": "因有幾個人從雅各那裡來，磯法便退去與外邦人隔開了，其餘的猶太人也都隨著他裝假。"}, {"﻿id": "REG2_TRL_06", "name": "彼得房頂三見不潔大布", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【溫柔謙卑】DC 10。｜雙過：領悟神所潔淨的不可當作俗物，外邦傳道 DC 永久 -2！｜失敗：恪守律法條規抗拒聖靈，虔誠 -3。", "flavor_text": "有聲音向他說：「彼得，起來，宰了吃！」彼得卻說：「主啊，這是不可的！」"}, {"﻿id": "REG2_TRL_07", "name": "異族長老的仇恨唾棄", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【溫柔謙卑】DC 12。｜成功：甘心忍受唾罵，以善勝惡，長老慚愧離去。｜失敗：心生怨懟，罪惡值 +2（傲慢與憤怒）。", "flavor_text": "他們見使徒走進村莊，就拿起石頭吐唾沫咒詛他們。"}, {"﻿id": "REG2_TRL_08", "name": "基利心山祭司的偶像辯證", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12。｜成功：講明心靈與誠實的敬拜，折服老祭司！｜失敗：神學辯論卡關，該地點講道 DC +2。", "flavor_text": "「時候將到，你們拜父，也不在這山上，也不在耶路撒冷。」"}, {"﻿id": "REG2_TRL_09", "name": "加薩戈壁的滾滾沙暴", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 12。｜成功：耐渴穩固帳篷，全隊無損。｜失敗：迷失方向脫水，HP -3 且損失 1 份糧食。", "flavor_text": "狂風席捲黃沙，天昏地暗，那條通往迦薩的路滿是死寂。"}, {"﻿id": "REG2_TRL_10", "name": "救助受染疫病者的感染恐懼", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 12。｜成功：捨命包紮給水，感動全營病患！｜失敗：因恐懼不敢上前，失去 2 點虔誠力。", "flavor_text": "若有人看見弟兄受窮受病，卻塞住憐恤的心，愛神的心怎能存在他裡面呢？"}, {"﻿id": "REG2_TRL_11", "name": "敘利亞商隊的傲慢刁難", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 10。｜成功：不卑不亢平息商隊管事戾氣，順利過境。｜失敗：被勒索高額通關費，損失 2 份物資。", "flavor_text": "商賈富足，僕從成群，看不起風塵僕僕的使徒。"}, {"﻿id": "REG2_TRL_12", "name": "曠野絕壁下的險惡開道", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【喜樂熱心】DC 12。｜成功：揮鎬開鑿險路，護送全隊安全通行！｜失敗：體力透支，HP -3 且本輪無法傳道。", "flavor_text": "在曠野預備耶和華的路，在沙漠修平我們神的道。"}, {"﻿id": "REG2_TRL_13", "name": "荒原流浪孤兒的哀鳴", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【恩慈憐憫】DC 10。｜成功：領至驛站救助，全隊虔誠 +3！｜失敗：匆忙趕路忽視孤兒，罪惡值 +2。", "flavor_text": "「凡為我的名接待一個像這小孩子的，就是接待我。」"}, {"﻿id": "REG2_TRL_14", "name": "黑夜沼澤中的毒蟲熱病", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 10。｜成功：生火驅蟲安然度夜。｜失敗：使徒發高燒，HP -4 且本輪黃昏需雙倍糧食。", "flavor_text": "瘴氣瀰漫，毒蟲夜行，四圍滿是致命的死蔭。"}, {"﻿id": "REG2_TRL_15", "name": "假先知巴耶穌的抗拒阻撓", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 14。｜成功：斥責邪術行徑，該假先知暫時眼瞎，全城轟動！｜失敗：省長受其挑撥，該區公署講道禁止 1 輪。", "flavor_text": "「你這充滿各樣詭詐奸惡，魔鬼的兒子，眾善的仇敵，你還不息滅嗎？」"}, {"﻿id": "REG2_TRL_16", "name": "為世仇仇敵包紮的內心掙扎", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 12。｜成功：跨越深仇大恨親自敷油包紮，仇敵痛哭悔改！｜失敗：內心苦毒難以釋懷，罪惡值 +3（仇恨）。", "flavor_text": "「要愛你們的仇敵，為那逼迫你們的禱告。」"}, {"﻿id": "REG2_EVT_01", "name": "聖靈在撒瑪利亞大大降臨", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "聖靈充滿：彼得約翰按手，全地信徒受聖靈！全體使徒虔誠 +4，本輪講道門檻全部 -3！", "flavor_text": "使徒按手在他們頭上，他們就受了聖靈。西門看見就驚奇。"}, {"﻿id": "REG2_EVT_02", "name": "腓利在加薩路上的聖靈提接", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "神速奇遇：當前使徒瞬間跨越空間，免費移動至場上任意地點，且本輪額外獲得 1 個行動點！", "flavor_text": "主的靈把腓利提了去，太監也不再見他了，就歡歡喜喜的走路。"}, {"﻿id": "REG2_EVT_03", "name": "約帕海邊的硝皮匠款待", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "愛心留宿：在海邊硝皮匠西門家安歇，全隊 HP 恢復 3 點，獲得 2 份物資！", "flavor_text": "彼得在約帕一個硝皮匠西門的家裡，住了多日。"}, {"﻿id": "REG2_EVT_04", "name": "雅各井湧流的永生活水", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "生命泉源：全隊水糧物資直接補滿，且全體使徒各消除 2 點罪惡值！", "flavor_text": "「人若喝我所賜的水就永遠不渴。我所賜的水要在他裡頭成為泉源，直湧到永生。」"}, {"﻿id": "REG2_EVT_05", "name": "安提阿信徒首稱為基督徒", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "榮耀稱號：全體使徒各獲得 1 枚【代禱代幣】，且全隊在該區傳道受洗人數直接 +1！", "flavor_text": "門徒稱為「基督徒」是從安提阿起首。"}, {"﻿id": "REG2_EVT_06", "name": "長大痲瘋得醫治歸來感恩", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "感恩見證：十個被醫治的外邦痲瘋患者前來俯伏感謝，全隊虔誠 +3，且消除瘟疫災禍！", "flavor_text": "內中有一個人見自己已經好了，就回來大聲歸榮耀與神，又俯伏在耶穌腳前感謝他。"}, {"﻿id": "REG2_EVT_07", "name": "天使夜間向腓利說話", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "神聖指引：當前使徒可直接翻看當前地區牌堆頂部 3 張牌並自由排序！", "flavor_text": "有主的一個使者對腓利說：「起來！向南走，往那曠野的路上去。」"}, {"﻿id": "REG2_EVT_08", "name": "安提阿教會跨區奉獻賙濟", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "跨區愛心：獲得 4 份糧食物資，且可將 2 份物資直接轉化為當前守候神蹟的代幣！", "flavor_text": "門徒定意照各人的力量捐錢，送去供給住在猶太的弟兄。"}, {"﻿id": "REG2_EVT_09", "name": "大馬士革鱗片脫落重見光明", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "異象覺醒：當前使徒可立即免費領受一張新【恩賜卡】（無視 15 點虔誠限制）！", "flavor_text": "掃羅的眼睛上，好像有鱗立刻掉下來，他就能看見，於是起來受了洗。"}, {"﻿id": "REG2_EVT_10", "name": "基利心山上神火降下", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "威能神蹟：徹底摧毀當地的異教神壇，直接平息【行法術者的集體蒙蔽】災禍！", "flavor_text": "耶和華降下火來，燒盡燔祭、木柴、石頭、塵土，又舔乾溝裡的水。"}, {"﻿id": "REG2_EVT_11", "name": "多加親手縫製的內衣外衣", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "慈惠織物：全隊獲得禦寒衣物，免疫一切暴風雪與嚴寒傷害，且 HP 各恢復 2 點！", "flavor_text": "眾寡婦都站在彼得旁邊哭，拿多加與她們同在時所做的裡衣外衣給他看。"}, {"﻿id": "REG2_EVT_12", "name": "荒原曠野號角響起", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "復興號角：場上所有已成全聖徒各自發動一次恩賜產出，全體使徒精神大振！", "flavor_text": "號角聲在荒原迴盪，萬民都要側耳聽神的真道。"}, {"﻿id": "REG2_PP_01", "name": "雅各井旁有五個丈夫的婦人", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：向其要水喝並直指心靈渴求【恩慈憐憫】DC 8。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【活水見證】：全城婦女歸主！使徒在此區傳道講道 DC 全部 -2！", "flavor_text": "「你們來看！有一個人將我素來所行的一切事都給我說出來了，莫非這就是基督嗎？」"}, {"﻿id": "REG2_PP_02", "name": "隔離營嚎哭的撒瑪利亞痲瘋者", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：祈禱施展【醫治神蹟】或【仁愛施予】DC 10。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【感恩俯伏】：每輪黃昏自動為全隊清除 1 點罪惡值！", "flavor_text": "十個長大痲瘋中唯一的撒瑪利亞人，俯伏在耶穌腳前痛哭感恩。"}, {"﻿id": "REG2_PP_03", "name": "被邪術欺騙多年的鐵匠", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：破除家中的巫術符咒【信實良善】DC 10。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【折斷鐵鎖】：抵擋一切巫術詛咒與試煉，全隊免受行動點扣減！", "flavor_text": "長年將重金送給法術師，落得家徒四壁，如今雙眼得見真理。"}, {"﻿id": "REG2_PP_04", "name": "約帕海港滿心憂愁的希臘水手", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "標籤【周遊】（跨區隨行）。｜需要：以【和平忍耐】DC 10 平息其海上驚魂。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【破浪引航】：跨區隨行！在旅程階段面對海浪與水難檢定時獲得 +3 修正，且免除一次船體物資損失！", "flavor_text": "航行於愛琴海與地中海，見慣驚濤駭浪，心靈卻渴望真正的錨。"}, {"﻿id": "REG2_PP_05", "name": "安提阿尋求真道的希臘哲學學徒", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：在衛城與其辯證宇宙造物主【信實良善】DC 12。｜講道：【溫柔謙卑】DC 12。｜成全門檻：5 枚代幣。｜聖徒恩賜【雄辯講義】：使徒進行真理講道時檢定自動 +2！", "flavor_text": "讀遍柏拉圖與亞里斯多德，卻在基督的十架前找到終極真理。"}, {"﻿id": "REG2_PP_06", "name": "因世仇痛失愛子的撒瑪利亞老農", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：傾聽其痛哭並以【恩慈憐憫】DC 10 撫慰。｜講道：【仁愛施予】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【化仇為友】：全隊在異族地點行動時免受任何歧視與門檻增加！", "flavor_text": "「猶太人殺了我的兒子...但我從你們眼中看見了不一樣的光。」"}, {"﻿id": "REG2_PP_07", "name": "大馬士革被強光震懾的護衛兵", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【溫柔謙卑】DC 10 引導其走出恐懼。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【同袍信函】：在公署免受羅馬兵丁盤問，購買軍糧半價！", "flavor_text": "同行的人站在那裡，說不出話來，聽見聲音，卻看不見人。"}, {"﻿id": "REG2_PP_08", "name": "加薩沙漠中瀕死的波斯行商", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "標籤【周遊】（跨區隨行）。｜需要：分出 1 份水糧施救【仁愛施予】DC 8。｜講道：【恩慈憐憫】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【絲路駝隊】：跨區同行！每輪黃昏穩定提供 1 份糧食；且購買藥品補給花費 -1！", "flavor_text": "自幼隨駝隊穿越大漠，在生死邊緣遇見基督的門徒。"}, {"﻿id": "REG2_PP_09", "name": "隔離營中全身潰爛的痲瘋幼童", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：使徒按手擁抱並祈禱施展【醫治神蹟】。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【純潔之吻】：全隊抵擋疫病與瘴氣檢定時獲得 +3 修正，且首次染病免受傷害！", "flavor_text": "連親生父母都不敢靠近的孩子，在使徒懷中得著了潔淨與溫暖。"}, {"﻿id": "REG2_PP_10", "name": "擺脫占卜邪靈的被釋放女奴", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：奉主名斥責附身邪靈【信實良善】DC 12。｜講道：【恩慈憐憫】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【靈界分辨】：抽到誘惑卡時可重抽一次；且面對誘惑事件時檢定門檻 -2！", "flavor_text": "「這些人是至高神的僕人，對你們傳說救人的道！」"}, {"﻿id": "REG2_PP_11", "name": "安提阿集市誠實度量的小商販", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【仁愛施予】DC 8 協助其繳納攤位費。｜講道：【信實良善】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【公道天平】：市集補給品花費永遠 -1，且黃昏獲得 1 份物資！", "flavor_text": "不再短斤少兩，在市集上作光明之子。"}, {"﻿id": "REG2_PP_12", "name": "基利心山下的守殿老利未人", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：以【和平忍耐】DC 12 解釋靈裡敬拜之理。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【古經啟示】：全隊祈求大能神蹟時，所需信心代幣門檻永久 -1！", "flavor_text": "白髮蒼蒼的老祭司，終於明白神不住人手所造的殿。"}, {"﻿id": "REG2_PP_13", "name": "約帕海港哭泣的貧苦寡婦群", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：分發救濟糧食 1 份【仁愛施予】DC 8。｜講道：【恩慈憐憫】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【代禱密室】：每輪晨更為全隊穩定產出 2 枚【祈禱代幣】！", "flavor_text": "受過多加許多恩惠的寡婦們，聚集在樓房同心合意禱告。"}, {"﻿id": "REG2_PP_14", "name": "曾參與迫害的愧疚青年", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：以【仁愛施予】DC 10 赦免其過犯。｜講道：【溫柔謙卑】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【無畏作證】：在面對任何官長公會試煉時，檢定獲得 +3 修正！", "flavor_text": "「我曾把信徒關進監牢...主啊，我還能得救嗎？」"}, {"﻿id": "REG2_PP_15", "name": "荒原驛站渴望洗禮的掌櫃", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【喜樂熱心】DC 8 協助其清潔旅社。｜講道：【信實良善】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【客店庇護】：全隊停留於加薩驛站時免受一切黃昏扣血！", "flavor_text": "迎來送往半生客，如今迎來天國的君王。"}, {"﻿id": "REG2_PP_16", "name": "敘利亞軍營中的悔改百夫長僕人", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：以【恩慈憐憫】DC 8 照護其外傷。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【營房通訊】：可隨時查看當前大能者牌堆頂部 1 張牌！", "flavor_text": "見證百夫長的信心，自己也在基督裡尋得真正的主人。"}, {"﻿id": "REG2_PIL_01", "name": "撒瑪利亞術士西門", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 3 平民歸主。｜需要：在全城百姓面前斥責邪術並以神蹟使其降服【信實良善】DC 14。｜講道：【溫柔謙卑】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【邪術止息】：全撒瑪利亞所有巫術與邪靈騷擾徹底消除，全隊虔誠全滿！", "flavor_text": "西門自己也信了，既受了洗，就常與腓利在一處，極其驚奇。"}, {"﻿id": "REG2_PIL_02", "name": "希律伴讀大臣馬拿念", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 4 平民歸主。｜需要：進公署面見長官，承受叛國指控【信實良善】DC 14。｜講道：【溫柔謙卑】DC 16。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【王室宣教金庫】：敘利亞王室公函通行無阻！全隊獲得 6 份物資，且進入下一地區攜帶資金翻倍！", "flavor_text": "與分封王希律同養長大，卻看為基督受的凌辱比埃及的財寶更寶貴。"}, {"﻿id": "REG2_PIL_03", "name": "大馬士革敬虔門徒亞拿尼亞", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 4 平民歸主。｜需要：克服恐懼親自按手在兇狠迫害者頭上【和平忍耐】DC 14。｜講道：【信實良善】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【按手復明】：全體使徒各選一項聖靈果子，其基礎點數永久 +1，且全隊各得 2 代禱代幣！", "flavor_text": "「主對亞拿尼亞說：你只管去！他是我所揀選的器皿，要在外邦人和君王面前宣揚我的名。」"}, {"﻿id": "REG2_PIL_04", "name": "廣行善事的女徒多加", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 4 平民歸主。｜需要：全隊在約帕樓房跪下痛哭守候 1 輪祈求【死裡復活神蹟】！｜講道：【仁愛施予】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【慈惠聖所】：多加復活！全城大為轟動歸信，全隊肉身 HP 全滿，且每輪穩定產出 2 份精良織物糧食！", "flavor_text": "彼得叫她們都出去，就跪下禱告，轉身對著死人說：「大比大，起來！」她就睜開眼睛，看見彼得，便坐起來了。"}], "r2_loc": [{"﻿id": "LOC_R2_PIL_01", "name": "撒瑪利亞中央大廣場", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG2_PIL_01 術士西門", "effect_type": "大能據點", "description": "綁定大能者【術士西門】！常駐效果：全城百姓長期受法術蒙蔽，在此處講道檢定門檻 +2；但在此處呼求神蹟時震撼效果翻倍！", "flavor_text": "全城的人，無論大小，都聽從西門，說：「這人就是那稱為神的大能者！」"}, {"﻿id": "LOC_R2_PIL_02", "name": "安提阿帝國衛城公署", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG2_PIL_02 大臣馬拿念", "effect_type": "大能據點", "description": "綁定大能者【大臣馬拿念】！常駐效果：在此處執行【成全聖徒】時，全隊獲得 2 份大額物資；但在此處結束回合有 50% 機率遭羅馬官員盤問。", "flavor_text": "在安提阿的教會中，有分封王希律同養的馬拿念。"}, {"﻿id": "LOC_R2_PIL_03", "name": "大馬士革直街大宅", "type": "地點", "deck_type": "大能者據點", "capacity": "1", "bound_pillar": "REG2_PIL_03 門徒亞拿尼亞", "effect_type": "大能據點", "description": "綁定大能者【門徒亞拿尼亞】！常駐效果：聖靈充滿之地！在此處執行【親近靈修】虔誠恢復 +2，且在此處代禱效果翻倍！", "flavor_text": "「兄弟掃羅，在你來的路上向你顯現的主，就是耶穌，打發我來，叫你能看見。」"}, {"﻿id": "LOC_R2_PIL_04", "name": "約帕海港慈善工坊", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG2_PIL_04 女門徒多加", "effect_type": "大能據點", "description": "綁定大能者【女門徒多加】！常駐效果：在此處進行【仁愛施予】救濟時免除物資消耗；且黃昏結束全隊自動獲得 1 份糧食！", "flavor_text": "在約帕有一個女徒，名叫大比大，翻希臘話就是多加；她廣行善事，多施賙濟。"}, {"﻿id": "LOC_R2_FREE_01", "name": "敘加城外的雅各井", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "活水聖地", "description": "無大能者。常駐效果：在此處親近靈修直接恢復 3 點虔誠；在此處與異邦婦女或平民講道時檢定自動 +2！", "flavor_text": "耶穌因走路困乏，就坐在井旁。那時約有午正。有一個撒瑪利亞的婦人來打水。"}, {"﻿id": "LOC_R2_FREE_02", "name": "城外大痲瘋隔離營", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "極度困苦", "description": "無大能者。常駐效果：容量多達 3 人！黃昏若停留在此每人扣 2 HP；但在此處成功施展醫治神蹟時，場上所有病患心門同時敞開！", "flavor_text": "在一個村莊，有十個長大痲瘋的，迎面而來，遠遠的站著，高聲說：「耶穌，夫子，可憐我們吧！」"}, {"﻿id": "LOC_R2_FREE_03", "name": "加薩曠野大篷驛站", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "商旅樞紐", "description": "無大能者。常駐效果：容量多達 3 人！在此處購買補給物資花費 -1，且抽到旅程牌時可自由挑選替換！", "flavor_text": "有主的一個使者對腓利說：「起來！向南走，往那從耶路撒冷下迦薩的路上去。」那路是曠野。"}, {"﻿id": "LOC_R2_FREE_04", "name": "基利心山異教祭壇遺址", "type": "地點", "deck_type": "自由地點", "capacity": "1", "bound_pillar": "無", "effect_type": "屬靈爭戰", "description": "無大能者。常駐效果：在此處傳道講道 DC +2；但成功在此處帶領 1 人歸主，全隊虔誠直接暴增 4 點！", "flavor_text": "「我們的祖宗在這山上禮拜，你們倒說，應當禮拜的地方是在耶路撒冷。」"}, {"﻿id": "LOC_R2_FREE_05", "name": "約帕硝皮匠西門海邊之家", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "異象破繭", "description": "無大能者。常駐效果：在此處執行【認罪悔改】可直接破除種族與飲食偏見，全隊使徒消除 2 點罪惡值！", "flavor_text": "彼得在約帕一個硝皮匠西門的家裡，住了多日。魂遊象外，看見天開了。"}], "r3": [{"id": "REG3_DIS_01", "name": "以弗所銀匠偶像暴動", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：全城陷入瘋狂偶像狂熱！全場所有講道檢定門檻 +3，且每輪黃昏全體使徒若未處於庇護地點扣 2 HP！解法：累積【和平忍耐】與【溫柔謙卑】檢定達 DC 22 平息。", "flavor_text": "「這保羅引誘迷惑眾人，說：人手所做的，不是神。亞底米神廟的威勢也要銷滅了！」"}, {"id": "REG3_DIS_02", "name": "尼祿火刑審判敕令", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：羅馬皇帝頒布血腥禁令，使徒被視為帝國之敵！每輪黃昏全隊強制扣除 2 點虔誠或 2 點 HP！解法：成全大能者【羅馬巡撫】或【該撒家信徒】方能撤銷禁令。", "flavor_text": "「將他們披上獸皮，任由惡犬撕裂，或釘在十字架上，在夜幕降臨時點燃當作火把照亮花園。」"}, {"id": "REG3_DIS_03", "name": "虛空哲學與諾斯底思潮", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：希臘智慧驕傲蔓延！所有使徒【信實良善】天花板上限強制降 2 點；心門敞開之百姓若未於當前回合受洗將重新閉鎖！解法：在學房或亞略巴古累計 3 次辯道成功。", "flavor_text": "你們要謹慎，恐怕有人用他的哲學和虛空的妄言，不照著基督，乃照人間的遺傳和世上的小學，就把你們擄去。"}, {"id": "REG3_TRL_01", "name": "亞略巴古未識之神哲學大辯", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【和平忍耐】DC 12。｜雙過：以超然智慧辯服希臘哲士，亞略巴古心門大開，全隊虔誠 +4！｜失敗：被譏誚為胡言亂語，信實罪惡 +2（自傲沮喪）。", "flavor_text": "「眾位雅典人哪，我看你們凡事很敬畏鬼神。你們所不認識而敬拜的，我現在告訴你們。」"}, {"id": "REG3_TRL_02", "name": "腓立比獄中夜半讚美歌唱", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【喜樂熱心】DC 12 ＋【忍耐寬容】DC 10。｜雙過：地大震動獄門全開，鎖鏈脫落！全隊虔誠回滿，禁卒全家震撼！｜失敗：受鞭傷劇痛陷入哀號，HP -3。", "flavor_text": "約在半夜，保羅和西拉禱告，唱詩讚美神，眾囚犯也側耳而聽。忽然，地大震動，甚至監牢的地基都搖動了。"}, {"id": "REG3_TRL_03", "name": "焚燒五萬塊錢邪術異教書卷", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【節制克己】DC 10。｜雙過：全城巫術破除，巨額財寶當場焚燬，主的道大大得勝，全隊獲 3 祈禱代幣！｜失敗：被貪婪私心牽制，罪惡值 +3。", "flavor_text": "平素行邪術的，也有許多人把書拿來，堆在眾人面前焚燒。他們算計書價，便知道共合五萬塊錢。"}, {"id": "REG3_TRL_04", "name": "地中海十四晝夜友拉革羅大狂風", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【忍耐寬容】DC 12 ＋【仁愛施予】DC 10。｜雙過：保全全船二百七十六人性命無一人失落，全隊虔誠 +3 且得船員敬服！｜失敗：全船驚慌失措，全隊失去 2 糧食與 2 點 HP。", "flavor_text": "太陽和星辰多日不顯露，又有狂風大浪催逼，我們得救的指望就都絕了。保羅站在眾人中間說：「各位可以放心！」"}, {"id": "REG3_TRL_05", "name": "米利大島毒蛇咬手之神蹟", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【節制克己】DC 10。｜雙過：毒蛇甩在火中竟不受任何傷害，土人轉念尊使徒為神使，全隊獲 2 糧食！｜失敗：蛇毒入侵發高燒，HP -4 且本輪無法移動。", "flavor_text": "有一隻毒蛇，因為熱了出來，咬住他的手。土人看見那毒蛇懸在他手上，保羅竟把那毒蛇甩在火裡，並沒有受害。"}, {"id": "REG3_TRL_06", "name": "哥林多教會混亂與方言紛爭", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【溫柔謙卑】DC 12 ＋【和平忍耐】DC 10。｜雙過：以最妙的道（愛篇）調和恩賜，凡事按著規矩和次序行，團契秩序恢復！｜失敗：恩賜爭競驕傲，全隊罪惡各 +1。", "flavor_text": "我若能說萬人的方言，並天使的話語，卻沒有愛，我就成了鳴的鑼，響的鈸一般。"}, {"id": "REG3_TRL_07", "name": "斯多亞學派的冷酷宿命論質疑", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12。｜成功：講明創造天地主宰的愛與復活盼望，哲人動容！｜失敗：陷入枯燥思辨，本輪行動點 -1。", "flavor_text": "還有伊壁鳩魯和斯多亞兩門的哲學家，也與他爭辯。有的說：「這胡言亂語的要說什麼？」"}, {"id": "REG3_TRL_08", "name": "伊壁鳩魯學派的縱慾享樂誘惑", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 12。｜成功：視世俗宴樂為糞土，堅守聖潔！｜失敗：被奢靡聲色玷污，罪惡值 +2（肉體情慾）。", "flavor_text": "「我們吃吃喝喝吧！因為明天要死了。」世界的享樂如同蜜糖，卻是包裹靈魂毒藥的誘餌。"}, {"id": "REG3_TRL_09", "name": "迦流公堂前的暴民猶太控告", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 12。｜成功：行省總督迦流秉公驅逐控告者，使徒免受官府迫害！｜失敗：被暴民趁亂毆打，HP -2 且虔誠 -1。", "flavor_text": "到迦流作亞該亞方伯的時候，猶太人同心起來攻擊保羅，拉他到公堂。迦流說：「你們自己耐煩去辦吧！」"}, {"id": "REG3_TRL_10", "name": "巡撫腓力斯的受賄索賄暗示", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12。｜成功：不屈不撓指斥公義節制與將來的審判，腓力斯甚覺恐懼！｜失敗：屈服於官場勒索，損失 2 奉獻物資。", "flavor_text": "腓力斯指望保羅送他銀錢，所以屢次打發人找他來，和他談論。保羅講論公義、節制，和將來的審判。"}, {"id": "REG3_TRL_11", "name": "亞基帕王與百尼基前的放膽分訴", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 14。｜成功：言詞懇切震撼君王「你想少微一勸，便叫我作基督徒啊！」王承認使徒無罪！｜失敗：言詞怯懦，虔誠 -2。", "flavor_text": "亞基帕對保羅說：「你想少微一勸，便叫我作基督徒啊！」保羅說：「我向神所求的，不但你一個人，就是今天聽我的，都要像我一樣。」"}, {"id": "REG3_TRL_12", "name": "哥林多信徒互相告狀求審", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 12。｜成功：痛陳「為什麼不情願受欺呢？」化解弟兄私慾爭競！｜失敗：教會聲譽受損，本區講道 DC +1。", "flavor_text": "你們彼此告狀，這已經是你們的大錯了。為什麼不情願受欺呢？為什麼不情願吃虧呢？"}, {"id": "REG3_TRL_13", "name": "偶像廟中祭偶像之物的良心試煉", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 12。｜成功：為軟弱肢體緣故甘心不吃祭物，愛心造就人！｜失敗：絆倒信心軟弱的弟兄，罪惡值 +2。", "flavor_text": "知識是叫人自高自大，惟有愛心能造就人。所以，食物若叫我弟兄跌倒，我就永遠不吃肉，免得叫我弟兄跌倒了。"}, {"id": "REG3_TRL_14", "name": "羅馬圓形競技場的血腥嗜殺浪潮", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【恩慈憐憫】DC 12。｜成功：為殘暴看客默默哀求代禱，基督之光照亮黑暗殺戮！｜失敗：心靈被殘暴恐怖震懾，扣除 2 點虔誠。", "flavor_text": "看台上數萬公民狂呼嗜血，角鬥士倒在黃沙與鮮血之中，帝國的榮耀背後是無盡的殘暴。"}, {"id": "REG3_TRL_15", "name": "猶太同胞四十人起誓殺害保羅", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【忍耐寬容】DC 12。｜成功：外甥通報千夫長調兵護送，蒙神暗中保守脫險！｜失敗：遭遇刺客埋伏偷襲，HP -4。", "flavor_text": "猶太人同謀，起誓說：若不先殺保羅，就不吃不喝。這樣起誓的，有四十多人。"}, {"id": "REG3_TRL_16", "name": "羅馬囚牢鐵鍊與寒冬孤寂", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【忍耐寬容】DC 12。｜成功：在濕冷地牢中寫下榮耀凱歌「那美好的仗我已經打過了！」全隊虔誠 +3！｜失敗：身心冰冷抑鬱，扣除 1 HP 與 2 虔誠。", "flavor_text": "你要趕緊在冬天以前到我這裡來。那件外衣，你來的時候可以帶來，那些書也要帶來，更要緊的是那些皮卷。"}, {"id": "REG3_EVT_01", "name": "亞居拉與百基拉夫婦熱忱接待", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "福音工匠同心同行！使徒全體獲得 2 份糧食；且本輪在哥林多執行【親手做工】不消耗行動點（0 AP）！", "flavor_text": "因為革老丟命猶太人都離開羅馬。保羅投奔了他們。他們本是製造帳棚為業，保羅就和他們同住做工。"}, {"id": "REG3_EVT_02", "name": "腓立比禁卒全家深夜受洗", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "死牢化為神聖受洗池！當場洗去獄卒與全家之罪，全隊虔誠 +4，且該地點所有人民立刻心門大開！", "flavor_text": "禁卒叫人拿燈來，就跳進去，戰戰兢兢的俯伏在保羅、西拉面前；他和屬乎他的人立時都受了洗。"}, {"id": "REG3_EVT_03", "name": "夜間異象：馬其頓呼聲", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "聖靈跨海引導！立即抽看地區牌庫頂 3 張牌，自由調整順序；且下一張試煉牌難度直接 -4！", "flavor_text": "在夜間有異象現與保羅。有一個馬其頓人站著求他說：「請你過到馬其頓來幫助我們。」"}, {"id": "REG3_EVT_04", "name": "羅馬百夫長猶流的寬待護送", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "得蒙帝國軍官敬重！全體使徒 HP 各 +2；且本輪在全場移動完全免費（不限次數、不耗 AP）！", "flavor_text": "百夫長猶流寬待保羅，准他往朋友那裡去，受他們的照應。"}, {"id": "REG3_EVT_05", "name": "使徒書信快馬傳遞眾教會", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "真理話語跨洋堅固眾人！先前所有已建立之【教會團契】本輪支援效果立即全額產出一次！", "flavor_text": "我保羅親筆問安。你們要記念我的捆鎖。願恩惠常與你們同在！"}, {"id": "REG3_EVT_06", "name": "特羅亞三樓少年猶推古死裡復活", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "講道至半夜的神蹟大彰顯！全隊虔誠直接回滿，全場所有未歸主者所需祈禱代幣永久減 1 枚！", "flavor_text": "保羅下去，伏在他身上，抱著他說：「你們不要慌亂，他的靈魂還在身上。」眾人把那童子活活的領來，得的安慰不少。"}, {"id": "REG3_EVT_07", "name": "希臘哲人痛悔砸碎雅典娜偶像", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "世俗傲慢崩解歸信真神！獲得 2 份奉獻物資，且全體使徒消除 2 點傲慢罪惡值！", "flavor_text": "眾人聽見從死裡復活的話，就有譏誚他的；但有幾個人貼近他，信了主。"}, {"id": "REG3_EVT_08", "name": "堅革哩女執事非比的慷慨周濟", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "忠心女執事跨海資助！全隊每人各獲得 1 份糧食，並為全隊分發 2 枚【代禱代幣】！", "flavor_text": "她素來幫助許多人，也幫助了我。請你們在主裡接待她，在何事上要你們幫助，你們就幫助她。"}, {"id": "REG3_EVT_09", "name": "保羅手巾圍裙彰顯醫治異能", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "甚至有人從保羅身上拿手巾或圍裙放在病人身上，病就退了！全隊清除一切負面疾病與詛咒標記！", "flavor_text": "神藉保羅的手行了非凡的奇事；甚至有人從保羅身上拿手巾或圍裙放在病人身上，病就退了，惡鬼也出去了。"}, {"id": "REG3_EVT_10", "name": "羅馬弟兄在三館出迎相會", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "長途跋涉終見羅馬聖徒迎迓！保羅見了就感謝神壯膽！全隊虔誠回滿，且本輪檢定全員自帶 +2！", "flavor_text": "那裡的弟兄們一聽見我們的信息，就出來到亞比烏市和三館迎接我們。保羅見了他們，就感謝神，放心壯膽。"}, {"id": "REG3_EVT_11", "name": "哥林多該猶全教會的愛宴款待", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "全教會在該猶家中一同擘餅！全隊每人消除 2 點罪惡值，並各獲得 1 枚【代禱代幣】！", "flavor_text": "那接待我、也接待全教會的該猶問你們安。城內管銀庫的以拉都問你們安。"}, {"id": "REG3_EVT_12", "name": "亞略巴古尊貴婦人達瑪哩歸信", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "希臘貴族社會門戶大開！本區大能者講道門檻全面永久 -2，全隊虔誠 +2！", "flavor_text": "其中有亞略巴古的官丟尼修，並一個婦人，名叫達瑪哩，還有別人，一同信從。"}, {"id": "REG3_CIT_01", "name": "腓立比看守獄卒", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：救拔免於拔刀自盡【仁愛施予】DC 8。｜講道：【溫柔謙卑】DC 8。｜成全（5祈禱）：《禁卒之筵》成全聖徒！每輪黃昏全隊免除 1 糧食消耗。", "flavor_text": "禁卒一醒，看見監門全開，以為囚犯已經逃走，就拔刀要自殺。保羅大聲呼叫說：「不要傷害自己！」"}, {"id": "REG3_CIT_02", "name": "哥林多皮革匠亞居拉", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【親手做工】共同分擔勞苦或施予 1 糧食。｜講道：【信實良善】DC 10。｜成全（5祈禱）：【周遊】《同工織帳》跨區同行！使徒每輪親手做工時額外獲 1 糧食或 1 物資。", "flavor_text": "遇見一個猶太人，名叫亞居拉；因為革老丟命猶太人都離開羅馬，新近帶著妻子百基拉從義大利來。"}, {"id": "REG3_CIT_03", "name": "堅革哩女執事非比", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：護送跨海書信【信實良善】DC 10。｜講道：【恩慈憐憫】DC 8。｜成全（5祈禱）：【周遊】《信件攜帶》跨區同行！每輪晨更選任母會團契主席數量 +1（可選兩位發動支援）！", "flavor_text": "她是堅革哩教會的女執事，素來幫助許多人，也幫助了我。"}, {"id": "REG3_CIT_04", "name": "雅典學院希臘哲學學徒", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：解答靈魂不死與復活之辯【信實良善】DC 8。｜講道：【信實良善】DC 8。｜成全（5祈禱）：《理性護道》成全聖徒！全隊面對任何哲學辯道試煉時檢定自動 +2。", "flavor_text": "雅典人和住在那裡的客人，都不顧別的事，只將新聞說說聽聽。"}, {"id": "REG3_CIT_05", "name": "以弗所悔改銀匠", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：補償轉行轉業【施予 2 奉獻物資】。｜講道：【節制克己】DC 10。｜成全（5祈禱）：《金銀破碎》成全聖徒！每輪可主動消耗 1 AP，移除場上一張非災禍異教阻礙卡！", "flavor_text": "這製造銀龕的生意叫我們發大財。但他竟說人手做的不是神，斷了我們的財路！"}, {"id": "REG3_CIT_06", "name": "羅馬近衛退役老兵", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：醫治舊傷膿瘡或【恩慈憐憫】DC 8。｜講道：【信實良善】DC 8。｜成全（5祈禱）：《羅馬鐵盾》成全聖徒！使徒受到任何肉身傷害時自動減免 1 點！", "flavor_text": "身披斑駁鎧甲，歷經無數征伐，內心卻在夜夜惡夢中尋求靈魂的安息。"}, {"id": "REG3_CIT_07", "name": "哥林多管會堂的基利司布", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：破除律法門第之見【信實良善】DC 10。｜講道：【信實良善】DC 10。｜成全（5祈禱）：《全家受洗》成全聖徒！該地點每輪晨更額外多產出 1 枚祈禱代幣！", "flavor_text": "管會堂的基利司布和全家都信了主，還有許多哥林多人聽了，就相信受洗。"}, {"id": "REG3_CIT_08", "name": "特羅亞少年猶推古", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：守候經歷 1 輪【醫治神蹟】。｜講道：【喜樂熱心】DC 8。｜成全（5祈禱）：《儆醒守望》成全聖徒！全體使徒在黃昏階段免疫一切突襲與偷竊！", "flavor_text": "困倦沉睡，就從三層樓上掉下去；扶起他來，已經死了。保羅使他活了過來。"}, {"id": "REG3_CIT_09", "name": "米利大島部族老酋長", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【醫治神蹟】清除熱病痢疾。｜講道：【恩慈憐憫】DC 8。｜成全（5祈禱）：《海島款待》成全聖徒！每輪黃昏全隊免費獲贈 1 份新鮮物資！", "flavor_text": "部百流的父親患熱病和痢疾躺著。保羅進去，為他禱告，按手在他身上，治好了他。"}, {"id": "REG3_CIT_10", "name": "腓立比獲釋放的巫鬼使女", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：奉主名趕逐巫術附身【信實良善】DC 8。｜講道：【溫柔謙卑】DC 8。｜成全（5祈禱）：《靈眼明辨》成全聖徒！使徒抽地區牌時可預先查看牌堆頂 2 張並自選其一！", "flavor_text": "她跟隨保羅和我們，喊著說：「這些人是至高神的僕人，對你們傳說救人的道！」"}, {"id": "REG3_CIT_11", "name": "哥林多碼頭異邦縴夫", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：施予 1 糧食。｜講道：【恩慈憐憫】DC 8。｜成全（5祈禱）：《重軛輕省》成全聖徒！使徒攜帶重物或跨地點移動時免除額外行動點消耗！", "flavor_text": "兩肩磨爛、在烈日下拉動笨重貨船的苦工，渴望聽見使勞苦擔重擔者得安息的佳音。"}, {"id": "REG3_CIT_12", "name": "該撒利亞義大利營羅馬步兵", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：調解軍營酗酒毆鬥【和平忍耐】DC 8。｜講道：【信實良善】DC 8。｜成全（5祈禱）：《軍營護衛》成全聖徒！使徒在該地塊免疫任何暴民騷亂與偷襲！", "flavor_text": "持長矛維持秩序的羅馬衛兵，暗暗景仰使徒面對審判時從容不迫的尊嚴。"}, {"id": "REG3_CIT_13", "name": "以弗所推喇奴學房青年學者", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：資助羊皮抄卷【施予 1 奉獻物資】。｜講道：【信實良善】DC 8。｜成全（5祈禱）：《真理抄卷》成全聖徒！祈禱呼求大能神蹟所需信心代幣減免 1 枚！", "flavor_text": "日夜筆耕不輟，記錄使徒辯道的每一句真理，渴望將福音抄本送往小亞細亞全境。"}, {"id": "REG3_CIT_14", "name": "羅馬家庭教會秘密聚會者", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：施予 1 糧食。｜講道：【仁愛施予】DC 8。｜成全（5祈禱）：《地下守望》成全聖徒！當任一使徒虔誠跌破 5 點時，立即自動為其補充 2 點虔誠！", "flavor_text": "在帝國爪牙密布的幽暗中，他們在民宅深處打破餅、分著杯，等候主榮耀的降臨。"}, {"id": "REG3_CIT_15", "name": "雅典尊貴貴婦達瑪哩", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：解答心靈虛空【溫柔謙卑】DC 10。｜講道：【溫柔謙卑】DC 10。｜成全（5祈禱）：《上層開門》成全聖徒！引導上流階層歸主，本區大能者講道門檻全面 -2！", "flavor_text": "雖坐擁華冠美服，心靈卻在多神偶像的虛妄中枯竭，終在基督的真道裡尋得新生。"}, {"id": "REG3_CIT_16", "name": "逃奴阿尼西母", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：赦免接納並代寫求情信【恩慈憐憫】DC 10。｜講道：【仁愛施予】DC 8。｜成全（5祈禱）：《從前無益今有益》成全聖徒！每輪晨更投擲 1 骰，奇數提供 1 糧食，偶數提供 1 祈禱代幣！", "flavor_text": "他不再是奴僕，乃是高過奴僕，是親愛的弟兄。他在保羅捆鎖之中所生的屬靈兒子。"}, {"id": "REG3_PIL_01", "name": "賣紫色布的呂底亞", "type": "大能者", "cost": "0", "vp": "2", "count": "1", "description": "前置：城中已有 3 平民歸主；心門敞開【仁愛施予】DC 14。｜講道：【信實良善】DC 14。｜成全（15祈禱）：《敞開門戶之殿》每輪黃昏全隊獲得 2 糧食與 2 奉獻物資，且使徒在全區可免費調度物資！", "flavor_text": "她聽見了，主就開導她的心，叫她留心聽保羅所講的話。她和她一家既領了洗，便求我們說：「你們若以為我是真信主的，請到我家裡來住。」"}, {"id": "REG3_PIL_02", "name": "亞略巴古哲學官丟尼修", "type": "大能者", "cost": "0", "vp": "2", "count": "1", "description": "前置：城中已有 3 平民歸主；心門敞開【信實良善】DC 14。｜講道：【信實良善】DC 16。｜成全（15祈禱）：《未識之神辯道》全隊免疫第三區所有哲學試煉與異端思潮災禍，全場講道 DC 永久 -2！", "flavor_text": "雅典最高法庭審判官，希臘智慧的頂峰。當他降服於十字架的愚拙道理時，整個愛琴海的學界都為之震動！"}, {"id": "REG3_PIL_03", "name": "巡撫腓力斯與百夫長", "type": "大能者", "cost": "0", "vp": "2", "count": "1", "description": "前置：城中已有 4 平民歸主；心門敞開【和平忍耐】DC 14。｜講道：【節制克己】DC 16。｜成全（15祈禱）：《帝國上訴豁免》羅馬行省法權庇護！全隊免疫帝國拘捕懲罰，撤銷一切審判敕令災禍！", "flavor_text": "「這人若沒有向該撒上訴，就可以釋放了。」帝國的利劍在神的權柄面前俯首。"}, {"id": "REG3_PIL_04", "name": "該撒家信徒與禁衛軍", "type": "大能者", "cost": "0", "vp": "2", "count": "1", "description": "前置：城中已有 4 平民歸主；心門敞開【信實良善】DC 16。｜講道：【仁愛施予】DC 16。｜成全（15祈禱）：《福音直達地極》全隊虔誠上限永久提升至 22 點！晨更全體使徒各獲 1 代禱代幣，直接鎖定大使命終極大勝利！", "flavor_text": "「眾聖徒都問你們安。在該撒家裡的人，特特的問你們安。」福音穿透了暴君的深宮內院，基督的國度終必得勝！"}], "r3_loc": [{"id": "LOC_R3_PIL_01", "name": "腓立比河畔禱告處", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG3_PIL_01 賣紫色布的呂底亞", "effect_type": "大能據點", "description": "綁定大能者【賣紫色布的呂底亞】！常駐效果：歐洲福音初熟之地！在此處執行【親近靈修】虔誠恢復 +3（多 1 點）；若在此處講道檢定使用【溫柔謙卑】自帶 +2 加成！", "flavor_text": "當安息日，我們出城門，到了河邊，知道那裡有一個禱告的地方，我們就坐下對那聚會的婦女講道。"}, {"id": "LOC_R3_PIL_02", "name": "雅典亞略巴古哲學山丘", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG3_PIL_02 亞略巴古官丟尼修", "effect_type": "大能據點", "description": "綁定大能者【亞略巴古官丟尼修】！常駐效果：希臘智者辯道核心。在此處講道檢定強制使用【信實良善】；若在此處辯道檢定成功，全場聽眾歸主所需祈禱代幣永久 -1！", "flavor_text": "保羅站在亞略巴古當中，說：「眾位雅典人哪，我看你們凡事很敬畏鬼神。我遊行的時候，觀看你們所敬拜的，遇見一座壇，上面寫著『給未識之神』。」"}, {"id": "LOC_R3_PIL_03", "name": "該撒利亞巡撫官邸", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG3_PIL_03 巡撫腓力斯與百夫長", "effect_type": "大能據點", "description": "綁定大能者【巡撫腓力斯與百夫長】！常駐效果：羅馬行省法權樞紐。身處此處的使徒免疫所有平民暴民私刑傷害；但黃昏結束需檢定【節制克己】DC 8，未過扣 1 虔誠（面對官場貪腐與拖延）。", "flavor_text": "巡撫讀了信，問保羅是哪一省的人，既知他是基利家的人，就說：「等告你的人來到，我要細聽你的事。」"}, {"id": "LOC_R3_PIL_04", "name": "羅馬租賃寓所囚房", "type": "地點", "deck_type": "大能者據點", "capacity": "3", "bound_pillar": "REG3_PIL_04 該撒家信徒與禁衛軍", "effect_type": "大能據點", "description": "綁定大能者【該撒家信徒與禁衛軍】！常駐效果：容量多達 3 人！使徒在此處移出需花 1 AP（帶鎖鏈監管）；但在此處傳道凡帶領 1 人歸主，立刻額外獲 1 枚祈禱代幣與 1 糧食！", "flavor_text": "保羅在自己所租的房子裡住了足足兩年。凡來見他的人，他全都接待，放膽傳講神國的道，並沒有人禁止。"}, {"id": "LOC_R3_FREE_01", "name": "以弗所大劇院廣場", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "異教狂瀾", "description": "無大能者。常駐效果：容量 3 人！萬人聚集騷亂之地，在此講道 DC +2；但若隊友中有人【和平忍耐】>= 7，可消耗 1 AP 平息騷亂，立即滿足該處所有百姓之需要！", "flavor_text": "眾人聽見，就怒氣填胸，喊著說：「大哉，以弗所人的亞底米啊！」滿城都轟動起來。"}, {"id": "LOC_R3_FREE_02", "name": "哥林多集市與織帳棚作坊", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "商工核心", "description": "無大能者。常駐效果：容量 3 人！商業與工匠重鎮。在此處執行【親手做工（織帳棚）】無條件直接獲得 2 糧食（比常態多 1 份），或可選擇換為 2 奉獻物資！", "flavor_text": "他們本是製造帳棚為業。保羅因與他們同業，就和他們同住做工。每逢安息日，保羅在會堂裡辯論，勸化猶太人和希臘人。"}, {"id": "LOC_R3_FREE_03", "name": "以弗所推喇奴學房", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "門徒講堂", "description": "無大能者。常駐效果：天天辯論真道、裝備聖徒之聖所！在此處執行【成全聖徒】時，平民代幣費用減免 1 枚（僅需 4 枚）；每輪晨更身處此處的使徒自選一項靈果暫時 +1！", "flavor_text": "保羅便離開他們，也叫門徒與他們聚集，天天在推喇奴的學房辯論。這樣有兩年之久，叫一切住在亞細亞的都聽見主的道。"}, {"id": "LOC_R3_FREE_04", "name": "堅革哩愛琴海港口", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "跨海航道", "description": "無大能者。常駐效果：使徒跨海宣教樞紐。身處此處可消耗 1 糧食寄送書信，使先前建立的所有教會團契本輪支援效果翻倍！", "flavor_text": "我向你們推薦我們的姊妹非比，她是堅革哩教會的女執事。請你們在主裡接待她，合乎聖徒的體統。"}, {"id": "LOC_R3_FREE_05", "name": "羅馬地下墓窟秘密聖所", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "地下庇護", "description": "無大能者。常駐效果：地下秘密集會點。身處此處的使徒完全免疫帝國持續災禍的任何黃昏扣除懲罰；但在此處無法執行【親手做工】。", "flavor_text": "他們住在地底幽暗的石窟之中，點著燭火擘餅祈禱，歌聲自地底升起，勝過地上一切帝王的威嚇。"}], "depravity": [{"﻿id": "DEP_01", "name": "罪孽的連鎖爆發", "type": "墮落", "cost": "0", "vp": "0", "count": "2", "description": "惡性循環：身上其他所有數值未滿 10 的罪惡軌，各自強制增加 2 點罪惡！", "flavor_text": "罪如滾雪球般失控，深淵與深淵響應。"}, {"﻿id": "DEP_02", "name": "骨頭枯乾的折磨", "type": "墮落", "cost": "0", "vp": "0", "count": "2", "description": "肉身重創：使徒遭受極大心靈與肉體煎熬，直接受到 4 點肉身 HP 傷害！", "flavor_text": "「我閉口不認罪的時候，因終日唉哼而骨頭枯乾。」"}, {"﻿id": "DEP_03", "name": "絆倒信徒的巨石", "type": "墮落", "cost": "0", "vp": "0", "count": "2", "description": "群體破壞：城中 2 名已歸主的平民因見使徒完全墮落而跌倒，退回未信受洗狀態！", "flavor_text": "「凡使這信我的一個小子跌倒的，倒不如把大磨石拴在頸項上。」"}, {"﻿id": "DEP_04", "name": "心靈剛硬如石", "type": "墮落", "cost": "0", "vp": "0", "count": "2", "description": "靈性麻木：本輪內該墮落使徒無法執行【祈禱】職分下的任何動作（無法自己認罪，需同伴代禱挽回）！", "flavor_text": "良心既然喪盡，就放誕行事，放縱情慾。"}, {"﻿id": "DEP_05", "name": "仇敵的肆意控告", "type": "墮落", "cost": "0", "vp": "0", "count": "2", "description": "全隊蒙羞：該使徒虔誠力直接暴跌 5 點，且全隊其他使徒各失去 1 枚【代禱代幣】！", "flavor_text": "控告我們弟兄的，在神面前晝夜控告他們。"}], "all": [{"﻿id": "CHR_01", "name": "純真赤子", "type": "角色", "cost": "0", "vp": "16", "count": "1", "description": "HP: 8 / 起始虔誠: 16。特質【赤子純真】：無法常規覺醒恩賜。守候神蹟常規充能 +1；隊友代禱額外多給 1 代幣。", "flavor_text": "「凡要承受神國的，若不像小孩子，斷不能進去。」"}, {"﻿id": "CHR_02", "name": "剛烈開路者", "type": "角色", "cost": "0", "vp": "8", "count": "1", "description": "HP: 18 / 起始虔誠: 8。特質【前鋒破障】：面對旅程與荒野試煉 DC -2；全隊免除一次飢餓扣血。", "flavor_text": "「看我一把開山斧，為主的道鋪平坦途！」"}, {"﻿id": "CHR_03", "name": "曠野守望者", "type": "角色", "cost": "0", "vp": "12", "count": "1", "description": "HP: 12 / 起始虔誠: 12。特質【守候之柱】：執行守候神蹟常規直接充能 2 枚信心代幣（他人 1 枚）。", "flavor_text": "「在寂靜的風沙中，我聽見微小的聲音。」"}, {"﻿id": "CHR_04", "name": "撒瑪利亞良醫", "type": "角色", "cost": "0", "vp": "10", "count": "1", "description": "HP: 14 / 起始虔誠: 10。特質【仁心療傷】：救治病患免除物資改以檢定化解；黃昏免費為隊友恢復 2 HP。", "flavor_text": "「願神憐憫的手，藉著我的指尖安慰你。」"}, {"﻿id": "CHR_05", "name": "勸慰之子巴拿巴", "type": "角色", "cost": "0", "vp": "12", "count": "1", "description": "HP: 14 / 起始虔誠: 12。特質【成全之手】：成全聖徒所需代幣永久 -1；每成全一人全隊各得 1 代禱代幣。", "flavor_text": "「賣了田產家業，一心堅固剛信主的弟兄。」"}, {"﻿id": "CHR_06", "name": "辯道學者亞波羅", "type": "角色", "cost": "0", "vp": "10", "count": "1", "description": "HP: 10 / 起始虔誠: 10。特質【無愧工人】：真理講道判定自動 +2；講道成功使另一位敞開者一同受洗。", "flavor_text": "「極有學問，在眾人面前引經據典極力駁倒頑固之人。」"}, {"﻿id": "CHR_07", "name": "讚美歌者西拉", "type": "角色", "cost": "0", "vp": "14", "count": "1", "description": "HP: 12 / 起始虔誠: 14。特質【午夜詩歌】：為人代禱自己額外得 1 代幣；同伴罪惡纏身每輪扣虔誠 -1。", "flavor_text": "「約在半夜，禱告唱詩讚美神，地大震動監門全開！」"}, {"﻿id": "CHR_08", "name": "異象先知亞迦布", "type": "角色", "cost": "0", "vp": "14", "count": "1", "description": "HP: 10 / 起始虔誠: 14。特質【先知預言】：晨更可密看地區牌堆頂部 2 張牌並調整順序或移底。", "flavor_text": "「被聖靈感動，預言將有大飢荒，使門徒及早防備。」"}, {"﻿id": "GFT_01", "name": "信心之盾", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "數值置換：當你或身旁同伴即將失去肉身生命時，可消耗 2 點虔誠力完全抵擋該次傷害。", "flavor_text": "信就是所望之事的實底，是未見之事的確據。"}, {"﻿id": "GFT_02", "name": "大能的勇力", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "判定減免：進行開路、移石或負重等【喜樂熱心】檢定時，難度門檻 (DC) 直接 -4。", "flavor_text": "我的力量是在人的軟弱上顯得完全。"}, {"﻿id": "GFT_03", "name": "恆切祈求", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "神蹟加速：在守候蓄力大能神蹟時，每次守候行動額外免費充能 1 枚信心代幣。", "flavor_text": "要常常喜樂，不住地禱告，凡事謝恩。"}, {"﻿id": "GFT_04", "name": "萬國方言", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "團隊光環：招募任何文化與種族的大使命同路人 (NPC) 時，直接免除判定條件。", "flavor_text": "聖靈降臨在他們身上，說出萬國的言語。"}, {"﻿id": "GFT_05", "name": "五餅二魚的祝福", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "物資轉換：在物資結算階段，可將 2 點【仁愛施予】直接轉化為全隊所需的糧食補給。", "flavor_text": "在人這是不能的，在神凡事都能。"}, {"﻿id": "GFT_06", "name": "先知的洞察", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "判定減免：在面對【色慾】或【傲慢】的誘惑事件時，檢定難度門檻直接 -4。", "flavor_text": "主的靈使我心眼明亮，識破仇敵的網羅。"}, {"﻿id": "GFT_07", "name": "禁食的恩膏", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "罪惡抗性：執行親近靈修時，連帶消除自身 2 點罪惡值，且本輪免除一切飢餓判定。", "flavor_text": "「這一類的鬼，若不禱告禁食，他就不出來。」"}, {"﻿id": "GFT_08", "name": "彼此認罪之軛", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "認罪強化：你執行認罪時，同地塊所有其他使徒可免費各自消除 1 點罪惡值。", "flavor_text": "「你們要彼此認罪，互相代求，使你們可以得醫治。」"}, {"﻿id": "GFT_09", "name": "基甸的羊毛", "type": "恩賜", "cost": "0", "vp": "0", "count": "1", "description": "靈命守護：若虔誠即將跌破 15 點時，可強制鎖定在 15 點不暗淡（每局限 1 次）。", "flavor_text": "「求你容我用羊毛再試一次。」"}, {"﻿id": "GFT_10", "name": "澆灌的甘霖", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "代禱發放：執行為人代禱時，每位隊友各獲得 2 枚【代禱代幣】！", "flavor_text": "「我口中的言語要像細雨落下，如甘霖降在嫩草上。」"}, {"﻿id": "GFT_11", "name": "拔摩島的異象", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "檢定減免：進行任何雙屬性複合試煉時，兩個屬性的 DC 門檻全部直接 -3！", "flavor_text": "「我聽見在天上有大聲音說：我神的國度都來到了！」"}, {"﻿id": "GFT_12", "name": "靈巧如蛇", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "誘惑豁免：抽到誘惑卡時，可直接宣告識破並將其棄除，免除任何罪惡增長與判定。", "flavor_text": "「你們要靈巧像蛇，馴良像鴿子。」"}, {"﻿id": "GFT_13", "name": "聖殿的棟樑", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "聖徒共鳴：本地教會每有 1 位成全聖徒，你所有聖靈果子檢定獲得被動 +1 加成！", "flavor_text": "「得勝的，我要叫他在我神殿中作柱子。」"}, {"﻿id": "GFT_14", "name": "初代大公宴", "type": "恩賜", "cost": "0", "vp": "0", "count": "1", "description": "愛宴供應：執行成全聖徒時，場上所有需求為【糧食/飢餓】的未歸主人民，立即自動滿足其需要！", "flavor_text": "「天天同心合意恆切的在殿裡，且在家中擘餅。」"}, {"﻿id": "GFT_15", "name": "以利亞的火車", "type": "恩賜", "cost": "0", "vp": "0", "count": "1", "description": "神蹟爆發：守候神蹟時，可一次消耗 3 枚代禱代幣，直接充能滿額立即引爆！", "flavor_text": "「忽有火車火馬將二人隔開，以利亞就乘旋風升天去了。」"}, {"﻿id": "GFT_16", "name": "保羅的刺", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "逆境轉化：當你的肉身 HP 低於一半時，你的所有祈禱行動獲得雙倍效果（加 4 虔誠）。", "flavor_text": "「因我什麼時候軟弱，什麼時候就剛強了。」"}, {"﻿id": "GFT_17", "name": "亞居拉的帳棚", "type": "恩賜", "cost": "0", "vp": "0", "count": "2", "description": "旅程庇護：在 3 輪旅程階段中，全體使徒免疫強盜與風暴災害，且每輪產出 2 物資。", "flavor_text": "「他們本是製造帳棚為業，保羅因與他們同業就和他們同做工。」"}, {"﻿id": "GFT_18", "name": "真理的束腰", "type": "恩賜", "cost": "0", "vp": "0", "count": "1", "description": "墮落抗體：當身上任何罪惡達到 9 點時，罪惡被聖潔之鎖鎖定，永遠無法達 10 點！", "flavor_text": "「所以要站穩了，用真理當作帶子束腰。」"}, {"﻿id": "MRC_01", "name": "磐石出水", "type": "神蹟", "cost": "0", "vp": "5", "count": "2", "description": "大能神蹟（需蓄力 5 點信心代幣）。在極度乾旱之地湧出甘泉，全隊補滿水分與體力，恢復 6 點 HP！", "flavor_text": "他使磐石變為水池，使水泉從堅石流出。"}, {"﻿id": "MRC_02", "name": "天降嗎哪", "type": "神蹟", "cost": "0", "vp": "5", "count": "2", "description": "大能神蹟（需蓄力 5 點信心代幣）。立即產出 8 份天糧物資，並使全隊飢餓虛弱狀態全數解除！", "flavor_text": "清晨露水消逝之後，地面上留下了白色的甜餅。"}, {"﻿id": "MRC_03", "name": "烈火同行", "type": "神蹟", "cost": "0", "vp": "5", "count": "1", "description": "大能神蹟（需蓄力 5 點信心代幣）。全隊免疫一切環境致命烈火與瘴氣傷害，並驅散全圖黑暗恐怖！", "flavor_text": "火無能力傷他們的身體，頭髮也沒有燒焦。"}, {"﻿id": "MRC_04", "name": "紅海分開", "type": "神蹟", "cost": "0", "vp": "5", "count": "1", "description": "史詩神蹟（需蓄力 5 點信心代幣）。將阻隔去路的浩瀚汪洋完全分開，開闢出一條通天坦途！", "flavor_text": "大東風吹了一整夜，水便分開成了牆垣。"}, {"﻿id": "SIN_01", "name": "溫柔鄉的迷霧", "type": "誘惑", "cost": "0", "vp": "0", "count": "2", "description": "色慾誘惑：若屈服可立即獲得 3 點體力補給，但罪惡值 +4，且【信實】判定受阻。", "flavor_text": "看似香甜的蜜酒，裡頭藏著讓人忘卻誓約的毒。"}, {"﻿id": "SIN_02", "name": "巴別塔的狂妄", "type": "誘惑", "cost": "0", "vp": "0", "count": "2", "description": "傲慢誘惑：試圖靠血氣解決難關，成功率翻倍，但若失敗直接失去 4 點虔誠力。", "flavor_text": "我們要建造一座城和一座塔，塔頂通天，傳揚我們的名。"}, {"﻿id": "SIN_03", "name": "曠野的抱怨", "type": "誘惑", "cost": "0", "vp": "0", "count": "2", "description": "怠惰與憤怒：隊伍原地停滯一輪，全體若不認罪，每回合持續失去 1 點虔誠。", "flavor_text": "難道埃及沒有墳地，你把我們帶來死在曠野嗎？"}, {"﻿id": "JNY_TRL_01", "name": "加利利海的狂風巨浪", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【和平忍耐】DC 12 ＋【信實良善】DC 10。｜雙過：平息風浪，全隊虔誠 +3。｜失敗：船體受損，全隊各扣 3 點 HP，且損失 2 份物資。", "flavor_text": "「夫子！我們喪命，你不顧嗎？」"}, {"﻿id": "JNY_TRL_02", "name": "曠野路遇強盜伏擊", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【喜樂熱心】DC 10（抗擊開路）或【仁愛施予】DC 10（捨財化險）。｜失敗：使徒受重傷 HP -4，且損失 1 份重要物資。", "flavor_text": "落在強盜手中，他們剝去他的衣裳，把他打個半死。"}, {"﻿id": "JNY_TRL_03", "name": "毒蛇咬手的致命驚險", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12。｜成功：甩蛇入火中絲毫無損，全隊靈命大振虔誠 +4！｜失敗：身中劇毒，肉身 HP -5 且陷入虛弱。", "flavor_text": "手被毒蛇咬住，土人想他必死，看見他毫無傷害，就轉念說他是個神！"}, {"﻿id": "JNY_TRL_04", "name": "烈日戈壁的斷水乾渴", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 10。｜成功：耐渴前行安然渡過。｜失敗：脫水虛脫，使徒 HP -3 且下輪行動點 -1。", "flavor_text": "在乾旱無水之地，我的心渴想你，我的肉體切慕你。"}, {"﻿id": "JNY_TRL_05", "name": "山洪暴發的渡河之險", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【喜樂熱心】DC 12 ＋【和平忍耐】DC 10。｜雙過：劈浪護送全隊安然渡河！｜失敗：被急流沖走，損失 2 份物資且每人扣 2 HP。", "flavor_text": "大水氾濫的時候，耶和華坐著為王。"}, {"﻿id": "JNY_TRL_06", "name": "荒漠黑夜的毒蠍沙暴", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【溫柔謙卑】DC 10 ＋【節制克己】DC 10。｜雙過：伏於磐石穴中安然避風。｜失敗：受風沙撕扯且被毒蠍刺傷，HP -3，虔誠 -2。", "flavor_text": "狂風大作，沙塵蔽日，天地都在震動。"}, {"﻿id": "JNY_TRL_07", "name": "陡峭絕壁的落石險道", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 12。｜成功：敏捷避開滾石，護全隊行李。｜失敗：被落石砸傷，使徒 HP -4。", "flavor_text": "他為你吩咐他的使者，在你看守你的一切道路。"}, {"﻿id": "JNY_TRL_08", "name": "嚴冬暴風雪的失溫考驗", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 12。｜成功：同心取暖抗住極寒。｜失敗：嚴重凍傷，HP -4 且本輪黃昏需消耗雙倍糧食。", "flavor_text": "誰能當得起他的寒冷呢？他一出令，這些就都消化。"}, {"﻿id": "JNY_TRL_09", "name": "異教神龕的迷幻薰香", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12（抗拒肉慾與虛妄香氣）。｜成功：斥責幻象守住聖潔。｜失敗：陷入迷夢，罪惡值 +3（色慾），且下輪行動點 -1。", "flavor_text": "路旁有異教女子歌唱，香氣迷人，引誘過路旅客轉向假神。"}, {"﻿id": "JNY_TRL_10", "name": "逃亡奴隸的暗中求助", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 10 ＋【恩慈憐憫】DC 10（阿尼西母式的相遇）。｜雙過：收留並帶領該奴隸歸主，全隊虔誠 +3！｜失敗：恐懼連累而冷漠驅趕，罪惡值 +2（自私）。", "flavor_text": "不再是奴僕，乃是高過奴僕，是親愛的弟兄。"}, {"﻿id": "JNY_TRL_11", "name": "邊境關卡的蠻橫盤查", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【溫柔謙卑】DC 12。｜成功：溫和回答化解暴戾，關卡守兵放行。｜失敗：被拘留扣押，全體使徒下輪行動點各 -1。", "flavor_text": "巡撫的兵丁在關隘盤查，勒索過路之人。"}, {"﻿id": "JNY_TRL_12", "name": "荒野假先知的迎面攔截", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【溫柔謙卑】DC 10。｜雙過：揭穿謊言使其自慚形穢！｜失敗：信徒隊伍信心受攪擾，虔誠 -3。", "flavor_text": "有假先知迎面而來，口出狂言，要使使徒轉離正道。"}, {"﻿id": "JNY_TRL_13", "name": "草叢中被棄嬰孩的啼哭", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【恩慈憐憫】DC 8。｜成功：悉心抱起照護，行神所悅納的善，全隊虔誠 +3！｜失敗：視而不見匆匆趕路，使徒罪惡值 +2（冷酷）。", "flavor_text": "王要回答說：「這些事你們既做在我這弟兄中一個最小的身上，就是做在我身上了。」"}, {"﻿id": "JNY_TRL_14", "name": "林間饑餓孤狼的凶狠撲咬", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 10 或【喜樂熱心】DC 10。｜成功：以杖驅離野獸，全隊無損。｜失敗：被野獸撕咬，使徒受到 3 點 HP 傷害。", "flavor_text": "我差你們去，如同羊進入狼群；所以你們要靈巧像蛇，馴良像鴿子。"}, {"﻿id": "JNY_TRL_15", "name": "缺糧瀕死商隊的微弱哀求", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 10（自願分出 1 份物資）。｜成功：救人性命，商隊感激涕零，全隊獲得 2 枚【代禱代幣】！｜失敗：護食拒絕，全隊虔誠 -2。", "flavor_text": "你的仇敵若餓了，就給他吃；若渴了，就給他喝。"}, {"﻿id": "JNY_TRL_16", "name": "密林濃霧的迷途方向", "type": "旅程試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 10。｜成功：仰望星辰信靠神的引導走出迷霧。｜失敗：繞路迷途，本輪全隊額外消耗 1 份糧食。", "flavor_text": "你的話是我腳前的燈，是我路上的光。"}, {"﻿id": "JNY_EVT_01", "name": "曠野星空下的安息默想", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "神聖安息：全體使徒在此刻安靜休整，每位使徒各自恢復 4 點虔誠力或 3 點 HP！", "flavor_text": "他使我躺臥在青草地上，領我在可安歇的水邊。"}, {"﻿id": "JNY_EVT_02", "name": "馬其頓的呼聲與異象", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "神聖引導：夜間異象顯現！進入下一宣教地區時，第一輪全體使徒傳道講道 DC 全部 -3！", "flavor_text": "有一個馬其頓人站著求他說：「請你過到馬其頓來幫助我們！」"}, {"﻿id": "JNY_EVT_03", "name": "枯木逢春的甘泉補給", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "及時供應：在石縫中發現清冽甘泉，全隊立即獲得 4 份糧水物資補給！", "flavor_text": "神在曠野開道路，在沙漠開江河。"}, {"﻿id": "JNY_EVT_04", "name": "雲柱火柱的神聖引導", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "天父看顧：本輪內全體使徒免疫一切旅程傷害與物資損失！", "flavor_text": "日間，耶和華在雲柱中領他們的路；夜間，在火柱中光照他們。"}, {"﻿id": "JNY_EVT_05", "name": "天使送來的炭火燒餅", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "以利亞的盛宴：使徒肉身 HP 恢復 5 點，且下輪行動點 +1（大有力量健步前行）！", "flavor_text": "有一個天使拍他，說：「起來吃吧！」他觀看，見頭旁有炭火燒的餅，與一瓶水。"}, {"﻿id": "JNY_EVT_06", "name": "信徒聚落的熱情款待", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "肢體相通：遇見路途上的分散信徒，全隊獲贈 2 份物資並消除所有罪惡值 1 點！", "flavor_text": "他們接待我們，住了七天；這樣，我們就來到羅馬。"}, {"﻿id": "JNY_EVT_07", "name": "野地百合花的默想", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "驅散憂慮：全體使徒心中的焦慮全消，虔誠力各自恢復 3 點！", "flavor_text": "想一想野地裡的百合花怎麼長起來；它也不勞苦，也不紡線。"}, {"﻿id": "JNY_EVT_08", "name": "以馬忤斯路上的奇妙同行", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "與主同行！當前守候中的神蹟直接增加 3 枚信心代幣，全體使徒靈命大得復興虔誠全滿！", "flavor_text": "正談論的時候，耶穌親自就近他們，和他們同行。"}, {"﻿id": "JNY_EVT_09", "name": "拾獲曠野先知古卷殘片", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "經卷真理：全體使徒可挑選一人，使其任意一項聖靈果子基礎點數永久 +1！", "flavor_text": "草必枯乾，花必凋殘，唯有我們神的話必永遠立定。"}, {"﻿id": "JNY_EVT_10", "name": "寂靜曠野中的微小聲音", "type": "旅程事件", "cost": "0", "vp": "0", "count": "1", "description": "聖靈微聲：使徒完全降服於神，當前使徒身上的所有罪惡值直接全數洗淨！", "flavor_text": "風後有地震，地震後有火，火後有微小的聲音。"}, {"﻿id": "REG1_DIS_01", "name": "大公會的嚴厲查禁", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：全體使徒公開傳道難度門檻 +4。若 2 輪內未平息，每輪全體失去 2 點虔誠。", "flavor_text": "「我們不是嚴嚴地吩咐你們，不可奉這名教訓人嗎？」"}, {"﻿id": "REG1_DIS_02", "name": "全城大飢荒", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：每輪結束全隊需消耗雙倍糧食，否則每人扣 4 點 HP。", "flavor_text": "天無甘霖，地產枯槁，城中窮人流落街頭哀哭。"}, {"﻿id": "REG1_DIS_03", "name": "寡婦分糧的紛爭抱怨", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：考驗教會合一。每輪黃昏若未成全聖徒，全隊使徒罪惡值各 +1（嫉妒與紛爭）。", "flavor_text": "說希臘話的猶太人向希伯來人發怨言，因在天天的供給上忽略了他們的寡婦。"}, {"﻿id": "REG1_TRL_01", "name": "公會受審與鞭笞", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 10（放膽直言）＋【和平忍耐】DC 10（受苦不發怨言）。｜雙過：HP -2，全隊虔誠 +4，且目擊平民 1 人直接歸主！｜信實過忍耐敗：保住信仰但 HP -5。｜信實敗忍耐過：免皮肉苦但虔誠 -4 且罪惡 +2。｜雙敗：HP -6、虔誠 -4、罪惡 +3！", "flavor_text": "使徒離開公會，心裡歡喜，因被算是配為這名受辱。"}, {"﻿id": "REG1_TRL_02", "name": "術士西門的金錢誘惑", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12（識破偽術）＋【節制克己】DC 10（拒絕大額金銀）。｜雙過：斥責貪慾，全隊聖潔，吸引 1 名尋道者前來。｜若屈服接受：獲得 4 物資，但罪惡值 +5，神蹟能力封印 2 輪！｜檢定失敗：陷入貪婪試探，每輪失去 2 點虔誠直到認罪。", "flavor_text": "「你的銀子跟你一同滅亡吧！因你想神的恩賜是可以用錢買的。」"}, {"﻿id": "REG1_TRL_03", "name": "為逼迫者代求的石刑", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【仁愛施予】DC 10（為仇敵代求）＋【溫柔謙卑】DC 10（靈魂交託神）。｜雙過：使徒受傷 HP -3，但大愛震動人心，城中一名大能者心門被暗中鬆動！｜部分過：HP -4。｜雙敗：HP -6，心懷怨毒罪惡值 +3。", "flavor_text": "「主啊，不要將這罪歸於他們！」說了這話，就睡了。"}, {"﻿id": "REG1_TRL_04", "name": "私藏財物的虛偽誘惑", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12。｜成功：識破貪婪與偽善，維持團契聖潔。｜失敗：未辨欺瞞，城中 1 名未信者心門剛硬（需求門檻 +2）。", "flavor_text": "「你不是欺哄人，乃是欺哄神了！」"}, {"﻿id": "REG1_TRL_05", "name": "守望城牆的嚴寒夜巡", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 10。｜成功：克制睡意與嚴寒，守護信徒安眠，全隊士氣高昂。｜失敗：受風寒侵蝕，肉身 HP -3 且下輪行動點 -1。", "flavor_text": "黑夜已深，白晝將近，我們應當脫去暗昧的行為，帶上光明的兵器。"}, {"﻿id": "REG1_TRL_06", "name": "狂暴暴民的圍攻辱罵", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【溫柔謙卑】DC 10。｜成功：溫和的舌頭能折斷骨頭，群眾怒氣頓消四散。｜失敗：被激怒與群眾對罵，罪惡值 +3（憤怒），且 HP -2。", "flavor_text": "回答柔和，使怒消退；言語暴戾，觸動怒氣。"}, {"﻿id": "REG1_TRL_07", "name": "連續跋涉的極限勞役", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【喜樂熱心】DC 12。｜成功：心裡火熱常常服事，移開塌方巨石，開通道路並獲得 2 份物資！｜失敗：體力耗盡陷入怠惰，本輪無法執行傳道動作。", "flavor_text": "殷勤不可懶惰；要心裡火熱，常常服事主。"}, {"﻿id": "REG1_TRL_08", "name": "異邦孤兒的啼哭哀求", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 10。｜成功：給予熱湯與愛心擁抱，全隊虔誠 +3 且吸引該孤兒跟隨信主。｜失敗：冷漠拒絕，使徒背負 2 點罪惡值（自私與貪婪）。", "flavor_text": "在神我們的父面前，那清潔沒有玷污的虔誠，就是看顧在患難中的孤兒寡婦。"}, {"﻿id": "REG1_TRL_09", "name": "撒都該人的復活詰難", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【溫柔謙卑】DC 10。｜雙過：引經據典駁倒異端，全隊虔誠 +3 且公會威脅暫緩 1 輪。｜失敗：神學辯論失利，全隊信徒信心動搖虔誠 -2。", "flavor_text": "撒都該人常說沒有復活的事，那天他們前來詰難耶穌。"}, {"﻿id": "REG1_TRL_10", "name": "深夜客西馬尼的逮捕", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 12。｜成功：收刀入鞘安然順服神旨意，同伴免受波及。｜失敗：血氣拔刀傷人，罪惡值 +3（暴怒），且受重創 HP -4。", "flavor_text": "「收刀入鞘吧！凡動刀的，必死在刀下。」"}, {"﻿id": "REG1_TRL_11", "name": "公堂假見證的惡毒誣陷", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【溫柔謙卑】DC 12。｜成功：如同羊在剪毛人手下無聲，神親自為其申冤，洗淨 2 點罪惡！｜失敗：怒不可遏反唇相譏，罪惡值 +2（驕傲與憤怒）。", "flavor_text": "有幾個人站起來，作假見證告他說：「我們聽見他說過...」"}, {"﻿id": "REG1_TRL_12", "name": "荒野黑夜的毒蠍之災", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 10。｜成功：警醒謹慎避開毒腺，安然度夜。｜失敗：被毒蠍刺傷，HP -3 且中毒（下輪黃昏額外扣 1 HP）。", "flavor_text": "「我已經給你們權柄可以踐踏蛇和蠍子，又勝過仇敵一切的能力。」"}, {"﻿id": "REG1_TRL_13", "name": "異教地痞的勒索強佔", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 10 或【喜樂熱心】DC 10。｜成功：以真道折服地痞，化敵為友。｜失敗：聚會據點受損，損失 2 份糧食且全隊虔誠 -1。", "flavor_text": "他們搶奪信徒的田產，強行索取過路規費。"}, {"﻿id": "REG1_TRL_14", "name": "連夜修補聖所的苦工", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【喜樂熱心】DC 12。｜成功：全隊聚會所修繕完畢，防禦力大增！｜失敗：使徒體力透支，HP -3 且下輪行動點 -1。", "flavor_text": "各人一手做工，一手拿兵器，日夜修築耶路撒冷的城牆。"}, {"﻿id": "REG1_TRL_15", "name": "傷殘惡犬的暴戾威脅", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 10。｜成功：以溫柔馴服猛犬，平息險情。｜失敗：被野犬咬傷撕扯，HP -3。", "flavor_text": "神必差遣使者救你脫離捕鳥人的網羅和毒害的瘟疫。"}, {"﻿id": "REG1_TRL_16", "name": "混入團契的偽使徒", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【恩慈憐憫】DC 10。｜雙過：明察秋毫勸誡挽回，團契聖潔且該偽徒悔改歸正！｜失敗：破壞教會合一，全隊使徒罪惡值各 +1。", "flavor_text": "那等人是假使徒，行事詭詐，裝作基督使徒的模樣。"}, {"﻿id": "REG1_EVT_01", "name": "天使夜間開監門", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "神蹟恩典：直接平息當前 1 項生效中的災禍，且全體使徒虔誠力 +2！", "flavor_text": "「主的使者夜間開了監門，領他們出來，說：去站在聖殿裡講道！」"}, {"﻿id": "REG1_EVT_02", "name": "索羅門廊下的辯道", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "恩典機遇：當前使徒可立即免費執行一次講道，且檢定獲得 +4 修正！", "flavor_text": "百姓都十分驚奇，一齊跑到所羅門的廊下。"}, {"﻿id": "REG1_EVT_03", "name": "聖靈如大風吹過", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "聖靈充滿：全體使徒虔誠力 +4！且本輪內所有向百姓傳道講道的 DC 門檻全部 -2！", "flavor_text": "忽然從天上有響聲下來，好像一陣大風吹過，充滿了他們所坐的屋子。"}, {"﻿id": "REG1_EVT_04", "name": "初代信徒凡物公用", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "團契之美：全隊獲得 2 份糧食，且每位使徒各自消除 2 點罪惡值。", "flavor_text": "信的人都在一處，凡物公用，並且賣了田產家業，照各人所需的分給各人。"}, {"﻿id": "REG1_EVT_05", "name": "西羅亞池的泥土醫治", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "神蹟醫治：若隊伍中有任何患病或受傷的未信人民，直接免費移除其需要標記，使其心門敞開！", "flavor_text": "用唾沫和泥抹在瞎子的眼睛上，對他說：「你往西羅亞池子裡去洗。」"}, {"﻿id": "REG1_EVT_06", "name": "七執事的按手設立", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "成全契機：場上一名已歸主者可立即免費成全為【聖徒】（免去 2 枚祈禱代幣需求）！", "flavor_text": "使徒禱告了，就按手在他們頭上。"}, {"﻿id": "REG1_EVT_07", "name": "迦拿婚宴的豐盛恩典", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "喜樂洋溢：全隊獲得 3 份糧食水產物資，且使徒本輪【喜樂熱心】檢定獲得 +2 修正！", "flavor_text": "管筵席的嘗了那水變的酒，便對新郎說：「你倒把好酒留到如今！」"}, {"﻿id": "REG1_EVT_08", "name": "橄欖山晨曦的聖靈膏抹", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "晨曦甘露：全體使徒在山丘安靜默想，每位使徒各自恢復 3 點【虔誠力】！", "flavor_text": "清晨天未亮的時候，耶穌起來，到曠野地方去，在那裡禱告。"}, {"﻿id": "REG1_EVT_09", "name": "法利賽長老的夜間造訪", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "暗中渴慕：尼哥底母式的探訪！該長老暗中資助全隊 2 份物資，並使公會查禁災禍暫緩 1 輪！", "flavor_text": "有一個法利賽人，名叫尼哥底母，是猶太人的官，這人夜裡來見耶穌。"}, {"﻿id": "REG1_EVT_10", "name": "窮寡婦的罈麵瓶油不絕", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "奇蹟供應：全隊現有糧食儲量直接翻倍（最多增加 4 份糧食）！", "flavor_text": "罈內的麵果不減少，瓶裡的油也不缺短，正如耶和華藉以利亞所說的話。"}, {"﻿id": "REG1_EVT_11", "name": "羅馬巡撫的旁觀公函", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "政權緩和：羅馬官員判定信徒無犯罪行為，本輪內所有地點的講道門檻全部 -2！", "flavor_text": "迦流回答說：「若是關乎言語、名目和你們的律法，你們自己去辦吧！」"}, {"﻿id": "REG1_EVT_12", "name": "五旬節火舌的降臨", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "聖靈烈火：全體使徒各獲得 1 枚【代禱代幣】，且當前守候中的神蹟免費增加 2 枚信心代幣！", "flavor_text": "又有舌頭如火焰顯現出來，分開落在他們各人頭上。"}, {"﻿id": "REG1_PP_01", "name": "美門口癱瘓的乞丐", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：施捨 1 糧食或【醫治神蹟】。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚祈禱代幣。｜聖徒恩賜【讚美跳躍】：使徒在此城傳道時，所有講道 DC 全部 -2！", "flavor_text": "「金銀我都沒有，只把我所有的給你。」"}, {"﻿id": "REG1_PP_02", "name": "迷茫的加利利漁夫", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【喜樂熱心】DC 8 協助捕魚。｜講道：【信實良善】DC 10。｜成全門檻：5 枚祈禱代幣。｜聖徒恩賜【得人如得魚】：每輪黃昏穩定產出 1 份魚獲糧食！", "flavor_text": "「主啊，離開我，我是個罪人！」"}, {"﻿id": "REG1_PP_03", "name": "患血漏的憔悴婦人", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：經歷任意神蹟（觸摸衣裳）。｜講道：【恩慈憐憫】DC 8。｜成全門檻：5 枚祈禱代幣。｜聖徒恩賜【完全痊癒】：全隊抵擋病痛疫病檢定 DC -4！", "flavor_text": "「我只要摸祂的衣裳，就必痊癒。」"}, {"﻿id": "REG1_PP_04", "name": "患病的異邦行商", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "標籤【周遊】（隨隊同行跨區）。｜需要：【仁愛施予】DC 8 照料疫病。｜講道：【恩慈憐憫】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【萬里通商】：跨區隨行！在任何地區每輪提供 1 糧食與 1 祈禱代幣！", "flavor_text": "走遍萬里商道，如今在基督裡尋得真安息。"}, {"﻿id": "REG1_PP_05", "name": "貧寒的借貸農夫", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：施予 1 財物或【仁愛施予】DC 8。｜講道：【信實良善】DC 8。｜成全門檻：5 枚祈禱代幣。｜聖徒恩賜【初熟之果】：在當地市集購買補給花費 -1！", "flavor_text": "終日勞碌卻入不敷出，渴望真正的安息。"}, {"﻿id": "REG1_PP_06", "name": "被惡鬼壓迫的狂躁少年", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：消耗 2 點虔誠力施行【趕鬼釋放】。｜講道：【和平忍耐】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【清心守望】：全隊在黃昏時自動消除 1 點罪惡值！", "flavor_text": "眾人都看見鬼從那孩子身上出來，孩子就痊癒了。"}, {"﻿id": "REG1_PP_07", "name": "恪守律法的年輕經學家", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：在會堂與其辯論，【信實良善】DC 10。｜講道：【溫柔謙卑】DC 12。｜成全門檻：5 枚代幣。｜聖徒恩賜【經卷明光】：全體使徒在該區傳道時，祈求神蹟的信心代幣門檻 -1！", "flavor_text": "「夫子，律法中哪一條誡命是第一要緊的？」"}, {"﻿id": "REG1_PP_08", "name": "喪失獨子的哀慟寡婦", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：以【恩慈憐憫】DC 10 安慰，或祈求【死裡復活神蹟】。｜講道：【仁愛施予】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【馨香禱告】：每輪晨更額外為全隊產出 2 枚【祈禱代幣】！", "flavor_text": "主看見那寡婦，就憐憫她，對她說：「不要哭！」"}, {"﻿id": "REG1_PP_09", "name": "畢士大池旁癱瘓三十八年者", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：呼求【醫治神蹟】或【和平忍耐】DC 10 服事。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【立起行走】：使徒執行大步移動時可攜帶 1 名同伴一同前往，且開拓檢定 +2！", "flavor_text": "「先生，水動的時候，沒有人把我放在池子裡。」"}, {"﻿id": "REG1_PP_10", "name": "悔改痛哭的城中罪婦", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：頂住長老非議施予接納【恩慈憐憫】DC 8。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【香膏膏主】：使徒每次執行認罪行動時，額外消除 2 點罪惡值！", "flavor_text": "她不住地用眼淚濕了耶穌的腳，用自己的頭髮擦乾，又用嘴連連親他的腳。"}, {"﻿id": "REG1_PP_11", "name": "城門口盲眼乞丐巴底買", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：聽見其呼求停步醫治【仁愛施予】DC 8。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【明亮眼目】：晨更階段可額外秘密查看地區牌堆頂部 1 張牌！", "flavor_text": "「大衛的子孫耶穌啊，可憐我吧！」"}, {"﻿id": "REG1_PP_12", "name": "愧疚的羅馬稅吏助手", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【仁愛施予】DC 8 協助其退還不義之財。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【公義帳目】：在市集購買任何補給花費減半！", "flavor_text": "自知為同胞所唾棄，日夜渴望重新做人。"}, {"﻿id": "REG1_PP_13", "name": "熱血衝動的奮銳黨青年", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【和平忍耐】DC 12 平息其武裝起義之怒。｜講道：【溫柔謙卑】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【捨身護衛】：抵擋暴民騷動或傷害時，替全隊吸收 3 點傷害！", "flavor_text": "滿腔熱血欲推翻強權，卻不知真正的救贖在於十字架。"}, {"﻿id": "REG1_PP_14", "name": "熱病得癒的彼得岳母", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：使徒按手醫治退熱【恩慈憐憫】DC 8。｜講道：【信實良善】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【殷勤款待】：每日黃昏為全隊免費產出 1 份糧食！", "flavor_text": "耶穌摸她的手，熱就退了；她就起來服事耶穌。"}, {"﻿id": "REG1_PP_15", "name": "摧毀神龕的異教石匠", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【喜樂熱心】DC 10 協助其砸毀祖傳假神雕像。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【堅定磐石】：建立地方教會聖所時所需門檻 -2！", "flavor_text": "世代雕刻虛無偶像，如今方知天上有一位造物真神。"}, {"﻿id": "REG1_PP_16", "name": "外邦歸鄉的埃提阿伯太監", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "標籤【周遊】（跨區隨行）。｜需要：登上其座車講解以賽亞書【信實良善】DC 12。｜講道：【溫柔謙卑】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【歡然前行】：跨區同行！在後續地區每輪穩定提供 2 枚【祈禱代幣】！", "flavor_text": "「看哪，這裡有水，我受洗有什麼妨礙呢？」"}, {"﻿id": "REG1_PIL_01", "name": "稅吏長撒該", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 3 平民歸主。｜需要：使徒進其家同席承受非議。｜講道：【溫柔謙卑】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【四倍償還】：全隊虔誠回滿，且每輪產出 2 份大額物資！", "flavor_text": "「今天救恩到了這家，他也是亞伯拉罕的子孫。」"}, {"﻿id": "REG1_PIL_02", "name": "猶太會堂長睚魯", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 4 平民歸主。｜需要：守候 1 輪祈求【死裡復活神蹟】。｜講道：【和平忍耐】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【磐石聖所】：會堂開放為永久聖所，該區所有災禍效果永久消除！", "flavor_text": "「不要怕，只要信！你的女兒必得痊癒。」"}, {"﻿id": "REG1_PIL_03", "name": "德高望重的學者迦瑪列", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 5 平民歸主。｜需要：使徒在公會受審時展現剛強見證。｜講道：【信實良善】DC 16。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【公會保釋】：徹底平息大公會查禁災禍，且所有法利賽人與官長試煉自動視為成功！", "flavor_text": "「他們所謀的若出於人，必要敗壞；若是出於神，你們就不能敗壞他們。」"}, {"﻿id": "REG1_PIL_04", "name": "敬虔的羅馬百夫長哥尼流", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 4 平民歸主。｜需要：突破民族偏見，【恩慈憐憫】DC 12。｜講道：【信實良善】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【帝國護照】：全隊獲得羅馬軍隊庇護，免受暴民騷動，且進入下一地區時直接攜帶 3 份軍糧！", "flavor_text": "「你的禱告和你的賙濟達到神面前，已蒙記念了。」"}, {"﻿id": "LOC_PIL_01", "name": "耶利哥大路稅關", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG1_PIL_01 稅吏長撒該", "effect_type": "大能據點", "description": "綁定大能者【稅吏長撒該】！常駐效果：在處購買補給花費 -1，但在此處結束回合有 50% 機率罪惡值 +1（貪慾環境）。", "flavor_text": "耶穌進了耶利哥，正經過的時候，有一個人名叫撒該，作稅吏長，是個財主。"}, {"﻿id": "LOC_PIL_02", "name": "加百農猶太會堂", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG1_PIL_02 會堂長睚魯", "effect_type": "大能據點", "description": "綁定大能者【會堂長睚魯】！常駐效果：在此處進行真理講道檢定自動 +2，但在此處禱告呼求神蹟門檻需多 1 代幣。", "flavor_text": "有一個管會堂的人，名叫睚魯，來見耶穌，就俯伏在他腳前。"}, {"﻿id": "LOC_PIL_03", "name": "耶路撒冷公審法庭", "type": "地點", "deck_type": "大能者據點", "capacity": "1", "bound_pillar": "REG1_PIL_03 學者迦瑪列", "effect_type": "大能據點", "description": "綁定大能者【學者迦瑪列】！常駐效果：負面險境！在此處傳道講道 DC 全部 +2；在此處結束回合需額外多抽 1 張試煉牌！", "flavor_text": "眾祭司長和長老聚集在公會，商議要怎樣除滅使徒。"}, {"﻿id": "LOC_PIL_04", "name": "該撒利亞羅馬駐軍營", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG1_PIL_04 百夫長哥尼流", "effect_type": "大能據點", "description": "綁定大能者【百夫長哥尼流】！常駐效果：外邦營寨！猶太百姓在此處講道門檻 +2，但在此處面對暴民騷動試煉自動免疫！", "flavor_text": "在該撒利亞有一個人，名叫哥尼流，是「義大利營」的百夫長。"}, {"﻿id": "LOC_FREE_01", "name": "聖殿美門", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "神蹟聖地", "description": "無大能者。常駐效果：在此處祈禱施展【醫治神蹟】時所需代幣 -1；在此處傳道講道時【溫柔謙卑】檢定 +2。", "flavor_text": "申初禱告的時候，彼得、約翰上聖殿去，正有一個生來瘸腿的坐在美門口。"}, {"﻿id": "LOC_FREE_02", "name": "馬可樓使徒聚集處", "type": "地點", "deck_type": "自由地點", "capacity": "1", "bound_pillar": "無", "effect_type": "避難聖所", "description": "無大能者。常駐效果：在此處執行【親近靈修】虔誠額外 +1；且在此處時免疫一切外部環境災禍扣血！", "flavor_text": "他們進了城，就上了所住的一間樓房，同心合意的恆切禱告。"}, {"﻿id": "LOC_FREE_03", "name": "城中熱鬧大市集", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "熙攘群眾", "description": "無大能者。常駐效果：容量多達 3 人！在處購買補給花費 -1，但每次抽到誘惑卡時增加的罪惡值 +1。", "flavor_text": "保羅在雅典與市集上所遇見的人天天辯論。"}, {"﻿id": "LOC_FREE_04", "name": "客西馬尼橄欖山", "type": "地點", "deck_type": "自由地點", "capacity": "1", "bound_pillar": "無", "effect_type": "通宵守望", "description": "無大能者。常駐效果：在此處執行【為人代禱】時，每位隊友額外多得 1 枚【代禱代幣】！", "flavor_text": "耶穌出來，照常往橄欖山去，門徒也跟隨他。"}, {"﻿id": "LOC_FREE_05", "name": "瓦器谷貧民窟", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "困苦流離", "description": "無大能者。常駐效果：容量多達 3 人！黃昏若停留在此每人扣 1 HP，但在此處進行【仁愛施予】救濟時，講道 DC -3！", "flavor_text": "見許多的人就憐憫他們，因為他們困苦流離，如同羊沒有牧人一般。"}, {"﻿id": "REG2_DIS_01", "name": "大痲瘋瘟疫大爆發", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：全體使徒若未處於聖所或馬可樓，每輪黃昏需承受【節制克己】DC 10 檢定，失敗者染病扣 3 點 HP！", "flavor_text": "惡疾如野火般在城外隔離營蔓延，無人敢靠近，哀哭之聲直透雲霄。"}, {"﻿id": "REG2_DIS_02", "name": "猶太與撒瑪利亞世代血仇", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：兩族爆發暴力械鬥！全體使徒每輪行動點各 -1，且所有平民講道門檻全部 +4！", "flavor_text": "原來猶太人和撒瑪利亞人沒有來往，數百年來彼此仇恨唾棄。"}, {"﻿id": "REG2_DIS_03", "name": "行法術者的集體邪術蒙蔽", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：全城被巫術與法術蒙蔽心智，祈禱呼求大能神蹟所需信心代幣全部 +2！", "flavor_text": "西門在城裡行邪術，妄自尊大，使撒瑪利亞的百姓都驚奇。"}, {"﻿id": "REG2_TRL_01", "name": "雅各井旁的世仇爭辯", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【溫柔謙卑】DC 12 ＋【恩慈憐憫】DC 10。｜雙過：破除百年民族芥蒂，引發全井平民歡呼，全隊虔誠 +3！｜失敗：被民族仇恨言論激怒，罪惡值 +3（憤怒）。", "flavor_text": "「你既是猶太人，怎麼向我一個撒瑪利亞婦人要水喝呢？」"}, {"﻿id": "REG2_TRL_02", "name": "觸摸大痲瘋患者的腐爛膿血", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【仁愛施予】DC 12 ＋【節制克己】DC 10。｜雙過：大愛勝過恐懼與細菌，該患者當場痊癒，全隊虔誠 +4！｜失敗：心生厭惡退縮，被膿血噴濺感染，HP -4。", "flavor_text": "耶穌伸手摸他說：「我肯，你潔淨了吧！」他的大痲瘋立刻潔淨了。"}, {"﻿id": "REG2_TRL_03", "name": "巫術占卜女奴的尖銳騷擾", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【和平忍耐】DC 10。｜雙過：奉主名驅逐占卜之靈，女奴得釋放，全隊獲 2 代禱代幣！｜失敗：使徒心煩意亂，下輪行動點 -1。", "flavor_text": "有一個使女迎面而來，她被巫鬼所附，用法術叫她主人們大得財利。"}, {"﻿id": "REG2_TRL_04", "name": "大馬士革路上的盲眼強光", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【溫柔謙卑】DC 12。｜雙過：見證復活救主的大光，全隊靈命大振虔誠回滿！｜失敗：肉體被強光震懾盲眼 1 輪，本輪無法移動。", "flavor_text": "忽從天上發光，四面照著他；他就仆倒在地，聽見有聲音說：「掃羅！掃羅！你為什麼逼迫我？」"}, {"﻿id": "REG2_TRL_05", "name": "安提阿教會的外邦紛爭", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【和平忍耐】DC 12 ＋【恩慈憐憫】DC 10。｜雙過：調解猶太與外邦信徒同席吃飯，教會大得平安！｜失敗：群體分裂互不相讓，全隊罪惡各 +1。", "flavor_text": "因有幾個人從雅各那裡來，磯法便退去與外邦人隔開了，其餘的猶太人也都隨著他裝假。"}, {"﻿id": "REG2_TRL_06", "name": "彼得房頂三見不潔大布", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【溫柔謙卑】DC 10。｜雙過：領悟神所潔淨的不可當作俗物，外邦傳道 DC 永久 -2！｜失敗：恪守律法條規抗拒聖靈，虔誠 -3。", "flavor_text": "有聲音向他說：「彼得，起來，宰了吃！」彼得卻說：「主啊，這是不可的！」"}, {"﻿id": "REG2_TRL_07", "name": "異族長老的仇恨唾棄", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【溫柔謙卑】DC 12。｜成功：甘心忍受唾罵，以善勝惡，長老慚愧離去。｜失敗：心生怨懟，罪惡值 +2（傲慢與憤怒）。", "flavor_text": "他們見使徒走進村莊，就拿起石頭吐唾沫咒詛他們。"}, {"﻿id": "REG2_TRL_08", "name": "基利心山祭司的偶像辯證", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12。｜成功：講明心靈與誠實的敬拜，折服老祭司！｜失敗：神學辯論卡關，該地點講道 DC +2。", "flavor_text": "「時候將到，你們拜父，也不在這山上，也不在耶路撒冷。」"}, {"﻿id": "REG2_TRL_09", "name": "加薩戈壁的滾滾沙暴", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 12。｜成功：耐渴穩固帳篷，全隊無損。｜失敗：迷失方向脫水，HP -3 且損失 1 份糧食。", "flavor_text": "狂風席捲黃沙，天昏地暗，那條通往迦薩的路滿是死寂。"}, {"﻿id": "REG2_TRL_10", "name": "救助受染疫病者的感染恐懼", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 12。｜成功：捨命包紮給水，感動全營病患！｜失敗：因恐懼不敢上前，失去 2 點虔誠力。", "flavor_text": "若有人看見弟兄受窮受病，卻塞住憐恤的心，愛神的心怎能存在他裡面呢？"}, {"﻿id": "REG2_TRL_11", "name": "敘利亞商隊的傲慢刁難", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 10。｜成功：不卑不亢平息商隊管事戾氣，順利過境。｜失敗：被勒索高額通關費，損失 2 份物資。", "flavor_text": "商賈富足，僕從成群，看不起風塵僕僕的使徒。"}, {"﻿id": "REG2_TRL_12", "name": "曠野絕壁下的險惡開道", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【喜樂熱心】DC 12。｜成功：揮鎬開鑿險路，護送全隊安全通行！｜失敗：體力透支，HP -3 且本輪無法傳道。", "flavor_text": "在曠野預備耶和華的路，在沙漠修平我們神的道。"}, {"﻿id": "REG2_TRL_13", "name": "荒原流浪孤兒的哀鳴", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【恩慈憐憫】DC 10。｜成功：領至驛站救助，全隊虔誠 +3！｜失敗：匆忙趕路忽視孤兒，罪惡值 +2。", "flavor_text": "「凡為我的名接待一個像這小孩子的，就是接待我。」"}, {"﻿id": "REG2_TRL_14", "name": "黑夜沼澤中的毒蟲熱病", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 10。｜成功：生火驅蟲安然度夜。｜失敗：使徒發高燒，HP -4 且本輪黃昏需雙倍糧食。", "flavor_text": "瘴氣瀰漫，毒蟲夜行，四圍滿是致命的死蔭。"}, {"﻿id": "REG2_TRL_15", "name": "假先知巴耶穌的抗拒阻撓", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 14。｜成功：斥責邪術行徑，該假先知暫時眼瞎，全城轟動！｜失敗：省長受其挑撥，該區公署講道禁止 1 輪。", "flavor_text": "「你這充滿各樣詭詐奸惡，魔鬼的兒子，眾善的仇敵，你還不息滅嗎？」"}, {"﻿id": "REG2_TRL_16", "name": "為世仇仇敵包紮的內心掙扎", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 12。｜成功：跨越深仇大恨親自敷油包紮，仇敵痛哭悔改！｜失敗：內心苦毒難以釋懷，罪惡值 +3（仇恨）。", "flavor_text": "「要愛你們的仇敵，為那逼迫你們的禱告。」"}, {"﻿id": "REG2_EVT_01", "name": "聖靈在撒瑪利亞大大降臨", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "聖靈充滿：彼得約翰按手，全地信徒受聖靈！全體使徒虔誠 +4，本輪講道門檻全部 -3！", "flavor_text": "使徒按手在他們頭上，他們就受了聖靈。西門看見就驚奇。"}, {"﻿id": "REG2_EVT_02", "name": "腓利在加薩路上的聖靈提接", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "神速奇遇：當前使徒瞬間跨越空間，免費移動至場上任意地點，且本輪額外獲得 1 個行動點！", "flavor_text": "主的靈把腓利提了去，太監也不再見他了，就歡歡喜喜的走路。"}, {"﻿id": "REG2_EVT_03", "name": "約帕海邊的硝皮匠款待", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "愛心留宿：在海邊硝皮匠西門家安歇，全隊 HP 恢復 3 點，獲得 2 份物資！", "flavor_text": "彼得在約帕一個硝皮匠西門的家裡，住了多日。"}, {"﻿id": "REG2_EVT_04", "name": "雅各井湧流的永生活水", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "生命泉源：全隊水糧物資直接補滿，且全體使徒各消除 2 點罪惡值！", "flavor_text": "「人若喝我所賜的水就永遠不渴。我所賜的水要在他裡頭成為泉源，直湧到永生。」"}, {"﻿id": "REG2_EVT_05", "name": "安提阿信徒首稱為基督徒", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "榮耀稱號：全體使徒各獲得 1 枚【代禱代幣】，且全隊在該區傳道受洗人數直接 +1！", "flavor_text": "門徒稱為「基督徒」是從安提阿起首。"}, {"﻿id": "REG2_EVT_06", "name": "長大痲瘋得醫治歸來感恩", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "感恩見證：十個被醫治的外邦痲瘋患者前來俯伏感謝，全隊虔誠 +3，且消除瘟疫災禍！", "flavor_text": "內中有一個人見自己已經好了，就回來大聲歸榮耀與神，又俯伏在耶穌腳前感謝他。"}, {"﻿id": "REG2_EVT_07", "name": "天使夜間向腓利說話", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "神聖指引：當前使徒可直接翻看當前地區牌堆頂部 3 張牌並自由排序！", "flavor_text": "有主的一個使者對腓利說：「起來！向南走，往那曠野的路上去。」"}, {"﻿id": "REG2_EVT_08", "name": "安提阿教會跨區奉獻賙濟", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "跨區愛心：獲得 4 份糧食物資，且可將 2 份物資直接轉化為當前守候神蹟的代幣！", "flavor_text": "門徒定意照各人的力量捐錢，送去供給住在猶太的弟兄。"}, {"﻿id": "REG2_EVT_09", "name": "大馬士革鱗片脫落重見光明", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "異象覺醒：當前使徒可立即免費領受一張新【恩賜卡】（無視 15 點虔誠限制）！", "flavor_text": "掃羅的眼睛上，好像有鱗立刻掉下來，他就能看見，於是起來受了洗。"}, {"﻿id": "REG2_EVT_10", "name": "基利心山上神火降下", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "威能神蹟：徹底摧毀當地的異教神壇，直接平息【行法術者的集體蒙蔽】災禍！", "flavor_text": "耶和華降下火來，燒盡燔祭、木柴、石頭、塵土，又舔乾溝裡的水。"}, {"﻿id": "REG2_EVT_11", "name": "多加親手縫製的內衣外衣", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "慈惠織物：全隊獲得禦寒衣物，免疫一切暴風雪與嚴寒傷害，且 HP 各恢復 2 點！", "flavor_text": "眾寡婦都站在彼得旁邊哭，拿多加與她們同在時所做的裡衣外衣給他看。"}, {"﻿id": "REG2_EVT_12", "name": "荒原曠野號角響起", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "復興號角：場上所有已成全聖徒各自發動一次恩賜產出，全體使徒精神大振！", "flavor_text": "號角聲在荒原迴盪，萬民都要側耳聽神的真道。"}, {"﻿id": "REG2_PP_01", "name": "雅各井旁有五個丈夫的婦人", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：向其要水喝並直指心靈渴求【恩慈憐憫】DC 8。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【活水見證】：全城婦女歸主！使徒在此區傳道講道 DC 全部 -2！", "flavor_text": "「你們來看！有一個人將我素來所行的一切事都給我說出來了，莫非這就是基督嗎？」"}, {"﻿id": "REG2_PP_02", "name": "隔離營嚎哭的撒瑪利亞痲瘋者", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：祈禱施展【醫治神蹟】或【仁愛施予】DC 10。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【感恩俯伏】：每輪黃昏自動為全隊清除 1 點罪惡值！", "flavor_text": "十個長大痲瘋中唯一的撒瑪利亞人，俯伏在耶穌腳前痛哭感恩。"}, {"﻿id": "REG2_PP_03", "name": "被邪術欺騙多年的鐵匠", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：破除家中的巫術符咒【信實良善】DC 10。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【折斷鐵鎖】：抵擋一切巫術詛咒與試煉，全隊免受行動點扣減！", "flavor_text": "長年將重金送給法術師，落得家徒四壁，如今雙眼得見真理。"}, {"﻿id": "REG2_PP_04", "name": "約帕海港滿心憂愁的希臘水手", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "標籤【周遊】（跨區隨行）。｜需要：以【和平忍耐】DC 10 平息其海上驚魂。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【破浪引航】：跨區隨行！在旅程階段面對海浪與水難檢定時獲得 +3 修正，且免除一次船體物資損失！", "flavor_text": "航行於愛琴海與地中海，見慣驚濤駭浪，心靈卻渴望真正的錨。"}, {"﻿id": "REG2_PP_05", "name": "安提阿尋求真道的希臘哲學學徒", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：在衛城與其辯證宇宙造物主【信實良善】DC 12。｜講道：【溫柔謙卑】DC 12。｜成全門檻：5 枚代幣。｜聖徒恩賜【雄辯講義】：使徒進行真理講道時檢定自動 +2！", "flavor_text": "讀遍柏拉圖與亞里斯多德，卻在基督的十架前找到終極真理。"}, {"﻿id": "REG2_PP_06", "name": "因世仇痛失愛子的撒瑪利亞老農", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：傾聽其痛哭並以【恩慈憐憫】DC 10 撫慰。｜講道：【仁愛施予】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【化仇為友】：全隊在異族地點行動時免受任何歧視與門檻增加！", "flavor_text": "「猶太人殺了我的兒子...但我從你們眼中看見了不一樣的光。」"}, {"﻿id": "REG2_PP_07", "name": "大馬士革被強光震懾的護衛兵", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【溫柔謙卑】DC 10 引導其走出恐懼。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【同袍信函】：在公署免受羅馬兵丁盤問，購買軍糧半價！", "flavor_text": "同行的人站在那裡，說不出話來，聽見聲音，卻看不見人。"}, {"﻿id": "REG2_PP_08", "name": "加薩沙漠中瀕死的波斯行商", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "標籤【周遊】（跨區隨行）。｜需要：分出 1 份水糧施救【仁愛施予】DC 8。｜講道：【恩慈憐憫】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【絲路駝隊】：跨區同行！每輪黃昏穩定提供 1 份糧食；且購買藥品補給花費 -1！", "flavor_text": "自幼隨駝隊穿越大漠，在生死邊緣遇見基督的門徒。"}, {"﻿id": "REG2_PP_09", "name": "隔離營中全身潰爛的痲瘋幼童", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：使徒按手擁抱並祈禱施展【醫治神蹟】。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【純潔之吻】：全隊抵擋疫病與瘴氣檢定時獲得 +3 修正，且首次染病免受傷害！", "flavor_text": "連親生父母都不敢靠近的孩子，在使徒懷中得著了潔淨與溫暖。"}, {"﻿id": "REG2_PP_10", "name": "擺脫占卜邪靈的被釋放女奴", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：奉主名斥責附身邪靈【信實良善】DC 12。｜講道：【恩慈憐憫】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【靈界分辨】：抽到誘惑卡時可重抽一次；且面對誘惑事件時檢定門檻 -2！", "flavor_text": "「這些人是至高神的僕人，對你們傳說救人的道！」"}, {"﻿id": "REG2_PP_11", "name": "安提阿集市誠實度量的小商販", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【仁愛施予】DC 8 協助其繳納攤位費。｜講道：【信實良善】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【公道天平】：市集補給品花費永遠 -1，且黃昏獲得 1 份物資！", "flavor_text": "不再短斤少兩，在市集上作光明之子。"}, {"﻿id": "REG2_PP_12", "name": "基利心山下的守殿老利未人", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：以【和平忍耐】DC 12 解釋靈裡敬拜之理。｜講道：【信實良善】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【古經啟示】：全隊祈求大能神蹟時，所需信心代幣門檻永久 -1！", "flavor_text": "白髮蒼蒼的老祭司，終於明白神不住人手所造的殿。"}, {"﻿id": "REG2_PP_13", "name": "約帕海港哭泣的貧苦寡婦群", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：分發救濟糧食 1 份【仁愛施予】DC 8。｜講道：【恩慈憐憫】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【代禱密室】：每輪晨更為全隊穩定產出 2 枚【祈禱代幣】！", "flavor_text": "受過多加許多恩惠的寡婦們，聚集在樓房同心合意禱告。"}, {"﻿id": "REG2_PP_14", "name": "曾參與迫害的愧疚青年", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：以【仁愛施予】DC 10 赦免其過犯。｜講道：【溫柔謙卑】DC 10。｜成全門檻：5 枚代幣。｜聖徒恩賜【無畏作證】：在面對任何官長公會試煉時，檢定獲得 +3 修正！", "flavor_text": "「我曾把信徒關進監牢...主啊，我還能得救嗎？」"}, {"﻿id": "REG2_PP_15", "name": "荒原驛站渴望洗禮的掌櫃", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【喜樂熱心】DC 8 協助其清潔旅社。｜講道：【信實良善】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【客店庇護】：全隊停留於加薩驛站時免受一切黃昏扣血！", "flavor_text": "迎來送往半生客，如今迎來天國的君王。"}, {"﻿id": "REG2_PP_16", "name": "敘利亞軍營中的悔改百夫長僕人", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：以【恩慈憐憫】DC 8 照護其外傷。｜講道：【溫柔謙卑】DC 8。｜成全門檻：5 枚代幣。｜聖徒恩賜【營房通訊】：可隨時查看當前大能者牌堆頂部 1 張牌！", "flavor_text": "見證百夫長的信心，自己也在基督裡尋得真正的主人。"}, {"﻿id": "REG2_PIL_01", "name": "撒瑪利亞術士西門", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 3 平民歸主。｜需要：在全城百姓面前斥責邪術並以神蹟使其降服【信實良善】DC 14。｜講道：【溫柔謙卑】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【邪術止息】：全撒瑪利亞所有巫術與邪靈騷擾徹底消除，全隊虔誠全滿！", "flavor_text": "西門自己也信了，既受了洗，就常與腓利在一處，極其驚奇。"}, {"﻿id": "REG2_PIL_02", "name": "希律伴讀大臣馬拿念", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 4 平民歸主。｜需要：進公署面見長官，承受叛國指控【信實良善】DC 14。｜講道：【溫柔謙卑】DC 16。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【王室宣教金庫】：敘利亞王室公函通行無阻！全隊獲得 6 份物資，且進入下一地區攜帶資金翻倍！", "flavor_text": "與分封王希律同養長大，卻看為基督受的凌辱比埃及的財寶更寶貴。"}, {"﻿id": "REG2_PIL_03", "name": "大馬士革敬虔門徒亞拿尼亞", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 4 平民歸主。｜需要：克服恐懼親自按手在兇狠迫害者頭上【和平忍耐】DC 14。｜講道：【信實良善】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【按手復明】：全體使徒各選一項聖靈果子，其基礎點數永久 +1，且全隊各得 2 代禱代幣！", "flavor_text": "「主對亞拿尼亞說：你只管去！他是我所揀選的器皿，要在外邦人和君王面前宣揚我的名。」"}, {"﻿id": "REG2_PIL_04", "name": "廣行善事的女徒多加", "type": "大能者", "cost": "0", "vp": "3", "count": "1", "description": "解鎖：城中已有 4 平民歸主。｜需要：全隊在約帕樓房跪下痛哭守候 1 輪祈求【死裡復活神蹟】！｜講道：【仁愛施予】DC 14。｜成全門檻：15 枚祈禱代幣。｜大能恩賜【慈惠聖所】：多加復活！全城大為轟動歸信，全隊肉身 HP 全滿，且每輪穩定產出 2 份精良織物糧食！", "flavor_text": "彼得叫她們都出去，就跪下禱告，轉身對著死人說：「大比大，起來！」她就睜開眼睛，看見彼得，便坐起來了。"}, {"﻿id": "LOC_R2_PIL_01", "name": "撒瑪利亞中央大廣場", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG2_PIL_01 術士西門", "effect_type": "大能據點", "description": "綁定大能者【術士西門】！常駐效果：全城百姓長期受法術蒙蔽，在此處講道檢定門檻 +2；但在此處呼求神蹟時震撼效果翻倍！", "flavor_text": "全城的人，無論大小，都聽從西門，說：「這人就是那稱為神的大能者！」"}, {"﻿id": "LOC_R2_PIL_02", "name": "安提阿帝國衛城公署", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG2_PIL_02 大臣馬拿念", "effect_type": "大能據點", "description": "綁定大能者【大臣馬拿念】！常駐效果：在此處執行【成全聖徒】時，全隊獲得 2 份大額物資；但在此處結束回合有 50% 機率遭羅馬官員盤問。", "flavor_text": "在安提阿的教會中，有分封王希律同養的馬拿念。"}, {"﻿id": "LOC_R2_PIL_03", "name": "大馬士革直街大宅", "type": "地點", "deck_type": "大能者據點", "capacity": "1", "bound_pillar": "REG2_PIL_03 門徒亞拿尼亞", "effect_type": "大能據點", "description": "綁定大能者【門徒亞拿尼亞】！常駐效果：聖靈充滿之地！在此處執行【親近靈修】虔誠恢復 +2，且在此處代禱效果翻倍！", "flavor_text": "「兄弟掃羅，在你來的路上向你顯現的主，就是耶穌，打發我來，叫你能看見。」"}, {"﻿id": "LOC_R2_PIL_04", "name": "約帕海港慈善工坊", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG2_PIL_04 女門徒多加", "effect_type": "大能據點", "description": "綁定大能者【女門徒多加】！常駐效果：在此處進行【仁愛施予】救濟時免除物資消耗；且黃昏結束全隊自動獲得 1 份糧食！", "flavor_text": "在約帕有一個女徒，名叫大比大，翻希臘話就是多加；她廣行善事，多施賙濟。"}, {"﻿id": "LOC_R2_FREE_01", "name": "敘加城外的雅各井", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "活水聖地", "description": "無大能者。常駐效果：在此處親近靈修直接恢復 3 點虔誠；在此處與異邦婦女或平民講道時檢定自動 +2！", "flavor_text": "耶穌因走路困乏，就坐在井旁。那時約有午正。有一個撒瑪利亞的婦人來打水。"}, {"﻿id": "LOC_R2_FREE_02", "name": "城外大痲瘋隔離營", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "極度困苦", "description": "無大能者。常駐效果：容量多達 3 人！黃昏若停留在此每人扣 2 HP；但在此處成功施展醫治神蹟時，場上所有病患心門同時敞開！", "flavor_text": "在一個村莊，有十個長大痲瘋的，迎面而來，遠遠的站著，高聲說：「耶穌，夫子，可憐我們吧！」"}, {"﻿id": "LOC_R2_FREE_03", "name": "加薩曠野大篷驛站", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "商旅樞紐", "description": "無大能者。常駐效果：容量多達 3 人！在此處購買補給物資花費 -1，且抽到旅程牌時可自由挑選替換！", "flavor_text": "有主的一個使者對腓利說：「起來！向南走，往那從耶路撒冷下迦薩的路上去。」那路是曠野。"}, {"﻿id": "LOC_R2_FREE_04", "name": "基利心山異教祭壇遺址", "type": "地點", "deck_type": "自由地點", "capacity": "1", "bound_pillar": "無", "effect_type": "屬靈爭戰", "description": "無大能者。常駐效果：在此處傳道講道 DC +2；但成功在此處帶領 1 人歸主，全隊虔誠直接暴增 4 點！", "flavor_text": "「我們的祖宗在這山上禮拜，你們倒說，應當禮拜的地方是在耶路撒冷。」"}, {"﻿id": "LOC_R2_FREE_05", "name": "約帕硝皮匠西門海邊之家", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "異象破繭", "description": "無大能者。常駐效果：在此處執行【認罪悔改】可直接破除種族與飲食偏見，全隊使徒消除 2 點罪惡值！", "flavor_text": "彼得在約帕一個硝皮匠西門的家裡，住了多日。魂遊象外，看見天開了。"}, {"id": "REG3_DIS_01", "name": "以弗所銀匠偶像暴動", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：全城陷入瘋狂偶像狂熱！全場所有講道檢定門檻 +3，且每輪黃昏全體使徒若未處於庇護地點扣 2 HP！解法：累積【和平忍耐】與【溫柔謙卑】檢定達 DC 22 平息。", "flavor_text": "「這保羅引誘迷惑眾人，說：人手所做的，不是神。亞底米神廟的威勢也要銷滅了！」"}, {"id": "REG3_DIS_02", "name": "尼祿火刑審判敕令", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：羅馬皇帝頒布血腥禁令，使徒被視為帝國之敵！每輪黃昏全隊強制扣除 2 點虔誠或 2 點 HP！解法：成全大能者【羅馬巡撫】或【該撒家信徒】方能撤銷禁令。", "flavor_text": "「將他們披上獸皮，任由惡犬撕裂，或釘在十字架上，在夜幕降臨時點燃當作火把照亮花園。」"}, {"id": "REG3_DIS_03", "name": "虛空哲學與諾斯底思潮", "type": "災禍", "cost": "0", "vp": "0", "count": "1", "description": "持續災禍：希臘智慧驕傲蔓延！所有使徒【信實良善】天花板上限強制降 2 點；心門敞開之百姓若未於當前回合受洗將重新閉鎖！解法：在學房或亞略巴古累計 3 次辯道成功。", "flavor_text": "你們要謹慎，恐怕有人用他的哲學和虛空的妄言，不照著基督，乃照人間的遺傳和世上的小學，就把你們擄去。"}, {"id": "REG3_TRL_01", "name": "亞略巴古未識之神哲學大辯", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【和平忍耐】DC 12。｜雙過：以超然智慧辯服希臘哲士，亞略巴古心門大開，全隊虔誠 +4！｜失敗：被譏誚為胡言亂語，信實罪惡 +2（自傲沮喪）。", "flavor_text": "「眾位雅典人哪，我看你們凡事很敬畏鬼神。你們所不認識而敬拜的，我現在告訴你們。」"}, {"id": "REG3_TRL_02", "name": "腓立比獄中夜半讚美歌唱", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【喜樂熱心】DC 12 ＋【忍耐寬容】DC 10。｜雙過：地大震動獄門全開，鎖鏈脫落！全隊虔誠回滿，禁卒全家震撼！｜失敗：受鞭傷劇痛陷入哀號，HP -3。", "flavor_text": "約在半夜，保羅和西拉禱告，唱詩讚美神，眾囚犯也側耳而聽。忽然，地大震動，甚至監牢的地基都搖動了。"}, {"id": "REG3_TRL_03", "name": "焚燒五萬塊錢邪術異教書卷", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【節制克己】DC 10。｜雙過：全城巫術破除，巨額財寶當場焚燬，主的道大大得勝，全隊獲 3 祈禱代幣！｜失敗：被貪婪私心牽制，罪惡值 +3。", "flavor_text": "平素行邪術的，也有許多人把書拿來，堆在眾人面前焚燒。他們算計書價，便知道共合五萬塊錢。"}, {"id": "REG3_TRL_04", "name": "地中海十四晝夜友拉革羅大狂風", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【忍耐寬容】DC 12 ＋【仁愛施予】DC 10。｜雙過：保全全船二百七十六人性命無一人失落，全隊虔誠 +3 且得船員敬服！｜失敗：全船驚慌失措，全隊失去 2 糧食與 2 點 HP。", "flavor_text": "太陽和星辰多日不顯露，又有狂風大浪催逼，我們得救的指望就都絕了。保羅站在眾人中間說：「各位可以放心！」"}, {"id": "REG3_TRL_05", "name": "米利大島毒蛇咬手之神蹟", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【信實良善】DC 12 ＋【節制克己】DC 10。｜雙過：毒蛇甩在火中竟不受任何傷害，土人轉念尊使徒為神使，全隊獲 2 糧食！｜失敗：蛇毒入侵發高燒，HP -4 且本輪無法移動。", "flavor_text": "有一隻毒蛇，因為熱了出來，咬住他的手。土人看見那毒蛇懸在他手上，保羅竟把那毒蛇甩在火裡，並沒有受害。"}, {"id": "REG3_TRL_06", "name": "哥林多教會混亂與方言紛爭", "type": "複合試煉", "cost": "0", "vp": "0", "count": "1", "description": "複合檢定：【溫柔謙卑】DC 12 ＋【和平忍耐】DC 10。｜雙過：以最妙的道（愛篇）調和恩賜，凡事按著規矩和次序行，團契秩序恢復！｜失敗：恩賜爭競驕傲，全隊罪惡各 +1。", "flavor_text": "我若能說萬人的方言，並天使的話語，卻沒有愛，我就成了鳴的鑼，響的鈸一般。"}, {"id": "REG3_TRL_07", "name": "斯多亞學派的冷酷宿命論質疑", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12。｜成功：講明創造天地主宰的愛與復活盼望，哲人動容！｜失敗：陷入枯燥思辨，本輪行動點 -1。", "flavor_text": "還有伊壁鳩魯和斯多亞兩門的哲學家，也與他爭辯。有的說：「這胡言亂語的要說什麼？」"}, {"id": "REG3_TRL_08", "name": "伊壁鳩魯學派的縱慾享樂誘惑", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【節制克己】DC 12。｜成功：視世俗宴樂為糞土，堅守聖潔！｜失敗：被奢靡聲色玷污，罪惡值 +2（肉體情慾）。", "flavor_text": "「我們吃吃喝喝吧！因為明天要死了。」世界的享樂如同蜜糖，卻是包裹靈魂毒藥的誘餌。"}, {"id": "REG3_TRL_09", "name": "迦流公堂前的暴民猶太控告", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 12。｜成功：行省總督迦流秉公驅逐控告者，使徒免受官府迫害！｜失敗：被暴民趁亂毆打，HP -2 且虔誠 -1。", "flavor_text": "到迦流作亞該亞方伯的時候，猶太人同心起來攻擊保羅，拉他到公堂。迦流說：「你們自己耐煩去辦吧！」"}, {"id": "REG3_TRL_10", "name": "巡撫腓力斯的受賄索賄暗示", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 12。｜成功：不屈不撓指斥公義節制與將來的審判，腓力斯甚覺恐懼！｜失敗：屈服於官場勒索，損失 2 奉獻物資。", "flavor_text": "腓力斯指望保羅送他銀錢，所以屢次打發人找他來，和他談論。保羅講論公義、節制，和將來的審判。"}, {"id": "REG3_TRL_11", "name": "亞基帕王與百尼基前的放膽分訴", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【信實良善】DC 14。｜成功：言詞懇切震撼君王「你想少微一勸，便叫我作基督徒啊！」王承認使徒無罪！｜失敗：言詞怯懦，虔誠 -2。", "flavor_text": "亞基帕對保羅說：「你想少微一勸，便叫我作基督徒啊！」保羅說：「我向神所求的，不但你一個人，就是今天聽我的，都要像我一樣。」"}, {"id": "REG3_TRL_12", "name": "哥林多信徒互相告狀求審", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【和平忍耐】DC 12。｜成功：痛陳「為什麼不情願受欺呢？」化解弟兄私慾爭競！｜失敗：教會聲譽受損，本區講道 DC +1。", "flavor_text": "你們彼此告狀，這已經是你們的大錯了。為什麼不情願受欺呢？為什麼不情願吃虧呢？"}, {"id": "REG3_TRL_13", "name": "偶像廟中祭偶像之物的良心試煉", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【仁愛施予】DC 12。｜成功：為軟弱肢體緣故甘心不吃祭物，愛心造就人！｜失敗：絆倒信心軟弱的弟兄，罪惡值 +2。", "flavor_text": "知識是叫人自高自大，惟有愛心能造就人。所以，食物若叫我弟兄跌倒，我就永遠不吃肉，免得叫我弟兄跌倒了。"}, {"id": "REG3_TRL_14", "name": "羅馬圓形競技場的血腥嗜殺浪潮", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【恩慈憐憫】DC 12。｜成功：為殘暴看客默默哀求代禱，基督之光照亮黑暗殺戮！｜失敗：心靈被殘暴恐怖震懾，扣除 2 點虔誠。", "flavor_text": "看台上數萬公民狂呼嗜血，角鬥士倒在黃沙與鮮血之中，帝國的榮耀背後是無盡的殘暴。"}, {"id": "REG3_TRL_15", "name": "猶太同胞四十人起誓殺害保羅", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【忍耐寬容】DC 12。｜成功：外甥通報千夫長調兵護送，蒙神暗中保守脫險！｜失敗：遭遇刺客埋伏偷襲，HP -4。", "flavor_text": "猶太人同謀，起誓說：若不先殺保羅，就不吃不喝。這樣起誓的，有四十多人。"}, {"id": "REG3_TRL_16", "name": "羅馬囚牢鐵鍊與寒冬孤寂", "type": "試煉", "cost": "0", "vp": "0", "count": "1", "description": "檢定：【忍耐寬容】DC 12。｜成功：在濕冷地牢中寫下榮耀凱歌「那美好的仗我已經打過了！」全隊虔誠 +3！｜失敗：身心冰冷抑鬱，扣除 1 HP 與 2 虔誠。", "flavor_text": "你要趕緊在冬天以前到我這裡來。那件外衣，你來的時候可以帶來，那些書也要帶來，更要緊的是那些皮卷。"}, {"id": "REG3_EVT_01", "name": "亞居拉與百基拉夫婦熱忱接待", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "福音工匠同心同行！使徒全體獲得 2 份糧食；且本輪在哥林多執行【親手做工】不消耗行動點（0 AP）！", "flavor_text": "因為革老丟命猶太人都離開羅馬。保羅投奔了他們。他們本是製造帳棚為業，保羅就和他們同住做工。"}, {"id": "REG3_EVT_02", "name": "腓立比禁卒全家深夜受洗", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "死牢化為神聖受洗池！當場洗去獄卒與全家之罪，全隊虔誠 +4，且該地點所有人民立刻心門大開！", "flavor_text": "禁卒叫人拿燈來，就跳進去，戰戰兢兢的俯伏在保羅、西拉面前；他和屬乎他的人立時都受了洗。"}, {"id": "REG3_EVT_03", "name": "夜間異象：馬其頓呼聲", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "聖靈跨海引導！立即抽看地區牌庫頂 3 張牌，自由調整順序；且下一張試煉牌難度直接 -4！", "flavor_text": "在夜間有異象現與保羅。有一個馬其頓人站著求他說：「請你過到馬其頓來幫助我們。」"}, {"id": "REG3_EVT_04", "name": "羅馬百夫長猶流的寬待護送", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "得蒙帝國軍官敬重！全體使徒 HP 各 +2；且本輪在全場移動完全免費（不限次數、不耗 AP）！", "flavor_text": "百夫長猶流寬待保羅，准他往朋友那裡去，受他們的照應。"}, {"id": "REG3_EVT_05", "name": "使徒書信快馬傳遞眾教會", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "真理話語跨洋堅固眾人！先前所有已建立之【教會團契】本輪支援效果立即全額產出一次！", "flavor_text": "我保羅親筆問安。你們要記念我的捆鎖。願恩惠常與你們同在！"}, {"id": "REG3_EVT_06", "name": "特羅亞三樓少年猶推古死裡復活", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "講道至半夜的神蹟大彰顯！全隊虔誠直接回滿，全場所有未歸主者所需祈禱代幣永久減 1 枚！", "flavor_text": "保羅下去，伏在他身上，抱著他說：「你們不要慌亂，他的靈魂還在身上。」眾人把那童子活活的領來，得的安慰不少。"}, {"id": "REG3_EVT_07", "name": "希臘哲人痛悔砸碎雅典娜偶像", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "世俗傲慢崩解歸信真神！獲得 2 份奉獻物資，且全體使徒消除 2 點傲慢罪惡值！", "flavor_text": "眾人聽見從死裡復活的話，就有譏誚他的；但有幾個人貼近他，信了主。"}, {"id": "REG3_EVT_08", "name": "堅革哩女執事非比的慷慨周濟", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "忠心女執事跨海資助！全隊每人各獲得 1 份糧食，並為全隊分發 2 枚【代禱代幣】！", "flavor_text": "她素來幫助許多人，也幫助了我。請你們在主裡接待她，在何事上要你們幫助，你們就幫助她。"}, {"id": "REG3_EVT_09", "name": "保羅手巾圍裙彰顯醫治異能", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "甚至有人從保羅身上拿手巾或圍裙放在病人身上，病就退了！全隊清除一切負面疾病與詛咒標記！", "flavor_text": "神藉保羅的手行了非凡的奇事；甚至有人從保羅身上拿手巾或圍裙放在病人身上，病就退了，惡鬼也出去了。"}, {"id": "REG3_EVT_10", "name": "羅馬弟兄在三館出迎相會", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "長途跋涉終見羅馬聖徒迎迓！保羅見了就感謝神壯膽！全隊虔誠回滿，且本輪檢定全員自帶 +2！", "flavor_text": "那裡的弟兄們一聽見我們的信息，就出來到亞比烏市和三館迎接我們。保羅見了他們，就感謝神，放心壯膽。"}, {"id": "REG3_EVT_11", "name": "哥林多該猶全教會的愛宴款待", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "全教會在該猶家中一同擘餅！全隊每人消除 2 點罪惡值，並各獲得 1 枚【代禱代幣】！", "flavor_text": "那接待我、也接待全教會的該猶問你們安。城內管銀庫的以拉都問你們安。"}, {"id": "REG3_EVT_12", "name": "亞略巴古尊貴婦人達瑪哩歸信", "type": "事件", "cost": "0", "vp": "0", "count": "1", "description": "希臘貴族社會門戶大開！本區大能者講道門檻全面永久 -2，全隊虔誠 +2！", "flavor_text": "其中有亞略巴古的官丟尼修，並一個婦人，名叫達瑪哩，還有別人，一同信從。"}, {"id": "REG3_CIT_01", "name": "腓立比看守獄卒", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：救拔免於拔刀自盡【仁愛施予】DC 8。｜講道：【溫柔謙卑】DC 8。｜成全（5祈禱）：《禁卒之筵》成全聖徒！每輪黃昏全隊免除 1 糧食消耗。", "flavor_text": "禁卒一醒，看見監門全開，以為囚犯已經逃走，就拔刀要自殺。保羅大聲呼叫說：「不要傷害自己！」"}, {"id": "REG3_CIT_02", "name": "哥林多皮革匠亞居拉", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【親手做工】共同分擔勞苦或施予 1 糧食。｜講道：【信實良善】DC 10。｜成全（5祈禱）：【周遊】《同工織帳》跨區同行！使徒每輪親手做工時額外獲 1 糧食或 1 物資。", "flavor_text": "遇見一個猶太人，名叫亞居拉；因為革老丟命猶太人都離開羅馬，新近帶著妻子百基拉從義大利來。"}, {"id": "REG3_CIT_03", "name": "堅革哩女執事非比", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：護送跨海書信【信實良善】DC 10。｜講道：【恩慈憐憫】DC 8。｜成全（5祈禱）：【周遊】《信件攜帶》跨區同行！每輪晨更選任母會團契主席數量 +1（可選兩位發動支援）！", "flavor_text": "她是堅革哩教會的女執事，素來幫助許多人，也幫助了我。"}, {"id": "REG3_CIT_04", "name": "雅典學院希臘哲學學徒", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：解答靈魂不死與復活之辯【信實良善】DC 8。｜講道：【信實良善】DC 8。｜成全（5祈禱）：《理性護道》成全聖徒！全隊面對任何哲學辯道試煉時檢定自動 +2。", "flavor_text": "雅典人和住在那裡的客人，都不顧別的事，只將新聞說說聽聽。"}, {"id": "REG3_CIT_05", "name": "以弗所悔改銀匠", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：補償轉行轉業【施予 2 奉獻物資】。｜講道：【節制克己】DC 10。｜成全（5祈禱）：《金銀破碎》成全聖徒！每輪可主動消耗 1 AP，移除場上一張非災禍異教阻礙卡！", "flavor_text": "這製造銀龕的生意叫我們發大財。但他竟說人手做的不是神，斷了我們的財路！"}, {"id": "REG3_CIT_06", "name": "羅馬近衛退役老兵", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：醫治舊傷膿瘡或【恩慈憐憫】DC 8。｜講道：【信實良善】DC 8。｜成全（5祈禱）：《羅馬鐵盾》成全聖徒！使徒受到任何肉身傷害時自動減免 1 點！", "flavor_text": "身披斑駁鎧甲，歷經無數征伐，內心卻在夜夜惡夢中尋求靈魂的安息。"}, {"id": "REG3_CIT_07", "name": "哥林多管會堂的基利司布", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：破除律法門第之見【信實良善】DC 10。｜講道：【信實良善】DC 10。｜成全（5祈禱）：《全家受洗》成全聖徒！該地點每輪晨更額外多產出 1 枚祈禱代幣！", "flavor_text": "管會堂的基利司布和全家都信了主，還有許多哥林多人聽了，就相信受洗。"}, {"id": "REG3_CIT_08", "name": "特羅亞少年猶推古", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：守候經歷 1 輪【醫治神蹟】。｜講道：【喜樂熱心】DC 8。｜成全（5祈禱）：《儆醒守望》成全聖徒！全體使徒在黃昏階段免疫一切突襲與偷竊！", "flavor_text": "困倦沉睡，就從三層樓上掉下去；扶起他來，已經死了。保羅使他活了過來。"}, {"id": "REG3_CIT_09", "name": "米利大島部族老酋長", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：【醫治神蹟】清除熱病痢疾。｜講道：【恩慈憐憫】DC 8。｜成全（5祈禱）：《海島款待》成全聖徒！每輪黃昏全隊免費獲贈 1 份新鮮物資！", "flavor_text": "部百流的父親患熱病和痢疾躺著。保羅進去，為他禱告，按手在他身上，治好了他。"}, {"id": "REG3_CIT_10", "name": "腓立比獲釋放的巫鬼使女", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：奉主名趕逐巫術附身【信實良善】DC 8。｜講道：【溫柔謙卑】DC 8。｜成全（5祈禱）：《靈眼明辨》成全聖徒！使徒抽地區牌時可預先查看牌堆頂 2 張並自選其一！", "flavor_text": "她跟隨保羅和我們，喊著說：「這些人是至高神的僕人，對你們傳說救人的道！」"}, {"id": "REG3_CIT_11", "name": "哥林多碼頭異邦縴夫", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：施予 1 糧食。｜講道：【恩慈憐憫】DC 8。｜成全（5祈禱）：《重軛輕省》成全聖徒！使徒攜帶重物或跨地點移動時免除額外行動點消耗！", "flavor_text": "兩肩磨爛、在烈日下拉動笨重貨船的苦工，渴望聽見使勞苦擔重擔者得安息的佳音。"}, {"id": "REG3_CIT_12", "name": "該撒利亞義大利營羅馬步兵", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：調解軍營酗酒毆鬥【和平忍耐】DC 8。｜講道：【信實良善】DC 8。｜成全（5祈禱）：《軍營護衛》成全聖徒！使徒在該地塊免疫任何暴民騷亂與偷襲！", "flavor_text": "持長矛維持秩序的羅馬衛兵，暗暗景仰使徒面對審判時從容不迫的尊嚴。"}, {"id": "REG3_CIT_13", "name": "以弗所推喇奴學房青年學者", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：資助羊皮抄卷【施予 1 奉獻物資】。｜講道：【信實良善】DC 8。｜成全（5祈禱）：《真理抄卷》成全聖徒！祈禱呼求大能神蹟所需信心代幣減免 1 枚！", "flavor_text": "日夜筆耕不輟，記錄使徒辯道的每一句真理，渴望將福音抄本送往小亞細亞全境。"}, {"id": "REG3_CIT_14", "name": "羅馬家庭教會秘密聚會者", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：施予 1 糧食。｜講道：【仁愛施予】DC 8。｜成全（5祈禱）：《地下守望》成全聖徒！當任一使徒虔誠跌破 5 點時，立即自動為其補充 2 點虔誠！", "flavor_text": "在帝國爪牙密布的幽暗中，他們在民宅深處打破餅、分著杯，等候主榮耀的降臨。"}, {"id": "REG3_CIT_15", "name": "雅典尊貴貴婦達瑪哩", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：解答心靈虛空【溫柔謙卑】DC 10。｜講道：【溫柔謙卑】DC 10。｜成全（5祈禱）：《上層開門》成全聖徒！引導上流階層歸主，本區大能者講道門檻全面 -2！", "flavor_text": "雖坐擁華冠美服，心靈卻在多神偶像的虛妄中枯竭，終在基督的真道裡尋得新生。"}, {"id": "REG3_CIT_16", "name": "逃奴阿尼西母", "type": "人民", "cost": "0", "vp": "1", "count": "1", "description": "需要：赦免接納並代寫求情信【恩慈憐憫】DC 10。｜講道：【仁愛施予】DC 8。｜成全（5祈禱）：《從前無益今有益》成全聖徒！每輪晨更投擲 1 骰，奇數提供 1 糧食，偶數提供 1 祈禱代幣！", "flavor_text": "他不再是奴僕，乃是高過奴僕，是親愛的弟兄。他在保羅捆鎖之中所生的屬靈兒子。"}, {"id": "REG3_PIL_01", "name": "賣紫色布的呂底亞", "type": "大能者", "cost": "0", "vp": "2", "count": "1", "description": "前置：城中已有 3 平民歸主；心門敞開【仁愛施予】DC 14。｜講道：【信實良善】DC 14。｜成全（15祈禱）：《敞開門戶之殿》每輪黃昏全隊獲得 2 糧食與 2 奉獻物資，且使徒在全區可免費調度物資！", "flavor_text": "她聽見了，主就開導她的心，叫她留心聽保羅所講的話。她和她一家既領了洗，便求我們說：「你們若以為我是真信主的，請到我家裡來住。」"}, {"id": "REG3_PIL_02", "name": "亞略巴古哲學官丟尼修", "type": "大能者", "cost": "0", "vp": "2", "count": "1", "description": "前置：城中已有 3 平民歸主；心門敞開【信實良善】DC 14。｜講道：【信實良善】DC 16。｜成全（15祈禱）：《未識之神辯道》全隊免疫第三區所有哲學試煉與異端思潮災禍，全場講道 DC 永久 -2！", "flavor_text": "雅典最高法庭審判官，希臘智慧的頂峰。當他降服於十字架的愚拙道理時，整個愛琴海的學界都為之震動！"}, {"id": "REG3_PIL_03", "name": "巡撫腓力斯與百夫長", "type": "大能者", "cost": "0", "vp": "2", "count": "1", "description": "前置：城中已有 4 平民歸主；心門敞開【和平忍耐】DC 14。｜講道：【節制克己】DC 16。｜成全（15祈禱）：《帝國上訴豁免》羅馬行省法權庇護！全隊免疫帝國拘捕懲罰，撤銷一切審判敕令災禍！", "flavor_text": "「這人若沒有向該撒上訴，就可以釋放了。」帝國的利劍在神的權柄面前俯首。"}, {"id": "REG3_PIL_04", "name": "該撒家信徒與禁衛軍", "type": "大能者", "cost": "0", "vp": "2", "count": "1", "description": "前置：城中已有 4 平民歸主；心門敞開【信實良善】DC 16。｜講道：【仁愛施予】DC 16。｜成全（15祈禱）：《福音直達地極》全隊虔誠上限永久提升至 22 點！晨更全體使徒各獲 1 代禱代幣，直接鎖定大使命終極大勝利！", "flavor_text": "「眾聖徒都問你們安。在該撒家裡的人，特特的問你們安。」福音穿透了暴君的深宮內院，基督的國度終必得勝！"}, {"id": "LOC_R3_PIL_01", "name": "腓立比河畔禱告處", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG3_PIL_01 賣紫色布的呂底亞", "effect_type": "大能據點", "description": "綁定大能者【賣紫色布的呂底亞】！常駐效果：歐洲福音初熟之地！在此處執行【親近靈修】虔誠恢復 +3（多 1 點）；若在此處講道檢定使用【溫柔謙卑】自帶 +2 加成！", "flavor_text": "當安息日，我們出城門，到了河邊，知道那裡有一個禱告的地方，我們就坐下對那聚會的婦女講道。"}, {"id": "LOC_R3_PIL_02", "name": "雅典亞略巴古哲學山丘", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG3_PIL_02 亞略巴古官丟尼修", "effect_type": "大能據點", "description": "綁定大能者【亞略巴古官丟尼修】！常駐效果：希臘智者辯道核心。在此處講道檢定強制使用【信實良善】；若在此處辯道檢定成功，全場聽眾歸主所需祈禱代幣永久 -1！", "flavor_text": "保羅站在亞略巴古當中，說：「眾位雅典人哪，我看你們凡事很敬畏鬼神。我遊行的時候，觀看你們所敬拜的，遇見一座壇，上面寫著『給未識之神』。」"}, {"id": "LOC_R3_PIL_03", "name": "該撒利亞巡撫官邸", "type": "地點", "deck_type": "大能者據點", "capacity": "2", "bound_pillar": "REG3_PIL_03 巡撫腓力斯與百夫長", "effect_type": "大能據點", "description": "綁定大能者【巡撫腓力斯與百夫長】！常駐效果：羅馬行省法權樞紐。身處此處的使徒免疫所有平民暴民私刑傷害；但黃昏結束需檢定【節制克己】DC 8，未過扣 1 虔誠（面對官場貪腐與拖延）。", "flavor_text": "巡撫讀了信，問保羅是哪一省的人，既知他是基利家的人，就說：「等告你的人來到，我要細聽你的事。」"}, {"id": "LOC_R3_PIL_04", "name": "羅馬租賃寓所囚房", "type": "地點", "deck_type": "大能者據點", "capacity": "3", "bound_pillar": "REG3_PIL_04 該撒家信徒與禁衛軍", "effect_type": "大能據點", "description": "綁定大能者【該撒家信徒與禁衛軍】！常駐效果：容量多達 3 人！使徒在此處移出需花 1 AP（帶鎖鏈監管）；但在此處傳道凡帶領 1 人歸主，立刻額外獲 1 枚祈禱代幣與 1 糧食！", "flavor_text": "保羅在自己所租的房子裡住了足足兩年。凡來見他的人，他全都接待，放膽傳講神國的道，並沒有人禁止。"}, {"id": "LOC_R3_FREE_01", "name": "以弗所大劇院廣場", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "異教狂瀾", "description": "無大能者。常駐效果：容量 3 人！萬人聚集騷亂之地，在此講道 DC +2；但若隊友中有人【和平忍耐】>= 7，可消耗 1 AP 平息騷亂，立即滿足該處所有百姓之需要！", "flavor_text": "眾人聽見，就怒氣填胸，喊著說：「大哉，以弗所人的亞底米啊！」滿城都轟動起來。"}, {"id": "LOC_R3_FREE_02", "name": "哥林多集市與織帳棚作坊", "type": "地點", "deck_type": "自由地點", "capacity": "3", "bound_pillar": "無", "effect_type": "商工核心", "description": "無大能者。常駐效果：容量 3 人！商業與工匠重鎮。在此處執行【親手做工（織帳棚）】無條件直接獲得 2 糧食（比常態多 1 份），或可選擇換為 2 奉獻物資！", "flavor_text": "他們本是製造帳棚為業。保羅因與他們同業，就和他們同住做工。每逢安息日，保羅在會堂裡辯論，勸化猶太人和希臘人。"}, {"id": "LOC_R3_FREE_03", "name": "以弗所推喇奴學房", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "門徒講堂", "description": "無大能者。常駐效果：天天辯論真道、裝備聖徒之聖所！在此處執行【成全聖徒】時，平民代幣費用減免 1 枚（僅需 4 枚）；每輪晨更身處此處的使徒自選一項靈果暫時 +1！", "flavor_text": "保羅便離開他們，也叫門徒與他們聚集，天天在推喇奴的學房辯論。這樣有兩年之久，叫一切住在亞細亞的都聽見主的道。"}, {"id": "LOC_R3_FREE_04", "name": "堅革哩愛琴海港口", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "跨海航道", "description": "無大能者。常駐效果：使徒跨海宣教樞紐。身處此處可消耗 1 糧食寄送書信，使先前建立的所有教會團契本輪支援效果翻倍！", "flavor_text": "我向你們推薦我們的姊妹非比，她是堅革哩教會的女執事。請你們在主裡接待她，合乎聖徒的體統。"}, {"id": "LOC_R3_FREE_05", "name": "羅馬地下墓窟秘密聖所", "type": "地點", "deck_type": "自由地點", "capacity": "2", "bound_pillar": "無", "effect_type": "地下庇護", "description": "無大能者。常駐效果：地下秘密集會點。身處此處的使徒完全免疫帝國持續災禍的任何黃昏扣除懲罰；但在此處無法執行【親手做工】。", "flavor_text": "他們住在地底幽暗的石窟之中，點著燭火擘餅祈禱，歌聲自地底升起，勝過地上一切帝王的威嚇。"}, {"﻿id": "DEP_01", "name": "罪孽的連鎖爆發", "type": "墮落", "cost": "0", "vp": "0", "count": "2", "description": "惡性循環：身上其他所有數值未滿 10 的罪惡軌，各自強制增加 2 點罪惡！", "flavor_text": "罪如滾雪球般失控，深淵與深淵響應。"}, {"﻿id": "DEP_02", "name": "骨頭枯乾的折磨", "type": "墮落", "cost": "0", "vp": "0", "count": "2", "description": "肉身重創：使徒遭受極大心靈與肉體煎熬，直接受到 4 點肉身 HP 傷害！", "flavor_text": "「我閉口不認罪的時候，因終日唉哼而骨頭枯乾。」"}, {"﻿id": "DEP_03", "name": "絆倒信徒的巨石", "type": "墮落", "cost": "0", "vp": "0", "count": "2", "description": "群體破壞：城中 2 名已歸主的平民因見使徒完全墮落而跌倒，退回未信受洗狀態！", "flavor_text": "「凡使這信我的一個小子跌倒的，倒不如把大磨石拴在頸項上。」"}, {"﻿id": "DEP_04", "name": "心靈剛硬如石", "type": "墮落", "cost": "0", "vp": "0", "count": "2", "description": "靈性麻木：本輪內該墮落使徒無法執行【祈禱】職分下的任何動作（無法自己認罪，需同伴代禱挽回）！", "flavor_text": "良心既然喪盡，就放誕行事，放縱情慾。"}, {"﻿id": "DEP_05", "name": "仇敵的肆意控告", "type": "墮落", "cost": "0", "vp": "0", "count": "2", "description": "全隊蒙羞：該使徒虔誠力直接暴跌 5 點，且全隊其他使徒各失去 1 枚【代禱代幣】！", "flavor_text": "控告我們弟兄的，在神面前晝夜控告他們。"}]};
+
+        let currentCards = [];
+
+        // 核心文字格式化引擎：字型加粗、各關鍵資訊點紅字/醒目標籤高亮
+        function formatCardEffect(text) {
+            if (!text) return '';
+
+            // 1. 持續災禍標籤
+            text = text.replace(/^(持續災禍：)/g, '<span class="tag-hazard">【持續災禍】</span> ');
+
+            // 2. 檢定與需求前綴
+            text = text.replace(/(複合檢定：)/g, '<span class="tag-check-hdr">複合檢定</span> ');
+            text = text.replace(/(檢定：)/g, '<span class="tag-check-hdr">檢定</span> ');
+            text = text.replace(/(需要：)/g, '<span class="tag-need-hdr">需要</span> ');
+            text = text.replace(/(講道：)/g, '<span class="tag-preach-hdr">講道</span> ');
+            text = text.replace(/(特質【.*?】：)/g, '<span class="tag-trait">$1</span>');
+
+            // 3. 分支判斷結果（雙過、成功、雙敗、失敗、過/敗組合）
+            text = text.replace(/｜(雙過|成功|全過|雙成|成)：/g, '<br><span class="tag-outcome-pass">✔ $1</span>：');
+            text = text.replace(/｜([^\s：:]*(?:過|成)[^\s：:]*(?:敗|未)[^\s：:]*|[^\s：:]*(?:敗|未)[^\s：:]*(?:過|成)[^\s：:]*)：/g, '<br><span class="tag-outcome-warn">▲ $1</span>：');
+            text = text.replace(/｜(雙敗|失敗|全敗|敗)：/g, '<br><span class="tag-outcome-fail">✘ $1</span>：');
+
+            // 4. 果子檢定名稱高亮
+            text = text.replace(/【(信實良善|信實|良善|和平忍耐|和平|忍耐|喜樂熱心|喜樂|熱心|仁愛施予|仁愛|恩慈憐憫|恩慈|溫柔謙卑|溫柔|節制克己|節制|色慾|傲慢|貪婪|暴怒|嫉妒|怠惰|暴食)】/g, '<span class="tag-fruit">【$1】</span>');
+            
+            // 5. DC 難度數值高亮
+            text = text.replace(/DC\s*([0-9]+)/g, '<span class="tag-dc">DC $1</span>');
+            text = text.replace(/DC\s*([+-][0-9]+)/g, '<span class="tag-dc-mod">DC $1</span>');
+
+            // 6. 🚨 罪惡增加（強烈紅字警示）
+            text = text.replace(/(罪惡值?(?:各)?\s*\+[0-9]+(?:點)?)/g, '<span class="tag-sin-gain">⚠ $1</span>');
+            text = text.replace(/(染上\s*[0-9]+\s*點罪惡)/g, '<span class="tag-sin-gain">⚠ $1</span>');
+            text = text.replace(/(完全墮落|立即完全墮落|陷入迷夢|陷入墮落)/g, '<span class="tag-sin-gain">☠ $1</span>');
+
+            // 7. 罪惡洗淨消除
+            text = text.replace(/((?:消除|洗淨)(?:自身)?\s*[0-9]+\s*點罪惡值?)/g, '<span class="tag-sin-clear">🕊 $1</span>');
+
+            // 8. 🩸 肉身傷害扣損（強烈紅字警示）
+            text = text.replace(/(HP\s*-[0-9]+)/g, '<span class="tag-damage">🩸 $1</span>');
+            text = text.replace(/((?:各?扣|失去)\s*[0-9]+\s*點?\s*HP)/g, '<span class="tag-damage">🩸 $1</span>');
+            text = text.replace(/(受到\s*[0-9]+\s*點?\s*HP\s*傷害)/g, '<span class="tag-damage">🩸 $1</span>');
+
+            // 9. 虔誠扣減（橙紅警示）
+            text = text.replace(/(虔誠\s*-[0-9]+)/g, '<span class="tag-piety-loss">🔻 $1</span>');
+            text = text.replace(/((?:全體|使徒)?失去\s*[0-9]+\s*點虔誠)/g, '<span class="tag-piety-loss">🔻 $1</span>');
+
+            // 10. ✨ 虔誠獲得與治癒（綠字祝福）
+            text = text.replace(/((?:全隊)?虔誠\s*\+[0-9]+)/g, '<span class="tag-piety-gain">✨ $1</span>');
+            text = text.replace(/(恢復\s*[0-9]+\s*(?:點\s*)?HP)/g, '<span class="tag-heal">💚 $1</span>');
+            text = text.replace(/(起始虔誠:\s*[0-9]+)/g, '<span class="tag-piety-init">$1</span>');
+
+            // 11. 受洗與歸主
+            text = text.replace(/(受洗為歸主者|直接歸主|引導歸主|成全聖徒)/g, '<span class="tag-baptism">💧 $1</span>');
+
+            // 12. 行動點損失
+            text = text.replace(/(行動點\s*(?:各)?\s*-[0-9]+)/g, '<span class="tag-ap-loss">⌛ $1</span>');
+
+            return text;
+        }
 
         function parseCSV(text) {
-            const lines = text.trim().split(/\r?\n/);
-            if (lines.length < 2) return [];
-            const headers = lines[0].split(',').map(h => h.trim());
+            const lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+            if (lines.length === 0) return [];
+            
+            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
             const data = [];
 
             for (let i = 1; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-                
+                const line = lines[i];
                 const row = [];
                 let inQuote = false;
                 let current = '';
@@ -419,6 +713,8 @@ SIN_03,曠野的抱怨,誘惑,0,0,2,怠惰與憤怒：隊伍原地停滯一輪�
 
                     let costLabel = card.capacity ? `容 ${card.capacity}` : (card.cost && card.cost !== '0' ? `虔誠 ${card.cost}` : (cardType === '角色' ? `信仰` : `即發`));
 
+                    const formattedEffect = formatCardEffect(card.description || '');
+
                     cardEl.innerHTML = `
                         <div class="card-header">
                             <div class="card-cost">${costLabel}</div>
@@ -429,7 +725,7 @@ SIN_03,曠野的抱怨,誘惑,0,0,2,怠惰與憤怒：隊伍原地停滯一輪�
                             [ ${card.name} 插圖區 ]
                         </div>
                         <div class="card-content-box">
-                            <div class="card-effect">${card.description || ''}</div>
+                            <div class="card-effect">${formattedEffect}</div>
                             ${card.flavor_text ? `<div class="card-flavor">${card.flavor_text}</div>` : ''}
                         </div>
                         <div class="card-footer">
@@ -442,12 +738,30 @@ SIN_03,曠野的抱怨,誘惑,0,0,2,怠惰與憤怒：隊伍原地停滯一輪�
             });
 
             document.getElementById('statsBar').innerText = 
-                `總種類: ${cards.length} 種 | 列印總張數: ${totalCopies} 張 (約 ${Math.ceil(totalCopies / 9)} 頁 A4)`;
+                `顯示: ${cards.length} 種 | 列印張數: ${totalCopies} 張 (約 ${Math.ceil(totalCopies / 9)} 頁 A4)`;
         }
 
-        function loadSampleCards() {
-            const cards = parseCSV(defaultCsv);
-            renderCards(cards);
+        function onDeckSelect(deckKey) {
+            document.getElementById('searchInput').value = '';
+            if (PRELOADED_DECKS[deckKey]) {
+                currentCards = PRELOADED_DECKS[deckKey];
+                renderCards(currentCards);
+            }
+        }
+
+        function onSearch(query) {
+            const q = query.trim().toLowerCase();
+            if (!q) {
+                renderCards(currentCards);
+                return;
+            }
+            const filtered = currentCards.filter(c => {
+                const name = (c.name || '').toLowerCase();
+                const desc = (c.description || '').toLowerCase();
+                const type = (c.type || c.deck_type || '').toLowerCase();
+                return name.includes(q) || desc.includes(q) || type.includes(q);
+            });
+            renderCards(filtered);
         }
 
         document.getElementById('csvFileInput').addEventListener('change', function(e) {
@@ -456,13 +770,16 @@ SIN_03,曠野的抱怨,誘惑,0,0,2,怠惰與憤怒：隊伍原地停滯一輪�
             const reader = new FileReader();
             reader.onload = function(evt) {
                 const text = evt.target.result;
-                const cards = parseCSV(text);
-                renderCards(cards);
+                currentCards = parseCSV(text);
+                renderCards(currentCards);
             };
-            reader.readAsText(file, 'UTF-8');
+            reader.readAsText(file, 'utf-8');
         });
 
-        loadSampleCards();
+        // 預設載入核心牌庫
+        window.addEventListener('DOMContentLoaded', () => {
+            onDeckSelect('core');
+        });
     </script>
 </body>
 </html>
